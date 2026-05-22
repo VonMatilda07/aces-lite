@@ -10,20 +10,18 @@ export default function WaiterCart() {
     const [isOpen, setIsOpen] = useState(false)
     const [isRelayMode, setIsRelayMode] = useState(false)
 
-    // Kalkulasi Total
+    // Hitung total item dan total harga belanja
     const totalItems = cart.reduce((acc, item) => acc + item.qty, 0)
     const totalPrice = cart.reduce((acc, item) => acc + (item.menu.price * item.qty), 0)
 
-    // Auto-Sorting Engine (Filter berdasarkan kategori)
+    // Kelompokkan item berdasarkan stasiun saji (Bar vs Kitchen)
     const barItems = useMemo(() => cart.filter(item => ['Coffee', 'Non-Coffee'].includes(item.menu.category)), [cart])
     const kitchenItems = useMemo(() => cart.filter(item => ['Food', 'Snack'].includes(item.menu.category)), [cart])
 
-    // Jangan render jika keranjang kosong
+    // Sembunyikan keranjang jika kosong dan tidak sedang dalam mode relay
     if (cart.length === 0 && !isRelayMode) return null
 
-    // ----------------------------------------------------------------
-    // UI 1: RELAY MODE (Tampilan layar terbelah saat membacakan ke kasir)
-    // ----------------------------------------------------------------
+    // Mode Relay: Tampilan pembacaan pesanan ke kasir/bar/dapur
     if (isRelayMode) {
         return (
             <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col max-w-md mx-auto animate-in slide-in-from-bottom">
@@ -83,13 +81,11 @@ export default function WaiterCart() {
         )
     }
 
-    // ----------------------------------------------------------------
-    // UI 2: CART MODE (Tampilan floating saat mencatat pesanan)
-    // ----------------------------------------------------------------
+    // Mode Cart: Tampilan melayang (floating panel) pencatatan pesanan
     return (
         <div className={`fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-200 shadow-[0_-20px_40px_rgba(0,0,0,0.1)] transition-all duration-300 z-40 flex flex-col ${isOpen ? 'h-[85vh]' : 'h-24'}`}>
 
-            {/* Header Cart (Bisa diklik untuk expand/collapse) */}
+            {/* Header keranjang belanja (bisa di-toggle) */}
             <div className="flex justify-between items-center p-5 cursor-pointer bg-slate-900 text-white rounded-t-2xl" onClick={() => setIsOpen(!isOpen)}>
                 <div>
                     <p className="font-bold text-slate-300 text-sm">{totalItems} Item Tercatat</p>
@@ -100,7 +96,7 @@ export default function WaiterCart() {
                 </div>
             </div>
 
-            {/* Detail Keranjang (Terlihat saat expanded) */}
+            {/* Panel detail keranjang (jika dibuka) */}
             {isOpen && (
                 <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-5">
                     <input

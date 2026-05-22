@@ -2,7 +2,7 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabase'
 
-// --- 1. DEFINISI TIPE DATA ---
+// Tipe data untuk Menu, CartItem, dan State Store
 export type MenuStatus = 'available' | 'low_stock' | 'sold_out'
 export type NutriGrade = 'A' | 'B' | 'C' | 'D' | 'E'
 
@@ -22,14 +22,12 @@ export interface CartItem {
 }
 
 interface MenuStore {
-    // Menu States
     menus: Menu[]
     isLoading: boolean
     fetchMenus: () => Promise<void>
     updateMenuStatus: (id: string, newStatus: MenuStatus) => Promise<void>
     subscribeToRealtime: () => () => void
 
-    // Smart Order Note (Cart) States
     cart: CartItem[]
     tableIdentifier: string
     setTableIdentifier: (table: string) => void
@@ -39,7 +37,7 @@ interface MenuStore {
     clearCart: () => void
 }
 
-// --- 2. ZUSTAND STORE IMPLEMENTATION ---
+// Implementasi Zustand Store untuk ACES Lite
 export const useMenuStore = create<MenuStore>((set, get) => ({
     menus: [],
     isLoading: true,
@@ -48,7 +46,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
 
     setTableIdentifier: (table) => set({ tableIdentifier: table }),
 
-    // A. Fetch Semua Menu Saat Aplikasi Pertama Dimuat
+    // Fetch semua menu dari database Supabase
     fetchMenus: async () => {
         set({ isLoading: true })
         const { data, error } = await supabase
@@ -64,29 +62,26 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
         }
     },
 
-    // B. 1-Tap Stock Engine (Optimistic UI Update)
+    // 1-Tap Stock Engine: Update status menu secara optimistic (instan) dengan rollback jika gagal
     updateMenuStatus: async (id, newStatus) => {
         const previousMenus = get().menus
 
-        // Update local state instan tanpa menunggu database (<10ms)
         set((state) => ({
             menus: state.menus.map((m) => m.id === id ? { ...m, status: newStatus } : m)
         }))
 
-        // Kirim mutasi data ke Supabase di background
         const { error } = await supabase
             .from('menus')
             .update({ status: newStatus })
             .eq('id', id)
 
-        // Rollback jika jaringan bermasalah
         if (error) {
             console.error('Rollback triggered:', error)
             set({ menus: previousMenus })
         }
     },
 
-    // C. WebSocket Realtime Listener (Untuk Sinkronisasi Layar Pelanggan)
+    // Mendengarkan perubahan data menu secara realtime dari Supabase
     subscribeToRealtime: () => {
         const channel = supabase
             .channel('public:menus')
@@ -107,18 +102,16 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
         }
     },
 
-    // D. Smart Order Note Logic (Cart Management)
+    // Manajemen item keranjang belanja (cart)
     addToCart: (menu) => {
         const currentCart = get().cart
         const existingIndex = currentCart.findIndex((item) => item.menu.id === menu.id)
 
         if (existingIndex > -1) {
-            // Jika item sudah ada di keranjang, tambahkan quantity
             const updatedCart = [...currentCart]
             updatedCart[existingIndex].qty += 1
             set({ cart: updatedCart })
         } else {
-            // Jika item baru, masukkan ke keranjang
             set({ cart: [...currentCart, { menu, qty: 1, notes: '' }] })
         }
     },

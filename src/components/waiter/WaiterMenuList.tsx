@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 export default function WaiterMenuList() {
     const { menus, updateMenuStatus, addToCart } = useMenuStore()
 
-    // Logika pewarnaan tombol berdasarkan status aktif saat ini
+    // Styling dinamis tombol berdasarkan status menu saat ini
     const getBtnStyle = (currentStatus: MenuStatus, targetStatus: MenuStatus) => {
         const isActive = currentStatus === targetStatus
         const baseStyle = "flex-1 py-3 text-xs font-black rounded-xl border uppercase tracking-wider transition-all duration-200 active:scale-95"
@@ -26,7 +26,7 @@ export default function WaiterMenuList() {
             {menus.map((item) => (
                 <div key={item.id} className="bg-white p-4 border border-slate-200 rounded-2xl shadow-sm flex flex-col gap-4">
 
-                    {/* Informasi Menu & Tombol Tambah ke Catatan */}
+                    {/* Detail Menu & Aksi */}
                     <div className="flex justify-between items-start">
                         <div>
                             <div className="flex items-center gap-2">
@@ -40,7 +40,7 @@ export default function WaiterMenuList() {
                             </p>
                         </div>
 
-                        {/* Tombol Catat Pesanan (Simulasi untuk fitur Smart Note) */}
+                        {/* Tambah ke keranjang belanja pramusaji */}
                         <button
                             onClick={() => addToCart(item)}
                             className="bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-xl active:scale-95 transition-transform"
@@ -49,7 +49,7 @@ export default function WaiterMenuList() {
                         </button>
                     </div>
 
-                    {/* Kontrol Utama 1-Tap Stock Engine */}
+                    {/* Kontrol 1-Tap Stock Engine untuk Supabase */}
                     <div className="flex gap-2 border-t border-slate-100 pt-3">
                         <button
                             onClick={() => updateMenuStatus(item.id, 'available')}

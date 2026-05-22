@@ -9,19 +9,15 @@ export default function CustomerQRView() {
   const { fetchMenus, subscribeToRealtime } = useMenuStore()
 
   useEffect(() => {
-    // 1. Ambil data awal dari database
+    // Inisialisasi data menu dan aktifkan koneksi realtime
     fetchMenus()
-
-    // 2. Aktifkan koneksi Realtime (WebSocket)
     const unsubscribe = subscribeToRealtime()
-
-    // 3. Cleanup saat tab browser ditutup
     return () => unsubscribe()
   }, [fetchMenus, subscribeToRealtime])
 
   return (
     <main className="min-h-screen bg-slate-50 max-w-md mx-auto border-x border-slate-200">
-      {/* Header Sticky sesuai Branding */}
+      {/* Header Utama */}
       <header className="sticky top-0 bg-white/80 backdrop-blur-md z-10 p-5 border-b border-slate-100">
         <div className="flex flex-col items-center text-center">
           <p className="text-[10px] font-black text-slate-400 tracking-[0.2em] uppercase">ACES Lite</p>
@@ -29,12 +25,12 @@ export default function CustomerQRView() {
         </div>
       </header>
 
-      {/* List Menu Section */}
+      {/* Section List Menu */}
       <section className="py-2">
         <MenuList />
       </section>
 
-      {/* Footer Minimalist */}
+      {/* Footer Minimalis */}
       <footer className="p-8 text-center">
         <p className="text-[10px] text-slate-400 font-medium italic">
           Data tersinkronisasi secara real-time dengan bar.

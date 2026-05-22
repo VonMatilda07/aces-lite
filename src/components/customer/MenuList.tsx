@@ -3,21 +3,20 @@
 
 import { useMenuStore } from '@/store/useMenuStore'
 import { useMemo } from 'react'
-import { Badge } from '@/components/ui/badge' // Pastikan sudah install badge via shadcn
+import { Badge } from '@/components/ui/badge'
 import { Leaf, Info } from 'lucide-react'
 
 export default function MenuList() {
     const { menus, isLoading } = useMenuStore()
 
-    // --- LOGIKA DYNAMIC SORTING ---
-    // Memisahkan item tersedia dan habis, lalu menggabungkannya
+    // Urutkan menu: item tersedia ditampilkan di atas, item sold_out di bawah
     const sortedMenus = useMemo(() => {
         const available = menus.filter((m) => m.status !== 'sold_out')
         const soldOut = menus.filter((m) => m.status === 'sold_out')
         return [...available, ...soldOut]
     }, [menus])
 
-    // Helper Warna Nutri-Grade
+    // Mendapatkan warna background badge berdasarkan skor Nutri-Grade
     const getGradeColor = (grade: string) => {
         const map: Record<string, string> = {
             A: 'bg-emerald-600', B: 'bg-green-500', C: 'bg-yellow-500 text-black',

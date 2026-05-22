@@ -11,14 +11,13 @@ export default function WaiterDashboard() {
 
     useEffect(() => {
         fetchMenus()
-        // Tetap mendengarkan realtime agar jika ada pramusaji lain yang ubah stok, layar pramusaji ini ikut terupdate
         const unsubscribe = subscribeToRealtime()
         return () => unsubscribe()
     }, [fetchMenus, subscribeToRealtime])
 
     return (
         <main className="min-h-screen bg-slate-50 max-w-md mx-auto border-x border-slate-200">
-            {/* Header Khusus Waiter dengan skema warna gelap untuk penanda internal */}
+            {/* Header Dashboard Internal Pramusaji */}
             <header className="sticky top-0 bg-slate-900 text-white z-10 p-5 border-b border-slate-800 shadow-md">
                 <div className="flex justify-between items-center">
                     <div>
@@ -32,7 +31,7 @@ export default function WaiterDashboard() {
                 </div>
             </header>
 
-            {/* List Kontrol Stok */}
+            {/* Kontrol Stok Menu */}
             <section className="py-2">
                 <WaiterMenuList />
             </section>
