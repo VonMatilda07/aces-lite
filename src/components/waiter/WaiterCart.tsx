@@ -6,7 +6,7 @@ import { useMenuStore } from '@/store/useMenuStore'
 import { Trash2, Send, CheckCircle2, X } from 'lucide-react'
 
 export default function WaiterCart() {
-    const { cart, removeFromCart, updateCartItemNotes, clearCart, tableIdentifier, setTableIdentifier } = useMenuStore()
+    const { cart, removeFromCart, updateCartItemNotes, clearCart, tableIdentifier, setTableIdentifier, finalizeOrder } = useMenuStore()
     const [isOpen, setIsOpen] = useState(false)
     const [isRelayMode, setIsRelayMode] = useState(false)
 
@@ -68,13 +68,19 @@ export default function WaiterCart() {
                     )}
                 </div>
 
-                {/* Action Button: Selesai & Hapus Keranjang */}
-                <div className="p-4 bg-slate-900 border-t border-slate-800">
+                {/* Action Buttons: Selesai & Kembali/Edit */}
+                <div className="p-4 bg-slate-900 border-t border-slate-800 flex flex-col gap-2">
                     <button
-                        onClick={() => { clearCart(); setIsRelayMode(false); setIsOpen(false) }}
+                        onClick={() => { finalizeOrder(); setIsRelayMode(false); setIsOpen(false) }}
                         className="w-full bg-emerald-500 text-white font-black uppercase tracking-wider py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform"
                     >
-                        <CheckCircle2 size={24} /> Selesai & Bersihkan
+                        <CheckCircle2 size={24} /> Selesai & Kurangkan Stok
+                    </button>
+                    <button
+                        onClick={() => setIsRelayMode(false)}
+                        className="w-full bg-slate-800 text-slate-300 font-bold uppercase tracking-wider py-3 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform"
+                    >
+                        Kembali & Edit Pesanan
                     </button>
                 </div>
             </div>
@@ -106,6 +112,16 @@ export default function WaiterCart() {
                         onChange={(e) => setTableIdentifier(e.target.value)}
                         className="w-full border-2 border-slate-200 rounded-xl p-4 font-black text-lg focus:border-slate-900 outline-none uppercase placeholder:normal-case placeholder:font-medium placeholder:text-slate-400"
                     />
+
+                    <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                        <span className="text-sm font-bold text-slate-500">Daftar Item</span>
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 active:scale-95 transition-transform"
+                        >
+                            ← Kembali ke Menu
+                        </button>
+                    </div>
 
                     <div className="flex flex-col gap-3">
                         {cart.map((item) => (

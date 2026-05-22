@@ -58,7 +58,7 @@ export default function MenuList() {
                                 </p>
                                 {isLowStock && (
                                     <span className="text-[10px] font-bold text-orange-500 uppercase tracking-tighter">
-                                        Stok Menipis
+                                        {item.stock !== undefined && item.stock !== null ? `Sisa ${item.stock} Porsi` : 'Stok Menipis'}
                                     </span>
                                 )}
                             </div>

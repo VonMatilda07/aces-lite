@@ -13,6 +13,7 @@ export interface Menu {
     price: number
     status: MenuStatus
     nutri_grade: NutriGrade
+    stock?: number | null
 }
 
 export interface CartItem {
@@ -25,7 +26,7 @@ interface MenuStore {
     menus: Menu[]
     isLoading: boolean
     fetchMenus: () => Promise<void>
-    updateMenuStatus: (id: string, newStatus: MenuStatus) => Promise<void>
+    updateMenuStatus: (id: string, newStatus: MenuStatus, stock?: number | null) => Promise<void>
     subscribeToRealtime: () => () => void
 
     cart: CartItem[]
@@ -35,6 +36,7 @@ interface MenuStore {
     removeFromCart: (menuId: string) => void
     updateCartItemNotes: (menuId: string, notes: string) => void
     clearCart: () => void
+    finalizeOrder: () => Promise<void>
 }
 
 // Implementasi Zustand Store untuk ACES Lite
@@ -63,16 +65,32 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     },
 
     // 1-Tap Stock Engine: Update status menu secara optimistic (instan) dengan rollback jika gagal
-    updateMenuStatus: async (id, newStatus) => {
+    updateMenuStatus: async (id, newStatus, stock = null) => {
         const previousMenus = get().menus
 
+        let targetStatus = newStatus
+        let targetStock = stock
+
+        if (targetStatus === 'low_stock') {
+            if (targetStock === undefined || targetStock === null) {
+                targetStock = 3
+            } else if (targetStock <= 0) {
+                targetStatus = 'sold_out'
+                targetStock = 0
+            }
+        } else if (targetStatus === 'sold_out') {
+            targetStock = 0
+        } else {
+            targetStock = null
+        }
+
         set((state) => ({
-            menus: state.menus.map((m) => m.id === id ? { ...m, status: newStatus } : m)
+            menus: state.menus.map((m) => m.id === id ? { ...m, status: targetStatus, stock: targetStock } : m)
         }))
 
         const { error } = await supabase
             .from('menus')
-            .update({ status: newStatus })
+            .update({ status: targetStatus, stock: targetStock })
             .eq('id', id)
 
         if (error) {
@@ -91,7 +109,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
                 (payload) => {
                     const updatedMenu = payload.new as Menu
                     set((state) => ({
-                        menus: state.menus.map((m) => m.id === updatedMenu.id ? { ...m, status: updatedMenu.status } : m)
+                        menus: state.menus.map((m) => m.id === updatedMenu.id ? { ...m, status: updatedMenu.status, stock: updatedMenu.stock } : m)
                     }))
                 }
             )
@@ -128,5 +146,47 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
         }))
     },
 
-    clearCart: () => set({ cart: [], tableIdentifier: '' })
+    clearCart: () => set({ cart: [], tableIdentifier: '' }),
+
+    // Finalisasi pesanan: Kurangi stok menu secara optimistic di lokal dan sync ke Supabase
+    finalizeOrder: async () => {
+        const { cart, menus } = get()
+        const previousMenus = menus
+
+        // 1. Hitung stok baru di lokal secara optimistic
+        const updatedMenus = menus.map((menu) => {
+            const cartItem = cart.find((item) => item.menu.id === menu.id)
+            if (cartItem && menu.stock !== null && menu.stock !== undefined) {
+                const newStock = Math.max(0, menu.stock - cartItem.qty)
+                return {
+                    ...menu,
+                    stock: newStock,
+                    status: newStock === 0 ? 'sold_out' as const : menu.status
+                }
+            }
+            return menu
+        })
+
+        set({ menus: updatedMenus, cart: [], tableIdentifier: '' })
+
+        // 2. Kirim update stok ke Supabase untuk setiap item yang berkurang
+        for (const item of cart) {
+            const currentMenu = menus.find((m) => m.id === item.menu.id)
+            if (currentMenu && currentMenu.stock !== null && currentMenu.stock !== undefined) {
+                const newStock = Math.max(0, currentMenu.stock - item.qty)
+                const newStatus = newStock === 0 ? 'sold_out' : currentMenu.status
+
+                const { error } = await supabase
+                    .from('menus')
+                    .update({ stock: newStock, status: newStatus })
+                    .eq('id', item.menu.id)
+
+                if (error) {
+                    console.error(`Gagal mengurangi stok untuk ${item.menu.name}:`, error)
+                    set({ menus: previousMenus })
+                    break
+                }
+            }
+        }
+    }
 }))

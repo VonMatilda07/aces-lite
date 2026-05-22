@@ -1,13 +1,13 @@
 # MenuList Component Documentation
 
-`MenuList` adalah komponen Client-side React yang berfungsi untuk menampilkan daftar menu kopi dan makanan ke pelanggan. Komponen ini menampilkan informasi harga, tingkat Nutri-Grade, status ketersediaan secara real-time, serta memberikan rekomendasi alternatif jika menu habis.
+`MenuList` adalah komponen Client-side React yang berfungsi untuk menampilkan daftar menu kopi dan makanan ke pelanggan. Komponen ini menampilkan informasi harga, tingkat Nutri-Grade, status ketersediaan secara real-time (termasuk jumlah porsi tersisa saat stok menipis), serta memberikan rekomendasi alternatif jika menu habis.
 
 ---
 
 ## 1. Tujuan Utama
 
 - **Customer Facing Menu**: Menyajikan antarmuka visual daftar menu yang rapi, responsif, dan mudah dibaca oleh pelanggan melalui pemindaian QR Code di meja.
-- **Real-time Status Visualization**: Menunjukkan status menu apakah masih tersedia, menipis (`low_stock`), atau habis (`sold_out`) secara instan berkat sinkronisasi dengan store global.
+- **Real-time Status & Stock Visualization**: Menunjukkan status menu apakah masih tersedia, menipis (`low_stock`), atau habis (`sold_out`) secara instan, lengkap dengan sisa kuantitas porsi/gelas yang dinamis berdasarkan update dari tim barista/dapur atau transaksi selesai.
 - **Nutri-Grade & Healthy Recommendation**: Membantu pelanggan mengidentifikasi tingkat kesehatan minuman/makanan dengan standar label Nutri-Grade (A-E) dan menyarankan opsi sehat alternatif jika menu utama sedang kosong.
 
 ---
@@ -50,7 +50,7 @@ Komponen ini merupakan komponen self-contained (tidak menerima *props* eksternal
 - **Loading State**: Jika `isLoading` bernilai `true`, komponen merender animasi denyut (*pulse animation*) "Sinkronisasi menu coffeecomunitas...".
 - **Menu Card**:
   - Menu Tersedia: Merender nama, badge Nutri-Grade, harga terformat (Rupiah), serta ikon daun hijau (`Leaf`) untuk kesan segar/organik.
-  - Menu Low Stock: Menambahkan teks badge oranye kecil bertuliskan `"STOK MENIPIS"`.
+  - Menu Low Stock: Menambahkan teks badge oranye kecil bertuliskan `"Sisa {stock} Porsi"` (jika properti `stock` terdefinisi) atau `"Stok Menipis"` (jika `stock` bernilai null).
   - Menu Sold Out: Merender card dengan opacity 50%, grayscale, harga dicoret, badge destructive `"HABIS"`, serta tombol interaktif `"Alternatif?"`.
 
 ---
@@ -59,5 +59,5 @@ Komponen ini merupakan komponen self-contained (tidak menerima *props* eksternal
 
 1.  **Menu Habis Tetapi Terlanjur Diklik**:
     Untuk menjaga alur pemesanan mandiri tetap terarah, ketika pelanggan mengeklik tombol `"Alternatif?"` pada menu yang habis, aplikasi akan menampilkan alert interaktif yang menyarankan pelanggan untuk memilih menu alternatif dengan Nutri-Grade serupa.
-2.  **Perubahan Status Stok yang Tiba-Tiba**:
-    Jika pramusaji mengubah status menu dari "Tersedia" menjadi "Habis", transisi visual pada Card Pelanggan diatur menggunakan CSS transition (`transition-all duration-500`). Komponen akan bergeser secara halus ke baris bawah karena urutan dynamic sorting langsung dipicu ulang oleh re-evaluasi `useMemo`.
+2.  **Perubahan Status & Sisa Stok yang Tiba-Tiba**:
+    Jika pramusaji mengubah status menu dari "Tersedia" menjadi "Habis", atau mengubah kuantitas sisa stok, transisi visual pada Card Pelanggan diatur menggunakan CSS transition (`transition-all duration-500`). Komponen akan memperbarui jumlah sisa porsi secara realtime atau bergeser secara halus ke baris bawah karena urutan dynamic sorting langsung dipicu ulang oleh re-evaluasi `useMemo` saat data state dari WebSocket diterima.

@@ -71,6 +71,28 @@ export default function WaiterMenuList() {
                         </button>
                     </div>
 
+                    {/* Kontrol Kuantitas Stok Menipis */}
+                    {item.status === 'low_stock' && (
+                        <div className="flex items-center justify-between mt-1 bg-amber-50 p-2.5 rounded-xl border border-amber-100 text-slate-800 animate-in fade-in duration-200">
+                            <span className="text-xs font-bold text-amber-800">Sisa Porsi (Stok):</span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => updateMenuStatus(item.id, 'low_stock', Math.max(0, (item.stock ?? 3) - 1))}
+                                    className="w-7 h-7 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded-lg flex items-center justify-center font-black text-sm transition-colors active:scale-90"
+                                >
+                                    -
+                                </button>
+                                <span className="font-bold text-sm w-6 text-center text-amber-950">{item.stock ?? 3}</span>
+                                <button
+                                    onClick={() => updateMenuStatus(item.id, 'low_stock', (item.stock ?? 3) + 1)}
+                                    className="w-7 h-7 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded-lg flex items-center justify-center font-black text-sm transition-colors active:scale-90"
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                 </div>
             ))}
         </div>
