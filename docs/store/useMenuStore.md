@@ -1,4 +1,4 @@
-# useMenuStore Documentation
+# UseMenuStore Documentation
 
 `useMenuStore` adalah Zustand store utama yang mengelola seluruh state menu makanan/minuman dan sistem pencatatan pesanan (keranjang belanja) pada aplikasi ACES Lite. Store ini mengintegrasikan pembaruan UI secara optimistic untuk performa instan dan sinkronisasi real-time via Supabase WebSocket.
 
@@ -41,6 +41,7 @@ export interface Menu {
     status: MenuStatus
     nutri_grade: NutriGrade
     stock?: number | null // Jumlah porsi tersisa jika status 'low_stock'
+    is_featured?: boolean // Menandakan apakah menu unggulan hari ini
 }
 ```
 

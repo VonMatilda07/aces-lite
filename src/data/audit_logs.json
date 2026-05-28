@@ -1,0 +1,1298 @@
+[
+  {
+    "id": "57bf0750-8afe-4c52-b811-aa42c305b830",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menambahkan menu baru \"KOPI SUSU C/C\" (Kategori: Coffee, Harga: Rp 4.000)",
+    "waktu": "21.21.36",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779974496217
+  },
+  {
+    "id": "7ad58a8b-1abe-4aed-8037-9d30f1caecb1",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Melakukan RESET MASSAL: Menghapus semua menu dari database",
+    "waktu": "21.20.13",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779974413846
+  },
+  {
+    "id": "0e170f6f-6b1c-4660-9adf-fdf5733eed8e",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Cireng Goreng Crispy\" menjadi \"Tersedia\"",
+    "waktu": "21.12.12",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779973932771
+  },
+  {
+    "id": "422e41bc-0da4-4457-bf98-ca32233ece82",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Cireng Goreng Crispy\" menjadi \"Habis\" (Stok: 0)",
+    "waktu": "21.08.25",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779973705734
+  },
+  {
+    "id": "b8978007-4c47-47da-b5bb-a3d75e30856a",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status rekomendasi menu \"PAKET KAMIS PAGI\" menjadi NON-AKTIF",
+    "waktu": "21.05.21",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779973521237
+  },
+  {
+    "id": "e36d24c2-b759-46e7-bdcf-83eaf3eb80f8",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status rekomendasi menu \"PAKET KAMIS PAGI\" menjadi AKTIF",
+    "waktu": "21.05.10",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779973510669
+  },
+  {
+    "id": "ac77b993-4264-42cf-9f1c-4f425f1fd5df",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menambahkan menu baru \"PAKET KAMIS PAGI\" (Kategori: Coffee, Harga: Rp 15.000)",
+    "waktu": "21.05.05",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779973505787
+  },
+  {
+    "id": "d844acec-27fd-4161-8cc2-a57d61bc36c5",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"PAKET KAMIS DINNER\" (Kategori: Paket, Harga: Rp 15.000)",
+    "waktu": "21.04.09",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779973449075
+  },
+  {
+    "id": "0cc863cc-501b-4e49-9d27-0333f86d810e",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menambahkan menu baru \"PAKET SENIN \" (Kategori: Coffee, Harga: Rp 15.000)",
+    "waktu": "21.03.40",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779973420057
+  },
+  {
+    "id": "ee6aa0fb-be56-46cf-965f-06a4abab1c52",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status rekomendasi menu \"PAKET KAMIS DINNER\" menjadi AKTIF",
+    "waktu": "20.26.03",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779971163442
+  },
+  {
+    "id": "79dd4060-c439-4204-a6c8-268fa816c195",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status rekomendasi menu \"PAKET KAMIS DINNER\" menjadi NON-AKTIF",
+    "waktu": "20.26.03",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779971163286
+  },
+  {
+    "id": "d9f9d440-4cdd-4b63-a9ab-d91bf2aee4be",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status rekomendasi menu \"PAKET KAMIS DINNER\" menjadi AKTIF",
+    "waktu": "20.26.02",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779971162845
+  },
+  {
+    "id": "fd21afa4-1948-4877-9019-bf78f76daac2",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status rekomendasi menu \"PAKET KAMIS DINNER\" menjadi NON-AKTIF",
+    "waktu": "20.26.02",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779971162762
+  },
+  {
+    "id": "5848b170-e97a-4d3b-99ec-776f25994038",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"PAKET KAMIS DINNER\" (Kategori: Paket, Harga: Rp 15.000)",
+    "waktu": "20.24.35",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779971075265
+  },
+  {
+    "id": "b2d79e23-c401-4ac4-bb04-3165192f0e8b",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status rekomendasi menu \"PAKET KAMIS DINNER\" menjadi AKTIF",
+    "waktu": "20.24.02",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779971042534
+  },
+  {
+    "id": "47e62474-5072-427d-baaa-4c7468874190",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"PAKET KAMIS DINNER\" (Kategori: Paket, Harga: Rp 15.000)",
+    "waktu": "20.24.00",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779971040748
+  },
+  {
+    "id": "045b4585-d6c6-46bd-8f17-a8b84d9f72cf",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Menipis\" (Stok: 1)",
+    "waktu": "20.23.13",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970993496
+  },
+  {
+    "id": "d8b31ac5-7001-4a67-864a-3e0cebee4d14",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Menipis\" (Stok: 1)",
+    "waktu": "20.23.08",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970988127
+  },
+  {
+    "id": "19ac939a-0f54-4e29-9860-f74318dad44f",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Menipis\" (Stok: 1)",
+    "waktu": "20.23.07",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970987690
+  },
+  {
+    "id": "9a87bff7-7d1b-4cad-8ca2-1e3b458eac5c",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Menipis\" (Stok: 1)",
+    "waktu": "20.23.07",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970987564
+  },
+  {
+    "id": "ee824246-4243-42c3-b3a3-0d072c5dba74",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Habis\" (Stok: 0)",
+    "waktu": "20.23.06",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970986916
+  },
+  {
+    "id": "5bd1cef0-ec83-487c-8d20-0e7def7d9696",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Menipis\" (Stok: 1)",
+    "waktu": "20.23.02",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970982443
+  },
+  {
+    "id": "8363aa26-7bf8-40d1-8537-5216ffd726ad",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Menipis\" (Stok: 1)",
+    "waktu": "20.23.02",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970982353
+  },
+  {
+    "id": "a79bbb93-f7b9-4807-bb5f-3d358837d837",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Menipis\" (Stok: 1)",
+    "waktu": "20.23.02",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970982139
+  },
+  {
+    "id": "7e004081-141b-4da6-8bad-0e9c9bf6f02f",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Menipis\" (Stok: 1)",
+    "waktu": "20.23.02",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970982015
+  },
+  {
+    "id": "5ba7dc96-7c88-4d9c-bc19-464ceb1e55be",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Menipis\" (Stok: 1)",
+    "waktu": "20.23.01",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970981961
+  },
+  {
+    "id": "71873e02-3ac5-42e5-8e23-ef1505dcfdc0",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Menipis\" (Stok: 1)",
+    "waktu": "20.23.01",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970981827
+  },
+  {
+    "id": "1ad03fd7-7918-4813-9827-9f2eb5eb830c",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Habis\" (Stok: 0)",
+    "waktu": "20.22.57",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970977490
+  },
+  {
+    "id": "a2a948d2-a781-457c-97bb-68daa9e03b4a",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Tersedia\"",
+    "waktu": "20.22.56",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970976843
+  },
+  {
+    "id": "1704ae86-9ed2-4d64-813b-dff55168f3b4",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Tersedia\"",
+    "waktu": "20.22.56",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970976727
+  },
+  {
+    "id": "a591653f-5cc2-4b6f-bc77-06ea355e4a4b",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Tersedia\"",
+    "waktu": "20.22.56",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970976431
+  },
+  {
+    "id": "5138590f-e4f6-489d-956a-a76bda3d9914",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Mie Ayam Pangsit\" menjadi \"Tersedia\"",
+    "waktu": "20.22.54",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970974965
+  },
+  {
+    "id": "5b97930c-92f2-4d50-9b2b-6b2002170ebd",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"V60 Flores Bajawa\" menjadi \"Tersedia\"",
+    "waktu": "20.22.53",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970973654
+  },
+  {
+    "id": "c3277906-7b0c-44ed-af4f-aae8d90509c6",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Kopi Susu Comunitas\" menjadi \"Tersedia\"",
+    "waktu": "20.22.52",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970972067
+  },
+  {
+    "id": "42ae6983-6d5c-45a2-9727-ec7dd473e89a",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Menipis\" (Stok: 1)",
+    "waktu": "20.22.43",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970963439
+  },
+  {
+    "id": "653a12f4-dcf5-4ede-890a-a3b33c000457",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status rekomendasi menu \"PAKET KAMIS DINNER\" menjadi NON-AKTIF",
+    "waktu": "20.22.42",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970962342
+  },
+  {
+    "id": "8385b0bd-f6e5-4469-8fb6-3200586405cd",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status rekomendasi menu \"PAKET KAMIS DINNER\" menjadi AKTIF",
+    "waktu": "20.22.41",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970961646
+  },
+  {
+    "id": "edb4a95a-23a3-40b8-8a6f-3be647d31cff",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Tersedia\"",
+    "waktu": "20.22.40",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970960575
+  },
+  {
+    "id": "cade2fe7-f551-43e3-901c-dba20a49a1bd",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"PAKET KAMIS DINNER\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "20.22.40",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970960200
+  },
+  {
+    "id": "6f61a27e-8252-4a39-8001-f6c17690e57f",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"PAKET KAMIS DINNER\" (Kategori: Paket, Harga: Rp 15.000)",
+    "waktu": "20.22.24",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970944627
+  },
+  {
+    "id": "54c5abb5-4163-48c8-82be-63e8f5b13818",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"Nasi Goreng Telur\" (Kategori: Food, Harga: Rp 20.000)",
+    "waktu": "20.22.12",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970932772
+  },
+  {
+    "id": "211bb1d2-50ec-47c0-a232-29f6b30bc7fe",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menambahkan menu baru \"PAKET KAMIS DINNER\" (Kategori: Paket, Harga: Rp 15.000)",
+    "waktu": "20.21.30",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970890841
+  },
+  {
+    "id": "4f1ab250-e6b6-48be-a19f-8073a9db6100",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Kopi Susu Comunitas\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "20.12.00",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970320089
+  },
+  {
+    "id": "4f0cd441-e63e-464b-bee1-0d949610ea33",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Menipis\" (Stok: 16)",
+    "waktu": "20.11.31",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970291994
+  },
+  {
+    "id": "05056dae-468e-4493-9cf1-bdf8bab1ef6f",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Menipis\" (Stok: 15)",
+    "waktu": "20.11.31",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970291845
+  },
+  {
+    "id": "9402cbcd-2fee-417b-b99e-04eb05888617",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Menipis\" (Stok: 14)",
+    "waktu": "20.11.31",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970291718
+  },
+  {
+    "id": "2ecdcdb7-dc14-45d3-91d3-789370bac740",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "20.11.28",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970288876
+  },
+  {
+    "id": "83886751-1c11-431e-a555-931f30eec817",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Tersedia\" (Stok: 14)",
+    "waktu": "20.11.28",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970288480
+  },
+  {
+    "id": "739de53e-20f9-476b-870e-0275d53996fe",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Tersedia\" (Stok: 15)",
+    "waktu": "20.11.28",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970288096
+  },
+  {
+    "id": "4305770a-d33c-4d0d-b1a9-85c4158b41d9",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Tersedia\" (Stok: 16)",
+    "waktu": "20.11.27",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970287977
+  },
+  {
+    "id": "f6394d93-77e3-43a8-8f9c-58507df1cd5f",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Tersedia\" (Stok: 17)",
+    "waktu": "20.11.27",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970287811
+  },
+  {
+    "id": "b14c5b4d-c802-4a53-882d-ffb410941449",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Tersedia\" (Stok: 18)",
+    "waktu": "20.11.27",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970287682
+  },
+  {
+    "id": "9018b553-35f0-4158-948d-bb7340f96ab3",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Tersedia\" (Stok: 19)",
+    "waktu": "20.11.27",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970287331
+  },
+  {
+    "id": "439e5bbc-b353-4123-a1cf-c09c58db26cc",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "20.11.26",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779970286645
+  },
+  {
+    "id": "fc34f9e3-e8cd-439e-93d3-914379e7d194",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "20.05.11",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969911483
+  },
+  {
+    "id": "7ba59da3-2da5-4754-98bd-816cc77e7f5b",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 6)",
+    "waktu": "20.05.10",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969910544
+  },
+  {
+    "id": "3de20351-6787-4856-a861-e623a67ba7aa",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "20.05.08",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969908531
+  },
+  {
+    "id": "632c03c8-ebcf-4497-bc9b-b60adfeb1f01",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 6)",
+    "waktu": "20.05.07",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969907231
+  },
+  {
+    "id": "449eebf6-d244-43d4-b32f-e996eda8f386",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "20.05.05",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969905734
+  },
+  {
+    "id": "bafce6f2-fece-4354-8628-5e077bf559db",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 6)",
+    "waktu": "20.05.05",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969905100
+  },
+  {
+    "id": "8f0d497e-7e00-49e1-807f-7d13e3965d79",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "20.05.04",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969904361
+  },
+  {
+    "id": "979df94e-d5ce-4066-8ed1-eba1ff70860b",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "20.05.03",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969903350
+  },
+  {
+    "id": "3d2c3d40-f283-4560-928e-bedc96a9871a",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "20.05.03",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969903235
+  },
+  {
+    "id": "f1d0e31f-306b-4d1b-b3cc-7c8d4b09b046",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 12)",
+    "waktu": "20.05.02",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969902561
+  },
+  {
+    "id": "2f373c3f-d224-4147-b3cb-e749831b474d",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "20.05.01",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969901448
+  },
+  {
+    "id": "4f63d362-6c01-4509-b3c4-484bf8ea5eb8",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "20.05.00",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969900982
+  },
+  {
+    "id": "1f5650c6-8a67-4746-958a-508006e68724",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "20.04.59",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969899913
+  },
+  {
+    "id": "f559f5c3-9802-4ad9-928d-73406f63665a",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "20.04.59",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969899387
+  },
+  {
+    "id": "45b83da5-f407-482d-84e7-ff22ceeeb0c0",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Menipis\" (Stok: 6)",
+    "waktu": "20.04.59",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969899031
+  },
+  {
+    "id": "81262861-ad6d-426b-8787-a5604b13b96e",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Menipis\" (Stok: 5)",
+    "waktu": "20.04.58",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969898670
+  },
+  {
+    "id": "dd181b0e-d71a-4863-a377-3569051e92f3",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 6)",
+    "waktu": "20.04.57",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969897865
+  },
+  {
+    "id": "a92c891d-c99e-401a-b770-cf3345b9216e",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "20.04.53",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969893322
+  },
+  {
+    "id": "9c1dc255-eaa5-4cc8-b31e-8eb03236a3cd",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "20.04.53",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969893185
+  },
+  {
+    "id": "0a7250d2-e169-401f-a2d2-be86f518f93f",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "20.04.52",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969892859
+  },
+  {
+    "id": "b5c9700b-117a-4609-9db6-9e8428968ceb",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "20.04.52",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969892458
+  },
+  {
+    "id": "a9edaf66-2cf7-4e3b-9362-7c011e933992",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "20.04.51",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969891597
+  },
+  {
+    "id": "caadd1d5-1018-4665-afc6-920cee8e9263",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "20.04.48",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969888210
+  },
+  {
+    "id": "92e8efb9-947d-43dc-b6b4-5393b3ec1d03",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "20.04.48",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969888053
+  },
+  {
+    "id": "9e8042ed-bdd2-49dd-8774-1bdb6d007b37",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "20.04.48",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969888045
+  },
+  {
+    "id": "490a08b3-da26-4e91-aec2-e14ad4785aab",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "19.56.09",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969369889
+  },
+  {
+    "id": "0549f963-ab9a-4f16-9038-4fa7ca8f7402",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "19.56.09",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969369526
+  },
+  {
+    "id": "3fe53b54-2ac2-4825-8960-c501e583d56d",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 6)",
+    "waktu": "19.56.08",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969368529
+  },
+  {
+    "id": "c5806ecf-69dc-4c4a-bfda-cd31309f2d15",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "19.56.07",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969367524
+  },
+  {
+    "id": "c3005240-eed2-4797-97e5-bd0d70ef6456",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "19.56.07",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969367192
+  },
+  {
+    "id": "c20d74d5-cbbe-45fb-9f6d-d434a9f0268b",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Hot) menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "19.56.06",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969366189
+  },
+  {
+    "id": "feaebe8a-a310-4c2f-b926-0a8a33214444",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "19.56.05",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969365646
+  },
+  {
+    "id": "aae8afb7-cd15-4c93-8b7f-73c9d6396b4e",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "19.56.05",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969365043
+  },
+  {
+    "id": "0f7fcc88-e16d-42f1-82ad-a0f76bc13ad2",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "19.56.04",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969364780
+  },
+  {
+    "id": "341523bb-cd1c-41d1-a720-44eb6b199519",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "19.56.04",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969364035
+  },
+  {
+    "id": "07e301b1-38c9-4e13-9a6d-e9fad2734be5",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "19.56.03",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969363896
+  },
+  {
+    "id": "68b2b2a6-8ec5-4d3b-9a7d-a2e30cd0748c",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "19.56.03",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969363736
+  },
+  {
+    "id": "e2648c43-70dd-4bdd-9dd6-5891249c8072",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 13)",
+    "waktu": "19.56.03",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969363582
+  },
+  {
+    "id": "b3b147b3-5a63-4e6f-8a5c-f03ab361c4fb",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 6)",
+    "waktu": "19.56.03",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969363438
+  },
+  {
+    "id": "48eaf93d-2075-4817-af0f-5bbd87e1df7a",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 5)",
+    "waktu": "19.56.03",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969363314
+  },
+  {
+    "id": "f1ed694f-7f54-4be4-b4e9-8e8203a60c98",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 4)",
+    "waktu": "19.56.03",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969363172
+  },
+  {
+    "id": "f685b927-1194-454c-a9fe-7d41593fa757",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.56.02",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969362469
+  },
+  {
+    "id": "9b0c1a5c-fe9d-4f56-bc5c-501162bf22fa",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 4)",
+    "waktu": "19.56.02",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969362307
+  },
+  {
+    "id": "2c6dff28-112e-40ef-835d-f87b431b96fe",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" (Varian: Ice) menjadi \"Menipis\" (Stok: 5)",
+    "waktu": "19.56.02",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969362174
+  },
+  {
+    "id": "87153904-cf18-47e5-89d5-bc5658881c27",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 6)",
+    "waktu": "19.56.01",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969361247
+  },
+  {
+    "id": "37fbddc7-5ce7-4cfb-b9e2-19a38d90b1f4",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Tersedia\" (Stok: 20)",
+    "waktu": "19.56.00",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969360414
+  },
+  {
+    "id": "61c74ef4-85b8-4612-bb2a-660a7c64c473",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 6)",
+    "waktu": "19.55.59",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779969359948
+  },
+  {
+    "id": "a7aa27bf-72e3-45f7-8348-1ea451d476a5",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Kopi Susu Comunitas\" menjadi \"Habis\" (Stok: 0)",
+    "waktu": "19.49.36",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968976476
+  },
+  {
+    "id": "068b15a0-75c6-44a0-b627-31a781898e5c",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Kopi Susu Comunitas\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.35",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968975469
+  },
+  {
+    "id": "1ff11674-6897-4f86-94ee-aa2ea7c86d88",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.32",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968972223
+  },
+  {
+    "id": "536d3fc3-a8da-4285-a004-ced23b4e4f0c",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.30",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968970872
+  },
+  {
+    "id": "059aa0e8-d4c3-4ff3-aeff-f22837b991f8",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.30",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968970753
+  },
+  {
+    "id": "46db90d2-07ae-4ca2-a385-e9cf8a961f54",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.29",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968969246
+  },
+  {
+    "id": "4c2351e5-464e-4cf4-8271-e74f589a1f77",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.28",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968968772
+  },
+  {
+    "id": "056c5b1c-7574-4082-8e02-c39250cfca7f",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.28",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968968664
+  },
+  {
+    "id": "10d52512-cc01-4f57-a13e-aafb79467f23",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.28",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968968489
+  },
+  {
+    "id": "fc3a7a5c-7cf8-42d4-baf3-a41719e37d0a",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.28",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968968349
+  },
+  {
+    "id": "b409a907-c931-4318-bb1d-ddd592cec360",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.28",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968968226
+  },
+  {
+    "id": "7fe2b89b-cd2d-4483-b48c-397325080523",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Tersedia\"",
+    "waktu": "19.49.26",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968966168
+  },
+  {
+    "id": "fe900526-067c-4854-b4fe-c17a522184e4",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.25",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968965866
+  },
+  {
+    "id": "9c5298b0-e523-462c-bfc7-ef47751f78df",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Habis\" (Stok: 0)",
+    "waktu": "19.49.25",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968965534
+  },
+  {
+    "id": "844b5837-7ddc-470d-8bc1-488c00c2db20",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.25",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968965148
+  },
+  {
+    "id": "49f215fe-c5c0-48e8-9409-b93d8ec09451",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.25",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968965003
+  },
+  {
+    "id": "4ff73704-df02-49cc-accb-b2bee72c0e85",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.24",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968964875
+  },
+  {
+    "id": "54ba88bc-774c-4422-97a1-091f29aed584",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.24",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968964757
+  },
+  {
+    "id": "1adf111b-bfa9-49cc-bcdd-8781aabc8a87",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.24",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968964614
+  },
+  {
+    "id": "ac7019e7-8c37-4f4a-a737-98ae3eb64dd8",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.20",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968960632
+  },
+  {
+    "id": "48394767-70fc-4456-b380-af9aff4e51b1",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.20",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968960473
+  },
+  {
+    "id": "a429f3e2-1724-4a44-9280-7e097cc9852b",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.20",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968960317
+  },
+  {
+    "id": "3b7be002-57ed-4dbb-8003-9689aebb5a08",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.20",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968960158
+  },
+  {
+    "id": "140f1ac6-1c71-41cb-a798-e3c427cbe93e",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.20",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968960033
+  },
+  {
+    "id": "b19f4ba4-5875-4365-b6e3-858778ed7c9c",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.19",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968959619
+  },
+  {
+    "id": "805530df-1337-4a63-99c6-bfc7eac7d231",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.19",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968959477
+  },
+  {
+    "id": "06d2d160-e239-4a1f-a667-3970f7404f71",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Habis\" (Stok: 0)",
+    "waktu": "19.49.18",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968958947
+  },
+  {
+    "id": "b6224d66-865a-4264-8f4d-c4ee6e64a38d",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.17",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968957042
+  },
+  {
+    "id": "5edf71ec-1066-4328-8446-bffcdd9dcc2b",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Americano\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "19.49.16",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968956486
+  },
+  {
+    "id": "061f986b-0608-49da-b272-0901ff1f182c",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"Americano\" (Kategori: Coffee, Harga: Rp 15.000)",
+    "waktu": "19.48.28",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779968908945
+  },
+  {
+    "id": "453c0449-646d-4e78-95a7-dfa3767d703e",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status rekomendasi menu \"Mont Blanc\" menjadi AKTIF",
+    "waktu": "18.21.35",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779963695668
+  },
+  {
+    "id": "e7b00165-3d29-4445-a81a-5407a09b07d5",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menambahkan menu baru \"Mont Blanc\" (Kategori: Coffee, Harga: Rp 40.000)",
+    "waktu": "18.13.17",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779963197484
+  },
+  {
+    "id": "05c2cd31-59fa-4a0d-80c5-29d219b132e8",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status rekomendasi menu \"Vlanigaria\" menjadi AKTIF",
+    "waktu": "18.10.54",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779963054288
+  },
+  {
+    "id": "6761a641-2083-4fa0-afc5-44a92c1de632",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status rekomendasi menu \"Nasi Goreng Telur\" menjadi NON-AKTIF",
+    "waktu": "18.10.45",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779963045555
+  },
+  {
+    "id": "ffd8291f-24c5-42fa-9c56-ef0560092026",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status rekomendasi menu \"Nasi Goreng Telur\" menjadi AKTIF",
+    "waktu": "18.10.27",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779963027439
+  },
+  {
+    "id": "56ac05b4-71db-4ef8-9055-31de379e890e",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan pesanan meja \"DLM\": Kopi Susu Comunitas (x3), Mie Ayam Pangsit (x2)",
+    "waktu": "18.08.59",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779962939437
+  },
+  {
+    "id": "bf6ffc3b-d67e-4749-8853-eb9230395b33",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Kopi Susu Comunitas\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "18.06.50",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779962810876
+  },
+  {
+    "id": "fc40e885-32aa-4950-b1eb-344f11cf0528",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Kopi Susu Comunitas\" menjadi \"Menipis\" (Stok: 2)",
+    "waktu": "18.06.50",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779962810709
+  },
+  {
+    "id": "462b1a3d-b62e-415d-b45b-0f62caecfe7e",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"Americano\" (Kategori: Coffee, Harga: Rp 15.000)",
+    "waktu": "17.50.27",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779961827449
+  },
+  {
+    "id": "0cfdd1b2-ff1f-4990-b037-b2df8418bff6",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"Americano\" (Kategori: Coffee, Harga: Rp 15.000)",
+    "waktu": "17.34.27",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779960867489
+  },
+  {
+    "id": "da79f5d6-9bf8-4a01-a647-26997bccfabd",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"Americano\" (Kategori: Coffee, Harga: Rp 15.000)",
+    "waktu": "17.34.20",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779960860826
+  },
+  {
+    "id": "13c2a5b4-2c4c-4eb4-992c-120b15b264c7",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"Americano\" (Kategori: Coffee, Harga: Rp 15.000)",
+    "waktu": "17.33.31",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779960811335
+  },
+  {
+    "id": "94d99722-df2d-467b-a9b3-ead9fa253b64",
+    "diubah_oleh": "waiterscc01@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Vlanigaria\" menjadi \"Tersedia\"",
+    "waktu": "20.51.46",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779627106625
+  },
+  {
+    "id": "50f13496-c293-46fc-8b61-8da6afda0a8c",
+    "diubah_oleh": "waiterscc01@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Vlanigaria\" menjadi \"Habis\" (Stok: 0)",
+    "waktu": "20.51.45",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779627105274
+  },
+  {
+    "id": "92118321-42d1-4e6c-9150-25d8dfd9b859",
+    "diubah_oleh": "waiterscc01@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Vlanigaria\" menjadi \"Tersedia\"",
+    "waktu": "20.51.43",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779627103849
+  },
+  {
+    "id": "65eeec2c-5331-4974-b933-7bc867b3779c",
+    "diubah_oleh": "waiterscc01@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Vlanigaria\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "20.51.42",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779627102387
+  },
+  {
+    "id": "bccb76a7-58e0-4bf6-8eb2-5f229c22c381",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menambahkan staf baru \"waiterscc01@gmail.com\" dengan peran \"WAITER\"",
+    "waktu": "20.50.37",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779627037199
+  },
+  {
+    "id": "400477a1-b3f5-4087-b101-86a86af1ecba",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menambahkan staf baru \"captaincc01@gmail.com\" dengan peran \"CAPTAIN\"",
+    "waktu": "20.49.40",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626980566
+  },
+  {
+    "id": "cc8fabc1-3b77-4e1c-9e08-0cf3fa408697",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menghapus staf \"captaincc01@gmail.com\" dari database",
+    "waktu": "20.44.46",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626686577
+  },
+  {
+    "id": "a7e53fa5-98cb-448c-a938-4d9c9740cb56",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menghapus staf \"captain01@gmail.com\" dari database",
+    "waktu": "20.44.44",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626684723
+  },
+  {
+    "id": "697eff49-1a90-4285-a50b-2478688a855f",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menghapus staf \"captain@gmail.com\" dari database",
+    "waktu": "20.44.42",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626682332
+  },
+  {
+    "id": "5567e5b5-85c4-470f-b777-4f09ad1eb9b5",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah peran staf \"captain@gmail.com\" dari \"WAITER\" menjadi \"CAPTAIN\"",
+    "waktu": "20.44.38",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626678736
+  },
+  {
+    "id": "9477dc36-e4ed-447f-b20e-54420509ca76",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah peran staf \"captain@gmail.com\" dari \"SUPERVISOR\" menjadi \"CAPTAIN\"",
+    "waktu": "20.44.32",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626672525
+  },
+  {
+    "id": "8aab7680-3cfe-492e-90aa-2fbcd0f8c47a",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah peran staf \"captain@gmail.com\" dari \"WAITER\" menjadi \"SUPERVISOR\"",
+    "waktu": "20.44.30",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626670083
+  },
+  {
+    "id": "0fa0ed7f-841d-43d0-9910-fb4e0ef86ca7",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menambahkan staf baru \"captain@gmail.com\" dengan peran \"CAPTAIN\"",
+    "waktu": "20.44.16",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626656887
+  },
+  {
+    "id": "396f8d58-4159-4d9f-b4a4-37de38686a33",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menghapus staf \"captain01@gmail.com\" dari database",
+    "waktu": "20.43.43",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626623147
+  },
+  {
+    "id": "2d173b0a-184d-41ee-a865-755ff108e725",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah peran staf \"captain01@gmail.com\" dari \"WAITER\" menjadi \"SUPERVISOR\"",
+    "waktu": "20.43.40",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626620922
+  },
+  {
+    "id": "4d8d2716-a0e3-40e3-9f0e-5e841aa180b1",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah peran staf \"captain01@gmail.com\" dari \"WAITER\" menjadi \"CAPTAIN\"",
+    "waktu": "20.43.10",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626590642
+  },
+  {
+    "id": "f08fd719-d4d6-4316-9f29-7a13b7e4fc68",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menambahkan staf baru \"captain01@gmail.com\" dengan peran \"CAPTAIN\"",
+    "waktu": "20.43.01",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626581767
+  },
+  {
+    "id": "74fff31d-3632-46e0-bca0-4d106cd7e4a3",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menghapus staf \"captaincc01@gmail.com\" dari database",
+    "waktu": "20.42.34",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626554605
+  },
+  {
+    "id": "c79190f1-5993-46b6-97a7-b91a62684ec3",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menghapus staf \"captaincc01@gmail.com\" dari database",
+    "waktu": "20.38.20",
+    "tanggal": "24 Mei 2026",
+    "timestamp": 1779626300611
+  }
+]

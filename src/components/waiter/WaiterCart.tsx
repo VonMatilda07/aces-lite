@@ -37,9 +37,9 @@ export default function WaiterCart() {
                             </div>
                             <div className="bg-white text-slate-900 rounded-b-lg rounded-tr-lg p-4 shadow-sm flex flex-col gap-3">
                                 {barItems.map((item) => (
-                                    <div key={item.menu.id} className="border-b border-slate-100 pb-2 last:border-0 last:pb-0">
+                                    <div key={`${item.menu.id}-${item.selectedVariant || ''}`} className="border-b border-slate-100 pb-2 last:border-0 last:pb-0">
                                         <div className="font-bold text-lg leading-tight">
-                                            <span className="text-blue-600 font-black mr-2">{item.qty}x</span>{item.menu.name}
+                                            <span className="text-blue-600 font-black mr-2">{item.qty}x</span>{item.menu.name}{item.selectedVariant ? ` (${item.selectedVariant})` : ''}
                                         </div>
                                         {item.notes && <p className="text-sm text-rose-500 font-bold mt-1 uppercase">* {item.notes}</p>}
                                     </div>
@@ -56,9 +56,9 @@ export default function WaiterCart() {
                             </div>
                             <div className="bg-white text-slate-900 rounded-b-lg rounded-tr-lg p-4 shadow-sm flex flex-col gap-3">
                                 {kitchenItems.map((item) => (
-                                    <div key={item.menu.id} className="border-b border-slate-100 pb-2 last:border-0 last:pb-0">
+                                    <div key={`${item.menu.id}-${item.selectedVariant || ''}`} className="border-b border-slate-100 pb-2 last:border-0 last:pb-0">
                                         <div className="font-bold text-lg leading-tight">
-                                            <span className="text-orange-600 font-black mr-2">{item.qty}x</span>{item.menu.name}
+                                            <span className="text-orange-600 font-black mr-2">{item.qty}x</span>{item.menu.name}{item.selectedVariant ? ` (${item.selectedVariant})` : ''}
                                         </div>
                                         {item.notes && <p className="text-sm text-rose-500 font-bold mt-1 uppercase">* {item.notes}</p>}
                                     </div>
@@ -125,12 +125,12 @@ export default function WaiterCart() {
 
                     <div className="flex flex-col gap-3">
                         {cart.map((item) => (
-                            <div key={item.menu.id} className="border border-slate-200 p-4 rounded-xl flex flex-col gap-3 shadow-sm">
+                            <div key={`${item.menu.id}-${item.selectedVariant || ''}`} className="border border-slate-200 p-4 rounded-xl flex flex-col gap-3 shadow-sm">
                                 <div className="flex justify-between items-start">
                                     <p className="font-bold text-slate-900 text-lg leading-tight">
-                                        <span className="text-emerald-600 font-black mr-1">{item.qty}x</span> {item.menu.name}
+                                        <span className="text-emerald-600 font-black mr-1">{item.qty}x</span> {item.menu.name}{item.selectedVariant ? ` (${item.selectedVariant})` : ''}
                                     </p>
-                                    <button onClick={() => removeFromCart(item.menu.id)} className="text-rose-500 p-2 bg-rose-50 rounded-lg active:scale-95">
+                                    <button onClick={() => removeFromCart(item.menu.id, item.selectedVariant)} className="text-rose-500 p-2 bg-rose-50 rounded-lg active:scale-95">
                                         <Trash2 size={18} />
                                     </button>
                                 </div>
@@ -138,7 +138,7 @@ export default function WaiterCart() {
                                     type="text"
                                     placeholder="Catatan: (Misal: Less Sugar)"
                                     value={item.notes}
-                                    onChange={(e) => updateCartItemNotes(item.menu.id, e.target.value)}
+                                    onChange={(e) => updateCartItemNotes(item.menu.id, item.selectedVariant, e.target.value)}
                                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm font-medium outline-none focus:border-slate-400"
                                 />
                             </div>

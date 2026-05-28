@@ -33,7 +33,7 @@ export default function CustomerQRView() {
       {/* Footer Minimalis */}
       <footer className="p-8 text-center">
         <p className="text-[10px] text-slate-400 font-medium italic">
-          Data tersinkronisasi secara real-time dengan bar.
+          Data tersinkronisasi secara real-time dengan bar & kitchen.
         </p>
       </footer>
     </main>

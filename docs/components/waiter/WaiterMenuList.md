@@ -10,6 +10,7 @@
 - **1-Tap Action Interface**: Memfasilitasi pergantian status stok (`Tersedia`, `Menipis`, `Habis`) dalam satu ketukan tanpa harus membuka form edit yang rumit.
 - **Interactive Low Stock Editor**: Menyediakan kontrol kuantitas bertahap (`+` / `-`) ketika status menu diatur ke "Menipis" (`low_stock`), mempermudah staf dapur/bar mengumumkan jumlah sisa porsi riil secara fleksibel.
 - **Smart Note Hook**: Menyediakan tombol instan (`+ Catat`) untuk memasukkan item menu ke dalam keranjang pesanan pramusaji.
+- **Category Filter Tabs**: Memudahkan pramusaji melakukan lompatan cepat ke jenis menu tertentu (Coffee, Non-Coffee, Food, Snack) saat kafe sedang sangat padat (*hectic*), meminimalkan waktu melakukan scroll panjang.
 
 ---
 
@@ -45,6 +46,7 @@ Komponen ini merupakan komponen mandiri (*self-contained*) dan tidak menerima *p
 
 ### Output (Rendered UI)
 Komponen menghasilkan layout daftar kartu menu vertikal dengan padding bawah (`pb-32`) untuk memberikan ruang agar tidak tertutup oleh keranjang belanja mengambang (`WaiterCart`). Setiap kartu menu menampilkan:
+- Tombol navigasi horizontal untuk penyaringan kategori (`Semua`, `Coffee`, `Non-Coffee`, `Food`, `Snack`).
 - Nama menu & Kategori (sebagai Badge kecil).
 - Harga menu terformat lokal Rupiah.
 - Tombol `+ Catat` untuk fungsi keranjang.

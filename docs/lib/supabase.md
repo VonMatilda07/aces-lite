@@ -1,4 +1,4 @@
-# supabase.ts Documentation
+# Supabase.ts Documentation
 
 `supabase.ts` menyediakan konfigurasi inisialisasi untuk client SDK Supabase. Ini adalah instance tunggal (singleton) yang digunakan untuk seluruh komunikasi database dan penanganan real-time WebSocket di aplikasi ACES Lite.
 
@@ -8,12 +8,13 @@
 
 - **Centralized Client API**: Menyediakan satu titik akses API Supabase untuk menghemat resource koneksi HTTP.
 - **WebSocket Gateway**: Bertindak sebagai engine penghubung utama untuk real-time channel updates.
+- **Cookie Synchronization**: Memastikan sesi auth di browser disinkronkan secara otomatis dalam bentuk cookie yang dikirim ke Next.js server, sehingga dapat terbaca oleh proxy/middleware.
 
 ---
 
 ## 2. Detail Logika & Konfigurasi
 
-- Mengimpor fungsi `createClient` dari package `@supabase/supabase-js`.
+- Mengimpor fungsi `createBrowserClient` dari package `@supabase/ssr`.
 - Membaca environment variables di client-side:
   - `process.env.NEXT_PUBLIC_SUPABASE_URL`: Endpoint API database Supabase.
   - `process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY`: Kunci publik aman untuk otorisasi akses tanpa login (anonim).

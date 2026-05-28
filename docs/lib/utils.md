@@ -1,4 +1,4 @@
-# utils.ts Documentation
+# Utils.ts Documentation
 
 `utils.ts` menyediakan helper utilitas umum untuk aplikasi ACES Lite. Saat ini, berkas ini mengekspor satu utilitas penting yaitu `cn` (Class Name merger).
 
