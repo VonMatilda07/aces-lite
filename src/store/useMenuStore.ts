@@ -49,6 +49,30 @@ export interface CartItem {
     notes: string
 }
 
+export interface TicketItem {
+    id: string
+    ticket_id: string | null
+    menu_id: string | null
+    qty: number
+    notes: string | null
+    category_snapshot: string
+    menus?: {
+        id: string
+        name: string
+        price: number
+    } | null
+}
+
+export interface OrderTicket {
+    id: string
+    waiter_id: string | null
+    table_identifier: string
+    status: 'draft' | 'relayed'
+    created_at: string
+    ticket_items?: TicketItem[]
+    waiter_email?: string
+}
+
 interface MenuStore {
     menus: Menu[]
     isLoading: boolean
@@ -65,6 +89,14 @@ interface MenuStore {
     updateCartItemNotes: (menuId: string, selectedVariant: string | undefined, notes: string) => void
     clearCart: () => void
     finalizeOrder: () => Promise<void>
+
+    // Order tickets / relay POS state & actions
+    activeTickets: OrderTicket[]
+    completedTickets: OrderTicket[]
+    isTicketsLoading: boolean
+    fetchTickets: () => Promise<void>
+    markTicketAsRelayed: (ticketId: string) => Promise<void>
+    subscribeToTicketsRealtime: () => () => void
 }
 
 export function computeMenuStocksAndStatuses(menusList: Menu[]): Menu[] {
@@ -214,6 +246,9 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     isLoading: true,
     cart: [],
     tableIdentifier: '',
+    activeTickets: [],
+    completedTickets: [],
+    isTicketsLoading: false,
 
     setTableIdentifier: (table) => set({ tableIdentifier: table }),
 
@@ -373,8 +408,9 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     },
 
     subscribeToRealtime: () => {
+        const randomId = Math.random().toString(36).substring(7)
         const channel = supabasePublic
-            .channel('public:menus')
+            .channel(`menus_realtime_${randomId}`)
             .on(
                 'postgres_changes',
                 { event: '*', schema: 'public', table: 'menus' },
@@ -511,12 +547,182 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
 
         if (!hasError && cart.length > 0) {
             try {
+                // Get current waiter ID from useAuthStore
+                const { useAuthStore } = await import('./useAuthStore')
+                const waiterId = useAuthStore.getState().user?.id || null
+
+                // Insert into order_tickets
+                const { data: ticketData, error: ticketError } = await supabase
+                    .from('order_tickets')
+                    .insert({
+                        waiter_id: waiterId,
+                        table_identifier: tableIdentifier || 'Tanpa Meja',
+                        status: 'draft'
+                    })
+                    .select()
+                    .single()
+
+                if (ticketError) {
+                    console.error('Failed to create order ticket in DB:', ticketError)
+                } else if (ticketData) {
+                    const ticketId = ticketData.id
+                    
+                    // Prepare ticket items
+                    const itemsToInsert = cart.map(item => {
+                        let finalNotes = item.notes || null
+                        if (item.selectedVariant) {
+                            finalNotes = `[Varian: ${item.selectedVariant}]${item.notes ? ` ${item.notes}` : ''}`
+                        }
+                        return {
+                            ticket_id: ticketId,
+                            menu_id: item.menu.id,
+                            qty: item.qty,
+                            notes: finalNotes,
+                            category_snapshot: item.menu.category
+                        }
+                    })
+
+                    // Insert into ticket_items
+                    const { error: itemsError } = await supabase
+                        .from('ticket_items')
+                        .insert(itemsToInsert)
+
+                    if (itemsError) {
+                        console.error('Failed to create ticket items in DB:', itemsError)
+                    }
+                }
+            } catch (dbErr) {
+                console.error('Database order insertion crashed:', dbErr)
+            }
+
+            try {
                 const { writeAuditLog } = await import('@/lib/audit')
                 const itemsSummary = cart.map(item => `${item.menu.name}${item.selectedVariant ? ` (${item.selectedVariant})` : ''} (x${item.qty})`).join(', ')
                 await writeAuditLog(`Menyelesaikan pesanan meja "${tableIdentifier || 'Tanpa Meja'}": ${itemsSummary}`)
             } catch (err) {
                 console.error('Error logging finalizeOrder:', err)
             }
+        }
+    },
+
+    fetchTickets: async () => {
+        set({ isTicketsLoading: true })
+        
+        // Fetch profiles first to map waiter emails
+        const { data: profilesData } = await supabase
+            .from('profiles')
+            .select('id, email')
+        const emailMap = new Map<string, string>()
+        profilesData?.forEach(p => {
+            if (p.id && p.email) emailMap.set(p.id, p.email)
+        })
+
+        const { data, error } = await supabase
+            .from('order_tickets')
+            .select(`
+                id,
+                table_identifier,
+                status,
+                created_at,
+                waiter_id,
+                ticket_items (
+                    id,
+                    qty,
+                    notes,
+                    category_snapshot,
+                    menu_id,
+                    menus (
+                        id,
+                        name,
+                        price
+                    )
+                )
+            `)
+            .order('created_at', { ascending: false })
+
+        if (!error && data) {
+            const rawTickets = data as any[]
+            const typedTickets: OrderTicket[] = rawTickets.map(t => ({
+                id: t.id,
+                waiter_id: t.waiter_id,
+                table_identifier: t.table_identifier,
+                status: t.status,
+                created_at: t.created_at,
+                ticket_items: t.ticket_items,
+                waiter_email: t.waiter_id ? emailMap.get(t.waiter_id) : undefined
+            }))
+            
+            const active = typedTickets.filter(t => t.status === 'draft')
+            const completed = typedTickets.filter(t => t.status === 'relayed')
+            set({ 
+                activeTickets: active, 
+                completedTickets: completed, 
+                isTicketsLoading: false 
+            })
+        } else {
+            console.error('Fetch Tickets Error:', error)
+            set({ isTicketsLoading: false })
+        }
+    },
+
+    markTicketAsRelayed: async (ticketId) => {
+        const { error } = await supabase
+            .from('order_tickets')
+            .update({ status: 'relayed' })
+            .eq('id', ticketId)
+
+        if (error) {
+            console.error('Failed to mark ticket as relayed:', error)
+            alert(`Gagal menandai pesanan: ${error.message}`)
+        } else {
+            const active = get().activeTickets.filter(t => t.id !== ticketId)
+            const ticket = get().activeTickets.find(t => t.id === ticketId)
+            if (ticket) {
+                const updatedTicket = { ...ticket, status: 'relayed' as const }
+                set({
+                    activeTickets: active,
+                    completedTickets: [updatedTicket, ...get().completedTickets]
+                })
+
+                try {
+                    const { writeAuditLog } = await import('@/lib/audit')
+                    await writeAuditLog(`Menyelesaikan relay order meja "${ticket.table_identifier}" ke POS`)
+                } catch (err) {
+                    console.error('Error logging markTicketAsRelayed:', err)
+                }
+            }
+        }
+    },
+
+    subscribeToTicketsRealtime: () => {
+        const randomId1 = Math.random().toString(36).substring(7)
+        const randomId2 = Math.random().toString(36).substring(7)
+
+        const channel1 = supabase
+            .channel(`order_tickets_realtime_${randomId1}`)
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'order_tickets' },
+                (payload) => {
+                    get().fetchTickets()
+                }
+            )
+            .subscribe()
+
+        const channel2 = supabase
+            .channel(`ticket_items_realtime_${randomId2}`)
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'ticket_items' },
+                (payload) => {
+                    get().fetchTickets()
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel1)
+            supabase.removeChannel(channel2)
         }
     }
 }))

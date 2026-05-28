@@ -1,5 +1,29 @@
 [
   {
+    "id": "f20d40ab-954c-4f73-9fa8-3e3228ca8504",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan relay order meja \"DLM 1\" ke POS",
+    "waktu": "21.59.27",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779976767533
+  },
+  {
+    "id": "1eae34c1-10c3-4038-ba6e-0bade47c286e",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan relay order meja \"MEJA TES 99\" ke POS",
+    "waktu": "21.59.25",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779976765136
+  },
+  {
+    "id": "804ba7b7-775b-45ec-8c35-6c165661f82a",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan pesanan meja \"DLM 1\": KOPI SUSU C/C (x3)",
+    "waktu": "21.58.28",
+    "tanggal": "28 Mei 2026",
+    "timestamp": 1779976708878
+  },
+  {
     "id": "57bf0750-8afe-4c52-b811-aa42c305b830",
     "diubah_oleh": "putrahendra699@gmail.com",
     "apa_yang_berubah": "Menambahkan menu baru \"KOPI SUSU C/C\" (Kategori: Coffee, Harga: Rp 4.000)",

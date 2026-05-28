@@ -6,14 +6,16 @@ import { useMenuStore } from '@/store/useMenuStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import WaiterMenuList from '@/components/waiter/WaiterMenuList'
 import WaiterCart from '@/components/waiter/WaiterCart'
-import { LogOut, Settings } from 'lucide-react'
+import WaiterTicketsList from '@/components/waiter/WaiterTicketsList'
+import { LogOut, Settings, Utensils, Inbox, History } from 'lucide-react'
 
 export default function WaiterDashboard() {
-    const { fetchMenus, subscribeToRealtime } = useMenuStore()
+    const { fetchMenus, subscribeToRealtime, activeTickets, fetchTickets, subscribeToTicketsRealtime } = useMenuStore()
     const { user, role, status, logout } = useAuthStore()
 
     // Sesi Authorization Guard Sisi Client
     const [isAuthorized, setIsAuthorized] = useState(false)
+    const [activeTab, setActiveTab] = useState<'menu' | 'queue' | 'history'>('menu')
 
     // Clock widget state
     const [currentTime, setCurrentTime] = useState<Date | null>(null)
@@ -65,14 +67,18 @@ export default function WaiterDashboard() {
     useEffect(() => {
         if (!isAuthorized) return
 
-        console.log('=== [DEBUG] WaiterDashboard mounted, calling fetchMenus ===')
+        console.log('=== [DEBUG] WaiterDashboard mounted, calling fetchMenus and fetchTickets ===')
         fetchMenus()
-        const unsubscribe = subscribeToRealtime()
+        fetchTickets()
+        const unsubscribeMenus = subscribeToRealtime()
+        const unsubscribeTickets = subscribeToTicketsRealtime()
+        
         return () => {
             console.log('=== [DEBUG] WaiterDashboard unmounting, unsubscribing ===')
-            unsubscribe()
+            unsubscribeMenus()
+            unsubscribeTickets()
         }
-    }, [fetchMenus, subscribeToRealtime, isAuthorized])
+    }, [fetchMenus, subscribeToRealtime, fetchTickets, subscribeToTicketsRealtime, isAuthorized])
 
     const handleLogout = async () => {
         console.log('=== [DEBUG] WaiterDashboard: handleLogout dipanggil ===')
@@ -151,10 +157,55 @@ export default function WaiterDashboard() {
                 </div>
             )}
 
+            {/* TAB SWITCHER */}
+            <div className="bg-white border-b border-slate-200 sticky top-[73px] z-10 flex text-xs font-black uppercase tracking-wider text-slate-500 shadow-sm">
+                <button
+                    onClick={() => setActiveTab('menu')}
+                    className={`flex-1 py-3.5 flex items-center justify-center gap-1.5 border-b-2 transition-all ${
+                        activeTab === 'menu'
+                            ? 'border-slate-900 text-slate-900 bg-slate-50/50'
+                            : 'border-transparent hover:text-slate-800'
+                    }`}
+                >
+                    <Utensils size={14} />
+                    Catat Order
+                </button>
+                <button
+                    onClick={() => setActiveTab('queue')}
+                    className={`flex-1 py-3.5 flex items-center justify-center gap-1.5 border-b-2 transition-all relative ${
+                        activeTab === 'queue'
+                            ? 'border-slate-900 text-slate-900 bg-slate-50/50'
+                            : 'border-transparent hover:text-slate-800'
+                    }`}
+                >
+                    <Inbox size={14} />
+                    Antrean POS
+                    {activeTickets.length > 0 && (
+                        <span className="absolute top-2 right-4 bg-rose-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-bounce">
+                            {activeTickets.length}
+                        </span>
+                    )}
+                </button>
+                <button
+                    onClick={() => setActiveTab('history')}
+                    className={`flex-1 py-3.5 flex items-center justify-center gap-1.5 border-b-2 transition-all ${
+                        activeTab === 'history'
+                            ? 'border-slate-900 text-slate-900 bg-slate-50/50'
+                            : 'border-transparent hover:text-slate-800'
+                    }`}
+                >
+                    <History size={14} />
+                    Riwayat
+                </button>
+            </div>
+
             <section className="py-2">
-                <WaiterMenuList />
+                {activeTab === 'menu' && <WaiterMenuList />}
+                {activeTab === 'queue' && <WaiterTicketsList statusFilter="draft" />}
+                {activeTab === 'history' && <WaiterTicketsList statusFilter="relayed" />}
             </section>
-            <WaiterCart />
+            
+            {activeTab === 'menu' && <WaiterCart />}
         </main>
     )
 }
