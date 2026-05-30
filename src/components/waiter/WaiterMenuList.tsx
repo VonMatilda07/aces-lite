@@ -9,7 +9,6 @@ import { Search, X } from 'lucide-react'
 export default function WaiterMenuList() {
     const { menus, updateMenuStatus, addToCart, toggleMenuFeatured } = useMenuStore()
     const [selectedCategory, setSelectedCategory] = useState('Semua')
-    const [variantModalMenu, setVariantModalMenu] = useState<any>(null)
     const [searchQuery, setSearchQuery] = useState('')
 
     const categories = useMemo(() => {
@@ -111,18 +110,45 @@ export default function WaiterMenuList() {
                                 </p>
                             </div>
 
-                            <button
-                                onClick={() => {
-                                    if (item.variants && item.variants.length > 0) {
-                                        setVariantModalMenu(item)
-                                    } else {
-                                        addToCart(item)
-                                    }
-                                }}
-                                className="bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-xl active:scale-95 transition-transform"
-                            >
-                                + Catat
-                            </button>
+                            {item.variants && item.variants.length > 0 ? (
+                                <div className="flex gap-1.5 flex-wrap max-w-[200px] justify-end">
+                                    {item.variants.map((v) => {
+                                        const isVarSoldOut = v.status === 'sold_out' || v.stock === 0
+                                        const isPriceOverride = v.price !== undefined && v.price !== null
+                                        return (
+                                            <button
+                                                key={v.name}
+                                                disabled={isVarSoldOut}
+                                                onClick={() => addToCart(item, v.name)}
+                                                className={`text-[10px] font-black px-2.5 py-1.5 rounded-lg border transition-all duration-200 active:scale-95 flex flex-col items-center ${
+                                                    isVarSoldOut
+                                                        ? 'bg-slate-50 text-slate-400 border-slate-100 cursor-not-allowed opacity-50 active:scale-100'
+                                                        : 'bg-slate-900 text-white border-slate-900 hover:bg-slate-800'
+                                                }`}
+                                            >
+                                                <span>+{v.name}</span>
+                                                {isPriceOverride && (
+                                                    <span className="text-[8px] text-emerald-400 font-bold mt-0.5">
+                                                        Rp {v.price?.toLocaleString('id-ID')}
+                                                    </span>
+                                                )}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            ) : (
+                                <button
+                                    disabled={item.status === 'sold_out' || item.stock === 0}
+                                    onClick={() => addToCart(item)}
+                                    className={`text-xs font-bold px-3 py-2 rounded-xl active:scale-95 transition-transform ${
+                                        (item.status === 'sold_out' || item.stock === 0)
+                                            ? 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-50 active:scale-100'
+                                            : 'bg-slate-900 text-white'
+                                    }`}
+                                >
+                                    {item.status === 'sold_out' || item.stock === 0 ? 'Habis' : '+ Catat'}
+                                </button>
+                            )}
                         </div>
 
                         <div className="flex gap-2 border-t border-slate-100 pt-3">
@@ -227,70 +253,6 @@ export default function WaiterMenuList() {
                     </div>
                 ))}
             </div>
-
-            {/* Modal Pemilihan Varian */}
-            {variantModalMenu && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-                        {/* Header */}
-                        <div className="p-5 bg-slate-900 text-white flex justify-between items-center">
-                            <div>
-                                <h3 className="font-black text-md">Pilih Varian</h3>
-                                <p className="text-[10px] text-slate-400 mt-0.5">{variantModalMenu.name}</p>
-                            </div>
-                            <button 
-                                onClick={() => setVariantModalMenu(null)} 
-                                className="bg-slate-800 p-2 rounded-full text-slate-300 hover:text-white"
-                            >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                        {/* Body */}
-                        <div className="p-5 flex flex-col gap-2.5">
-                            {variantModalMenu.variants?.map((v: any) => {
-                                const isVarSoldOut = v.status === 'sold_out' || v.stock === 0
-                                const isVarLowStock = v.status === 'low_stock' || (v.stock > 0 && v.stock <= 3)
-
-                                return (
-                                    <button
-                                        key={v.name}
-                                        disabled={isVarSoldOut}
-                                        onClick={() => {
-                                            addToCart(variantModalMenu, v.name)
-                                            setVariantModalMenu(null)
-                                        }}
-                                        className={`flex justify-between items-center p-4 rounded-2xl border text-left transition-all duration-200 ${
-                                            isVarSoldOut 
-                                                ? 'bg-slate-50 border-slate-100 opacity-55 cursor-not-allowed'
-                                                : 'bg-white border-slate-200 hover:border-slate-800 active:scale-[0.98]'
-                                        }`}
-                                    >
-                                        <div className="flex flex-col">
-                                            <span className="font-bold text-slate-800 text-sm">{v.name}</span>
-                                            {v.price !== undefined && v.price !== null && (
-                                                <span className="text-[10px] text-emerald-600 font-bold mt-0.5">
-                                                    Rp {v.price.toLocaleString('id-ID')}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {isVarSoldOut ? (
-                                                <Badge variant="destructive" className="text-[8px] font-black uppercase">HABIS</Badge>
-                                            ) : isVarLowStock ? (
-                                                <Badge className="bg-amber-400 text-slate-900 border-none text-[8px] font-black uppercase font-bold">Sisa {v.stock}</Badge>
-                                            ) : (
-                                                <Badge className="bg-emerald-500 text-white border-none text-[8px] font-black uppercase font-bold">Tersedia</Badge>
-                                            )}
-                                        </div>
-                                    </button>
-                                )
-                            })}
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     )
 }

@@ -302,6 +302,47 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
         if (!error && data) {
             console.log(`=== [DEBUG] Sukses memuat ${data.length} menu ===`)
             const computed = computeMenuStocksAndStatuses(data as Menu[])
+            
+            // Validasi keranjang terhadap stok terbaru (Double-order check)
+            const currentCart = get().cart
+            if (currentCart.length > 0) {
+                let cartUpdated = false
+                const newCart = currentCart.map(item => {
+                    const latest = computed.find(m => m.id === item.menu.id)
+                    if (!latest) return item
+                    
+                    if (item.selectedVariant) {
+                        const variant = latest.variants?.find(v => v.name === item.selectedVariant)
+                        if (!variant || variant.stock === 0) {
+                            alert(`Keranjang diperbarui: Varian "${item.selectedVariant}" dari menu "${item.menu.name}" sudah habis dipesan meja lain dan otomatis dihapus.`)
+                            cartUpdated = true
+                            return null
+                        } else if (item.qty > variant.stock) {
+                            alert(`Keranjang diperbarui: Jumlah pesanan varian "${item.selectedVariant}" dari menu "${item.menu.name}" disesuaikan menjadi ${variant.stock} karena keterbatasan stok.`)
+                            cartUpdated = true
+                            return { ...item, qty: variant.stock }
+                        }
+                    } else {
+                        if (latest.stock !== null && latest.stock !== undefined) {
+                            if (latest.stock === 0) {
+                                alert(`Keranjang diperbarui: Menu "${item.menu.name}" sudah habis dipesan meja lain dan otomatis dihapus.`)
+                                cartUpdated = true
+                                return null
+                            } else if (item.qty > latest.stock) {
+                                alert(`Keranjang diperbarui: Jumlah pesanan menu "${item.menu.name}" disesuaikan menjadi ${latest.stock} karena keterbatasan stok.`)
+                                cartUpdated = true
+                                return { ...item, qty: latest.stock }
+                            }
+                        }
+                    }
+                    return item
+                }).filter((item): item is CartItem => item !== null)
+                
+                if (cartUpdated) {
+                    set({ cart: newCart })
+                }
+            }
+
             set({ menus: computed, isLoading: false })
         } else {
             console.error('Fetch Menus Error:', error)
@@ -461,6 +502,44 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     },
 
     addToCart: (menu, selectedVariant) => {
+        const latestMenu = get().menus.find(m => m.id === menu.id)
+        if (!latestMenu) return
+
+        // 1. Cegah pencatatan jika menu/varian sudah sold out (habis)
+        if (selectedVariant) {
+            const variantObj = latestMenu.variants?.find(v => v.name === selectedVariant)
+            if (!variantObj || variantObj.status === 'sold_out' || variantObj.stock === 0) {
+                alert(`Gagal mencatat: Varian "${selectedVariant}" dari menu "${menu.name}" sudah habis!`)
+                return
+            }
+            
+            // Cek batasan stok varian di keranjang
+            const currentCart = get().cart
+            const existing = currentCart.find(item => item.menu.id === menu.id && item.selectedVariant === selectedVariant)
+            const currentQty = existing ? existing.qty : 0
+            if (currentQty >= variantObj.stock) {
+                alert(`Gagal mencatat: Sisa stok untuk varian "${selectedVariant}" hanya tinggal ${variantObj.stock} porsi!`)
+                return
+            }
+        } else {
+            if (latestMenu.status === 'sold_out' || latestMenu.stock === 0) {
+                alert(`Gagal mencatat: Menu "${menu.name}" sudah habis!`)
+                return
+            }
+            
+            // Cek batasan stok menu tunggal di keranjang
+            if (latestMenu.stock !== null && latestMenu.stock !== undefined) {
+                const currentCart = get().cart
+                const existing = currentCart.find(item => item.menu.id === menu.id && !item.selectedVariant)
+                const currentQty = existing ? existing.qty : 0
+                if (currentQty >= latestMenu.stock) {
+                    alert(`Gagal mencatat: Sisa stok menu "${menu.name}" hanya tinggal ${latestMenu.stock} porsi!`)
+                    return
+                }
+            }
+        }
+
+        // 2. Tambahkan ke keranjang
         const currentCart = get().cart
         const existingIndex = currentCart.findIndex((item) => 
             item.menu.id === menu.id && item.selectedVariant === selectedVariant
@@ -493,8 +572,31 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
 
     finalizeOrder: async () => {
         const { cart, menus, tableIdentifier } = get()
-        const previousMenus = menus
+        
+        // Sanity check stok terakhir sebelum kirim order ke database
+        for (const item of cart) {
+            const latest = menus.find(m => m.id === item.menu.id)
+            if (!latest) {
+                alert(`Gagal mengirim order: Menu "${item.menu.name}" sudah tidak tersedia.`)
+                return
+            }
+            if (item.selectedVariant) {
+                const variant = latest.variants?.find(v => v.name === item.selectedVariant)
+                if (!variant || variant.stock === 0 || item.qty > variant.stock) {
+                    alert(`Gagal mengirim order: Stok varian "${item.selectedVariant}" dari menu "${item.menu.name}" tidak mencukupi (Tersisa: ${variant ? variant.stock : 0}). Mohon sesuaikan pesanan Anda.`)
+                    return
+                }
+            } else {
+                if (latest.stock !== null && latest.stock !== undefined) {
+                    if (latest.stock === 0 || item.qty > latest.stock) {
+                        alert(`Gagal mengirim order: Stok menu "${item.menu.name}" tidak mencukupi (Tersisa: ${latest.stock}). Mohon sesuaikan pesanan Anda.`)
+                        return
+                    }
+                }
+            }
+        }
 
+        const previousMenus = menus
         const updatedMenusMap = new Map(menus.map(m => [m.id, JSON.parse(JSON.stringify(m)) as Menu]))
 
         for (const item of cart) {

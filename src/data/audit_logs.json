@@ -1,5 +1,61 @@
 [
   {
+    "id": "3330355b-171a-471c-891f-345a262d5477",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan relay order meja \"Mas imoet\" ke POS",
+    "waktu": "19.03.48",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780139028700
+  },
+  {
+    "id": "859e0f3b-ca1c-48ae-a2de-52dea053d710",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan relay order meja \"Odr 12\" ke POS",
+    "waktu": "19.03.47",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780139027249
+  },
+  {
+    "id": "2a7d5e54-0c1b-4719-b3c9-20f5f0e06a14",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan relay order meja \"odr 12\" ke POS",
+    "waktu": "19.03.46",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780139026322
+  },
+  {
+    "id": "c2641dcd-0e4d-4cd3-8462-ccb317d62ec2",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan pesanan meja \"odr 12\": Chicken Steak Premium C/C (Saus Mushroom) (x1), Chicken Steak Premium C/C (Saus Blackpaper) (x1), Chicken Steak Premium C/C (Saus Barbeque) (x1)",
+    "waktu": "19.03.43",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780139023822
+  },
+  {
+    "id": "a8512fb3-6ad2-4cc8-a302-85aec73ffaa5",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"V60 \" (Kategori: Coffee, Harga: Rp 45.000)",
+    "waktu": "18.48.28",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780138108946
+  },
+  {
+    "id": "3a6c5f59-7032-4f09-a52a-9d915d6ff227",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menghapus menu \"V60\" dari database",
+    "waktu": "18.47.32",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780138052388
+  },
+  {
+    "id": "1fc26b29-c637-488d-b573-1c1ce1cff5ff",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"Vietnam Drip\" (Kategori: Coffee, Harga: Rp 25.000)",
+    "waktu": "18.43.31",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780137811022
+  },
+  {
     "id": "89b895da-8579-4602-99e3-d3240e7c2823",
     "diubah_oleh": "putrahendra699@gmail.com",
     "apa_yang_berubah": "Mengubah detail menu \"Ayam Goreng Special C/C\" (Kategori: Main Course, Harga: Rp 70.000)",
