@@ -253,9 +253,11 @@ export default function MenuList() {
                                         <Badge className="bg-slate-800 border-none text-[8px] tracking-wide text-slate-300">
                                             {menu.category.toUpperCase()}
                                         </Badge>
-                                        <Badge className={`${getGradeColor(menu.nutri_grade)} border-none text-[9px] px-2 py-0.5`}>
-                                            Grade {menu.nutri_grade}
-                                        </Badge>
+                                        {menu.station === 'bar' && menu.nutri_grade && (
+                                            <Badge className={`${getGradeColor(menu.nutri_grade)} border-none text-[9px] px-2 py-0.5`}>
+                                                Grade {menu.nutri_grade}
+                                            </Badge>
+                                        )}
                                     </div>
 
                                     {/* Card Image Thumbnail if available */}
@@ -358,8 +360,8 @@ export default function MenuList() {
                                     {/* Panel Detail Ekspansif */}
                                     <div
                                         className={`overflow-hidden transition-all duration-305 ease-in-out ${isExpanded
-                                                ? 'max-h-[30rem] opacity-100 mt-4 border-t border-slate-100 pt-4'
-                                                : 'max-h-0 opacity-0 pointer-events-none'
+                                            ? 'max-h-[30rem] opacity-100 mt-4 border-t border-slate-100 pt-4'
+                                            : 'max-h-0 opacity-0 pointer-events-none'
                                             }`}
                                     >
                                         <div className="flex flex-col md:flex-row gap-4">
@@ -406,9 +408,11 @@ export default function MenuList() {
                                                                         <span className="font-bold text-xs text-slate-800">
                                                                             {compMenu.name} {bItem.variant_name ? `(${bItem.variant_name})` : ''} <span className="text-slate-400 font-bold text-[10px] ml-1 bg-slate-100 px-1.5 py-0.5 rounded">x{bItem.qty}</span>
                                                                         </span>
-                                                                        <Badge className={`${getGradeColor(compMenu.nutri_grade)} border-none text-[8px] font-black text-white px-2 py-0.5`}>
-                                                                            Grade {compMenu.nutri_grade}
-                                                                        </Badge>
+                                                                        {compMenu.station === 'bar' && compMenu.nutri_grade && (
+                                                                            <Badge className={`${getGradeColor(compMenu.nutri_grade)} border-none text-[8px] font-black text-white px-2 py-0.5`}>
+                                                                                Grade {compMenu.nutri_grade}
+                                                                            </Badge>
+                                                                        )}
                                                                     </div>
                                                                 )
                                                             })}
@@ -484,7 +488,7 @@ export default function MenuList() {
                                 <div className="flex flex-col gap-0.5">
                                     <div className="flex items-center gap-1.5">
                                         <h3 className="font-black text-slate-800 tracking-tight">{item.name}</h3>
-                                        {item.menu_type !== 'bundle' && (
+                                        {item.menu_type !== 'bundle' && item.station === 'bar' && item.nutri_grade && (
                                             <Badge className={`${getGradeColor(item.nutri_grade)} border-none text-[8px] h-4.5 px-1.5 flex items-center justify-center font-bold`}>
                                                 {item.nutri_grade}
                                             </Badge>
@@ -493,7 +497,7 @@ export default function MenuList() {
 
                                     {item.is_featured && (
                                         <div className="text-[8px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-0.5 my-0.5">
-                                            ⭐ UNGGULAN HARI INI
+                                            ⭐ RECOMMENDED FOR TODAY
                                         </div>
                                     )}
 
@@ -560,7 +564,7 @@ export default function MenuList() {
                                             <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-bold text-[8px] uppercase">
                                                 Class: {getProductType(item.category)}
                                             </Badge>
-                                            {item.menu_type !== 'bundle' && (
+                                            {item.menu_type !== 'bundle' && item.station === 'bar' && item.nutri_grade && (
                                                 <Badge className={`${getGradeColor(item.nutri_grade)} border-none text-[8px] font-bold`}>
                                                     Nutri-Grade: {item.nutri_grade}
                                                 </Badge>
@@ -586,8 +590,8 @@ export default function MenuList() {
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {item.variants.map((v) => (
                                                         <Badge key={v.name} variant="secondary" className={`border-none font-bold text-[9px] px-2.5 py-1 ${v.status === 'sold_out' || v.stock === 0
-                                                                ? 'bg-slate-200 text-slate-400 line-through'
-                                                                : 'bg-white text-slate-700 shadow-sm border border-slate-100'
+                                                            ? 'bg-slate-200 text-slate-400 line-through'
+                                                            : 'bg-white text-slate-700 shadow-sm border border-slate-100'
                                                             }`}>
                                                             {v.name} ({v.status === 'sold_out' || v.stock === 0 ? 'Habis' : (v.stock <= 3 ? `${v.stock} Porsi` : 'Ready')})
                                                         </Badge>
@@ -609,9 +613,11 @@ export default function MenuList() {
                                                                 <span className="font-bold text-xs text-slate-800">
                                                                     {compMenu.name} {bItem.variant_name ? `(${bItem.variant_name})` : ''} <span className="text-slate-400 font-bold text-[10px] ml-1 bg-slate-100 px-1.5 py-0.5 rounded">x{bItem.qty}</span>
                                                                 </span>
-                                                                <Badge className={`${getGradeColor(compMenu.nutri_grade)} border-none text-[8px] font-black text-white px-2 py-0.5`}>
-                                                                    Grade {compMenu.nutri_grade}
-                                                                </Badge>
+                                                                {compMenu.station === 'bar' && compMenu.nutri_grade && (
+                                                                    <Badge className={`${getGradeColor(compMenu.nutri_grade)} border-none text-[8px] font-black text-white px-2 py-0.5`}>
+                                                                        Grade {compMenu.nutri_grade}
+                                                                    </Badge>
+                                                                )}
                                                             </div>
                                                         )
                                                     })}

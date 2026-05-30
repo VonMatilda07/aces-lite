@@ -33,6 +33,7 @@ export default function AdminDashboard() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [imagePreview, setImagePreview] = useState<string>('')
     const [isUploadingImage, setIsUploadingImage] = useState(false)
+    const [saveAndAddAnother, setSaveAndAddAnother] = useState(false)
 
     // New Features states
     const [menuType, setMenuType] = useState<'single' | 'bundle'>('single')
@@ -86,9 +87,8 @@ export default function AdminDashboard() {
         }
     }, [fetchMenus, subscribeToRealtime, isAuthorized])
 
-    // Buka modal tambah menu baru
-    const openAddModal = () => {
-        setEditingMenu(null)
+    // Reset form states
+    const resetForm = () => {
         setName('')
         setDescription('Nikmati kelezatan racikan khas CoffeeCommunitas.')
         setCategory('Coffee')
@@ -109,7 +109,12 @@ export default function AdminDashboard() {
         setBundleItems([])
         setSchedule([])
         setAlternatives([])
+    }
 
+    // Buka modal tambah menu baru
+    const openAddModal = () => {
+        setEditingMenu(null)
+        resetForm()
         setIsModalOpen(true)
     }
 
@@ -204,7 +209,7 @@ export default function AdminDashboard() {
             subcategory: subcategory || null,
             price: Number(price),
             status: statusMenu,
-            nutri_grade: nutriGrade,
+            nutri_grade: stationMenu === 'bar' ? nutriGrade : 'C',
             station: stationMenu,
             stock: menuType === 'bundle'
                 ? null
@@ -248,8 +253,15 @@ export default function AdminDashboard() {
                 console.error('Error logging handleSave:', err)
             }
             setIsSubmitting(false)
-            setIsModalOpen(false)
             fetchMenus()
+
+            if (saveAndAddAnother && !editingMenu) {
+                resetForm()
+                const nameInput = document.getElementById('menu-name-input')
+                if (nameInput) nameInput.focus()
+            } else {
+                setIsModalOpen(false)
+            }
         }
     }
 
@@ -733,7 +745,7 @@ export default function AdminDashboard() {
 
                             <div className="flex flex-col gap-1">
                                 <label className="font-bold text-slate-500 uppercase tracking-wider">Nama Menu</label>
-                                <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="border border-slate-200 rounded-xl p-3 outline-none focus:border-slate-800 font-bold text-slate-800" placeholder="Kopi Susu Gula Aren..." />
+                                <input id="menu-name-input" type="text" required value={name} onChange={(e) => setName(e.target.value)} className="border border-slate-200 rounded-xl p-3 outline-none focus:border-slate-800 font-bold text-slate-800" placeholder="Kopi Susu Gula Aren..." />
                             </div>
 
                             <div className="flex flex-col gap-1">
@@ -785,17 +797,19 @@ export default function AdminDashboard() {
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div className="flex flex-col gap-1">
-                                    <label className="font-bold text-slate-500 uppercase tracking-wider">Nutri-Grade</label>
-                                    <select value={nutriGrade} onChange={(e) => setNutriGrade(e.target.value as NutriGrade)} className="border border-slate-200 rounded-xl p-3 outline-none focus:border-slate-800 font-bold bg-white text-slate-800">
-                                        <option value="A">Nutri-Grade A</option>
-                                        <option value="B">Nutri-Grade B</option>
-                                        <option value="C">Nutri-Grade C</option>
-                                        <option value="D">Nutri-Grade D</option>
-                                        <option value="E">Nutri-Grade E</option>
-                                    </select>
-                                </div>
+                            <div className={`grid grid-cols-1 ${stationMenu === 'bar' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-3`}>
+                                {stationMenu === 'bar' && (
+                                    <div className="flex flex-col gap-1">
+                                        <label className="font-bold text-slate-500 uppercase tracking-wider">Nutri-Grade</label>
+                                        <select value={nutriGrade} onChange={(e) => setNutriGrade(e.target.value as NutriGrade)} className="border border-slate-200 rounded-xl p-3 outline-none focus:border-slate-800 font-bold bg-white text-slate-800">
+                                            <option value="A">Nutri-Grade A</option>
+                                            <option value="B">Nutri-Grade B</option>
+                                            <option value="C">Nutri-Grade C</option>
+                                            <option value="D">Nutri-Grade D</option>
+                                            <option value="E">Nutri-Grade E</option>
+                                        </select>
+                                    </div>
+                                )}
 
                                  <div className="flex flex-col gap-1">
                                     <label className="font-bold text-slate-500 uppercase tracking-wider">Status Menu</label>
@@ -1213,9 +1227,28 @@ export default function AdminDashboard() {
                                 )}
                             </div>
 
-                             <button type="submit" disabled={isSubmitting || isUploadingImage} className="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-4 rounded-2xl uppercase tracking-wider mt-3 disabled:bg-slate-400 active:scale-95 transition-transform flex items-center justify-center gap-1.5 shadow-md">
-                                 <Save size={16} /> {isUploadingImage ? 'Mengunggah Gambar...' : (isSubmitting ? 'Menyimpan...' : 'Simpan Menu')}
-                             </button>
+                             <div className="flex flex-col sm:flex-row gap-2 mt-3">
+                                 {!editingMenu && (
+                                     <button
+                                         type="submit"
+                                         onClick={() => setSaveAndAddAnother(true)}
+                                         disabled={isSubmitting || isUploadingImage}
+                                         className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-black py-3.5 rounded-2xl uppercase tracking-wider disabled:bg-slate-400 active:scale-95 transition-transform flex items-center justify-center gap-1.5 shadow-md text-xs"
+                                     >
+                                         <Plus size={14} /> Simpan & Tambah Lagi
+                                     </button>
+                                 )}
+                                 <button
+                                     type="submit"
+                                     onClick={() => setSaveAndAddAnother(false)}
+                                     disabled={isSubmitting || isUploadingImage}
+                                     className={`flex-1 bg-slate-900 hover:bg-slate-800 text-white font-black py-3.5 rounded-2xl uppercase tracking-wider disabled:bg-slate-400 active:scale-95 transition-transform flex items-center justify-center gap-1.5 shadow-md text-xs ${
+                                         editingMenu ? 'w-full' : ''
+                                     }`}
+                                 >
+                                     <Save size={14} /> {isUploadingImage ? 'Mengunggah...' : (isSubmitting ? 'Menyimpan...' : (editingMenu ? 'Simpan Perubahan' : 'Simpan & Tutup'))}
+                                 </button>
+                             </div>
                         </form>
                     </div>
                 </div>
