@@ -90,6 +90,7 @@ interface MenuStore {
     setTableIdentifier: (table: string) => void
     addToCart: (menu: Menu, selectedVariant?: string) => void
     removeFromCart: (menuId: string, selectedVariant?: string) => void
+    decrementCartQty: (menuId: string, selectedVariant?: string) => void
     updateCartItemNotes: (menuId: string, selectedVariant: string | undefined, notes: string) => void
     clearCart: () => void
     finalizeOrder: () => Promise<void>
@@ -558,6 +559,23 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
         set((state) => ({
             cart: state.cart.filter((item) => !(item.menu.id === menuId && item.selectedVariant === selectedVariant))
         }))
+    },
+
+    decrementCartQty: (menuId, selectedVariant) => {
+        const currentCart = get().cart
+        const existingIndex = currentCart.findIndex((item) => 
+            item.menu.id === menuId && item.selectedVariant === selectedVariant
+        )
+
+        if (existingIndex > -1) {
+            const updatedCart = [...currentCart]
+            if (updatedCart[existingIndex].qty > 1) {
+                updatedCart[existingIndex].qty -= 1
+                set({ cart: updatedCart })
+            } else {
+                set({ cart: currentCart.filter((item) => !(item.menu.id === menuId && item.selectedVariant === selectedVariant)) })
+            }
+        }
     },
 
     updateCartItemNotes: (menuId, selectedVariant, notes) => {

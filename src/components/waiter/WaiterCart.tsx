@@ -6,7 +6,7 @@ import { useMenuStore, getCartItemPrice } from '@/store/useMenuStore'
 import { Trash2, Send, CheckCircle2, X } from 'lucide-react'
 
 export default function WaiterCart() {
-    const { cart, removeFromCart, updateCartItemNotes, clearCart, tableIdentifier, setTableIdentifier, finalizeOrder } = useMenuStore()
+    const { cart, addToCart, removeFromCart, decrementCartQty, updateCartItemNotes, clearCart, tableIdentifier, setTableIdentifier, finalizeOrder } = useMenuStore()
     const [isOpen, setIsOpen] = useState(false)
     const [isRelayMode, setIsRelayMode] = useState(false)
 
@@ -126,11 +126,38 @@ export default function WaiterCart() {
                     <div className="flex flex-col gap-3">
                         {cart.map((item) => (
                             <div key={`${item.menu.id}-${item.selectedVariant || ''}`} className="border border-slate-200 p-4 rounded-xl flex flex-col gap-3 shadow-sm">
-                                <div className="flex justify-between items-start">
-                                    <p className="font-bold text-slate-900 text-lg leading-tight">
-                                        <span className="text-emerald-600 font-black mr-1">{item.qty}x</span> {item.menu.name}{item.selectedVariant ? ` (${item.selectedVariant})` : ''}
-                                    </p>
-                                    <button onClick={() => removeFromCart(item.menu.id, item.selectedVariant)} className="text-rose-500 p-2 bg-rose-50 rounded-lg active:scale-95">
+                                <div className="flex justify-between items-center">
+                                    <div className="flex flex-col gap-1.5 flex-1 pr-2">
+                                        <p className="font-bold text-slate-900 text-base leading-tight">
+                                            {item.menu.name}{item.selectedVariant ? ` (${item.selectedVariant})` : ''}
+                                        </p>
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">
+                                                <button
+                                                    onClick={() => decrementCartQty(item.menu.id, item.selectedVariant)}
+                                                    className="w-7 h-7 bg-white hover:bg-slate-200 text-slate-800 rounded-md flex items-center justify-center font-black text-sm shadow-sm transition-colors active:scale-90"
+                                                >
+                                                    -
+                                                </button>
+                                                <span className="font-bold text-sm min-w-[20px] text-center text-slate-800">
+                                                    {item.qty}
+                                                </span>
+                                                <button
+                                                    onClick={() => addToCart(item.menu, item.selectedVariant)}
+                                                    className="w-7 h-7 bg-white hover:bg-slate-200 text-slate-800 rounded-md flex items-center justify-center font-black text-sm shadow-sm transition-colors active:scale-90"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                            <span className="text-xs font-bold text-slate-500">
+                                                Rp {(getCartItemPrice(item) * item.qty).toLocaleString('id-ID')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => removeFromCart(item.menu.id, item.selectedVariant)} 
+                                        className="text-rose-500 p-2.5 bg-rose-50 hover:bg-rose-100 rounded-xl active:scale-95 transition-all"
+                                    >
                                         <Trash2 size={18} />
                                     </button>
                                 </div>
