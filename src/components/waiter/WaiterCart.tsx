@@ -15,8 +15,8 @@ export default function WaiterCart() {
     const totalPrice = cart.reduce((acc, item) => acc + (item.menu.price * item.qty), 0)
 
     // Kelompokkan item berdasarkan stasiun saji (Bar vs Kitchen)
-    const barItems = useMemo(() => cart.filter(item => ['Coffee', 'Non-Coffee'].includes(item.menu.category)), [cart])
-    const kitchenItems = useMemo(() => cart.filter(item => ['Food', 'Snack'].includes(item.menu.category)), [cart])
+    const barItems = useMemo(() => cart.filter(item => item.menu.station === 'bar'), [cart])
+    const kitchenItems = useMemo(() => cart.filter(item => item.menu.station !== 'bar'), [cart])
 
     // Sembunyikan keranjang jika kosong dan tidak sedang dalam mode relay
     if (cart.length === 0 && !isRelayMode) return null

@@ -27,6 +27,7 @@ export default function AdminDashboard() {
     const [price, setPrice] = useState(0)
     const [statusMenu, setStatusMenu] = useState<MenuStatus>('available')
     const [nutriGrade, setNutriGrade] = useState<NutriGrade>('C')
+    const [stationMenu, setStationMenu] = useState<'bar' | 'kitchen'>('kitchen')
     const [stock, setStock] = useState<number | null>(null)
     const [imageUrl, setImageUrl] = useState('')
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -96,6 +97,7 @@ export default function AdminDashboard() {
         setPrice(15000)
         setStatusMenu('available')
         setNutriGrade('B')
+        setStationMenu('bar')
         setStock(null)
         setImageUrl('')
         setSelectedFile(null)
@@ -122,6 +124,7 @@ export default function AdminDashboard() {
         setPrice(menu.price)
         setStatusMenu(menu.status)
         setNutriGrade(menu.nutri_grade)
+        setStationMenu(menu.station || 'kitchen')
         setStock(menu.stock !== undefined ? menu.stock : null)
         setImageUrl(menu.image_url || '')
         setSelectedFile(null)
@@ -202,6 +205,7 @@ export default function AdminDashboard() {
             price: Number(price),
             status: statusMenu,
             nutri_grade: nutriGrade,
+            station: stationMenu,
             stock: menuType === 'bundle'
                 ? null
                 : (variants.length > 0
@@ -384,26 +388,26 @@ export default function AdminDashboard() {
     return (
         <main className="min-h-screen bg-slate-50 flex flex-col max-w-4xl mx-auto border-x border-slate-200">
             {/* Header Admin */}
-            <header className="sticky top-0 bg-slate-900 text-white z-10 p-5 border-b border-slate-800 shadow-md">
-                <div className="flex justify-between items-center">
+            <header className="sticky top-0 bg-slate-900 text-white z-10 p-4 sm:p-5 border-b border-slate-800 shadow-md">
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
                     <div>
                         <div className="flex items-center gap-2">
                             <span className="bg-red-500 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded">ADMIN PANEL</span>
                             <h1 className="text-lg font-black tracking-tight">coffeecomunitas</h1>
                         </div>
-                        <p className="text-[10px] text-slate-400 font-bold mt-0.5">{user?.email}</p>
+                        <p className="text-[10px] text-slate-400 font-bold mt-0.5 leading-none">{user?.email}</p>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap w-full sm:w-auto">
                         {(role === 'admin' || role === 'supervisor') && (
-                            <a href="/admin/users" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition-colors">
+                            <a href="/admin/users" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3 py-2.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-none">
                                 <Users size={12} /> Staf
                             </a>
                         )}
-                        <a href="/waiter" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition-colors">
+                        <a href="/waiter" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3 py-2.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-none">
                             <ArrowLeft size={12} /> Waiter
                         </a>
-                        <button onClick={handleLogout} className="bg-rose-500/20 text-rose-300 hover:bg-rose-500 hover:text-white p-2.5 rounded-xl border border-rose-500/30 transition-colors active:scale-95">
+                        <button onClick={handleLogout} className="bg-rose-500/20 text-rose-300 hover:bg-rose-500 hover:text-white p-2.5 sm:p-2.5 rounded-xl border border-rose-500/30 transition-colors active:scale-95 flex items-center justify-center">
                             <LogOut size={14} />
                         </button>
                     </div>
@@ -411,17 +415,17 @@ export default function AdminDashboard() {
             </header>
 
             {/* Konten Utama */}
-            <section className="p-6 flex-1 flex flex-col gap-6">
-                <div className="flex justify-between items-center">
+            <section className="p-4 sm:p-6 flex-1 flex flex-col gap-6">
+                <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
                     <div>
                         <h2 className="text-xl font-black text-slate-800">Manajemen Menu Kafe</h2>
                         <p className="text-xs text-slate-500 mt-0.5">Tambah, edit, hapus, dan atur menu unggulan Anda.</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <button onClick={handleResetAll} className="bg-rose-50/80 hover:bg-rose-100/95 text-rose-600 hover:text-rose-700 font-bold border border-rose-200 text-xs px-3.5 py-3 rounded-xl active:scale-95 transition-transform flex items-center gap-1.5 shadow-sm" title="Hapus Semua Menu">
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <button onClick={handleResetAll} className="bg-rose-50/80 hover:bg-rose-100/95 text-rose-600 hover:text-rose-700 font-bold border border-rose-200 text-xs px-3.5 py-3 rounded-xl active:scale-95 transition-transform flex items-center justify-center gap-1.5 shadow-sm flex-1 sm:flex-none" title="Hapus Semua Menu">
                             🗑️ Reset Data
                         </button>
-                        <button onClick={openAddModal} className="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs px-4 py-3 rounded-xl flex items-center gap-1.5 active:scale-95 transition-transform shadow-md">
+                        <button onClick={openAddModal} className="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs px-4 py-3.5 rounded-xl flex items-center justify-center gap-1.5 active:scale-95 transition-transform shadow-md flex-1 sm:flex-none">
                             <Plus size={16} /> Tambah Menu
                         </button>
                     </div>
@@ -497,7 +501,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Tabel Menu */}
-                <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+                <div className="hidden sm:block bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse text-xs">
                             <thead>
@@ -597,6 +601,110 @@ export default function AdminDashboard() {
                         </table>
                     </div>
                 </div>
+
+                {/* Mobile Card List View */}
+                <div className="block sm:hidden space-y-4">
+                    {filteredAndSortedMenus.length === 0 ? (
+                        <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center text-slate-400">
+                            Tidak ada menu yang ditemukan.
+                        </div>
+                    ) : (
+                        filteredAndSortedMenus.map((item) => (
+                            <div key={item.id} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+                                {/* Row 1: Image, Name, Sub-category, and Actions */}
+                                <div className="flex gap-3">
+                                    <div className="shrink-0">
+                                        {item.image_url ? (
+                                            <img src={item.image_url} alt={item.name} className="w-12 h-12 object-cover rounded-xl border border-slate-200" />
+                                        ) : (
+                                            <div className="w-12 h-12 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400">
+                                                <Image size={18} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                            <h4 className="font-black text-slate-800 text-sm leading-tight truncate">{item.name}</h4>
+                                            {item.menu_type === 'bundle' && (
+                                                <span className="bg-indigo-600 text-white text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded">PAKET</span>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                            <span className="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase text-slate-500">
+                                                {item.category}
+                                            </span>
+                                            {item.subcategory && (
+                                                <span className="bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded text-[8px] font-black uppercase text-emerald-600">
+                                                    {item.subcategory}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Action Buttons */}
+                                    <div className="flex items-start gap-1">
+                                        <button onClick={() => openEditModal(item)} className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors" title="Edit Menu">
+                                            <Edit2 size={14} />
+                                        </button>
+                                        <button onClick={() => handleDelete(item.id)} className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors" title="Hapus Menu">
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Row 2: Description */}
+                                {item.description && (
+                                    <p className="text-slate-500 text-[10px] line-clamp-2">{item.description}</p>
+                                )}
+
+                                {/* Row 3: Info Footer with grey background */}
+                                <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center justify-between text-[10px] gap-2 flex-wrap">
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-slate-400 font-bold uppercase text-[8px] tracking-wider">Harga</span>
+                                        <span className="font-black text-slate-800 text-xs">Rp {item.price.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-slate-400 font-bold uppercase text-[8px] tracking-wider">Status & Stok</span>
+                                        <div className="flex items-center gap-1.5">
+                                            <span className={`font-black text-[9px] uppercase tracking-wider ${
+                                                item.status === 'available' ? 'text-emerald-600' :
+                                                item.status === 'low_stock' ? 'text-amber-600' : 'text-red-500'
+                                            }`}>
+                                                {item.status === 'available' ? 'Tersedia' :
+                                                 item.status === 'low_stock' ? 'Menipis' : 'Habis'}
+                                            </span>
+                                            <span className="text-slate-400 font-bold">
+                                                (
+                                                {item.menu_type !== 'bundle'
+                                                    ? (item.variants && item.variants.length > 0
+                                                        ? `${item.variants.reduce((sum, v) => sum + v.stock, 0)} Varian`
+                                                        : `Stok: ${item.stock ?? 0}`)
+                                                    : `Paket: ${item.stock ?? 0}`
+                                                }
+                                                )
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Toggle Featured */}
+                                    <div className="flex flex-col items-end gap-0.5">
+                                        <span className="text-slate-400 font-bold uppercase text-[8px] tracking-wider">Unggulan</span>
+                                        <label className="relative inline-flex items-center cursor-pointer mt-0.5" title={item.is_featured ? "Menu Unggulan Aktif" : "Aktifkan Rekomendasi 3D"}>
+                                            <input
+                                                type="checkbox"
+                                                checked={!!item.is_featured}
+                                                onChange={() => handleToggleFeatured(item.id, !!item.is_featured)}
+                                                className="sr-only peer"
+                                            />
+                                            <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-400"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </section>
 
             {/* Modal Dialog Form Tambah / Edit */}
@@ -633,10 +741,18 @@ export default function AdminDashboard() {
                                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="border border-slate-200 rounded-xl p-3 outline-none focus:border-slate-800 font-medium text-slate-800 h-16 resize-none" placeholder="Masukkan deskripsi singkat produk..." />
                             </div>
 
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                                 <div className="flex flex-col gap-1">
                                     <label className="font-bold text-slate-500 uppercase tracking-wider">Kategori</label>
-                                    <select value={category} onChange={(e) => setCategory(e.target.value)} className="border border-slate-200 rounded-xl p-2.5 outline-none focus:border-slate-800 font-bold bg-white text-slate-800">
+                                    <select value={category} onChange={(e) => {
+                                        const val = e.target.value
+                                        setCategory(val)
+                                        if (['Coffee', 'Non-Coffee'].includes(val)) {
+                                            setStationMenu('bar')
+                                        } else if (val !== 'CUSTOM') {
+                                            setStationMenu('kitchen')
+                                        }
+                                    }} className="border border-slate-200 rounded-xl p-2.5 outline-none focus:border-slate-800 font-bold bg-white text-slate-800">
                                         {categories.map(cat => (
                                             <option key={cat} value={cat}>{cat}</option>
                                         ))}
@@ -669,7 +785,7 @@ export default function AdminDashboard() {
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div className="flex flex-col gap-1">
                                     <label className="font-bold text-slate-500 uppercase tracking-wider">Nutri-Grade</label>
                                     <select value={nutriGrade} onChange={(e) => setNutriGrade(e.target.value as NutriGrade)} className="border border-slate-200 rounded-xl p-3 outline-none focus:border-slate-800 font-bold bg-white text-slate-800">
@@ -687,6 +803,14 @@ export default function AdminDashboard() {
                                         <option value="available">Tersedia</option>
                                         <option value="low_stock">Menipis (Low Stock)</option>
                                         <option value="sold_out">Habis (Sold Out)</option>
+                                    </select>
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <label className="font-bold text-slate-500 uppercase tracking-wider">Stasiun Saji</label>
+                                    <select value={stationMenu} onChange={(e) => setStationMenu(e.target.value as 'bar' | 'kitchen')} className="border border-slate-200 rounded-xl p-3 outline-none focus:border-slate-800 font-bold bg-white text-slate-800">
+                                        <option value="bar">Bar (Minuman)</option>
+                                        <option value="kitchen">Kitchen (Makanan)</option>
                                     </select>
                                 </div>
                             </div>

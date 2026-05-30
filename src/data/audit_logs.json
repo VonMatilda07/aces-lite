@@ -1,5 +1,101 @@
 [
   {
+    "id": "d37796b0-7d88-48ad-a589-45ed169f947c",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan relay order meja \"ODR 12\" ke POS",
+    "waktu": "16.18.50",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780129130324
+  },
+  {
+    "id": "71f1b3fb-16dd-4bf7-a869-5aeb95c84887",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan relay order meja \"12\" ke POS",
+    "waktu": "16.18.47",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780129127798
+  },
+  {
+    "id": "f12623c1-0f28-49cc-b429-876614214ef9",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan pesanan meja \"12\": Americano (Hot) (x2), KOPI SUSU C/C (Ice) (x1)",
+    "waktu": "16.18.44",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780129124656
+  },
+  {
+    "id": "5cbb8d67-5d76-4bf1-a4fc-23c349bd5a74",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"Dinner CC\" (Kategori: Bundling, Harga: Rp 41.000)",
+    "waktu": "16.10.49",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780128649758
+  },
+  {
+    "id": "0e15c42d-c01a-4c06-8585-603767ac0805",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan pesanan meja \"ODR 12\": Nasi Goreng Kampung (x2)",
+    "waktu": "16.00.20",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780128020338
+  },
+  {
+    "id": "ee0fdcf0-1e90-4ff8-8473-dd8677d92dec",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Matcha Latte ice\" menjadi \"Tersedia\"",
+    "waktu": "15.53.32",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780127612017
+  },
+  {
+    "id": "a99779dd-5786-43ee-9a21-ad08d2a6ee5e",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah status menu \"Matcha Latte ice\" menjadi \"Menipis\" (Stok: 3)",
+    "waktu": "15.53.31",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780127611543
+  },
+  {
+    "id": "6766d817-ae64-4c3b-8e3d-1e59120b8893",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"Matcha Latte ice\" (Kategori: Non - Coffee, Harga: Rp 15.000)",
+    "waktu": "15.53.20",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780127600174
+  },
+  {
+    "id": "7b1b2cb8-6570-4531-80ad-3ab54b0b41e6",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Mengubah detail menu \"Dinner CC\" (Kategori: Bundling, Harga: Rp 41.000)",
+    "waktu": "15.52.59",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780127579206
+  },
+  {
+    "id": "5210de65-01aa-4a81-84fb-e5b620abe17b",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan relay order meja \"ODR 12\" ke POS",
+    "waktu": "15.32.50",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780126370594
+  },
+  {
+    "id": "ca3674cb-8341-4073-9547-c291ea22a4df",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan relay order meja \"ODR\" ke POS",
+    "waktu": "15.32.49",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780126369951
+  },
+  {
+    "id": "be6857a0-68b5-412f-865f-21af6e28405e",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menyelesaikan relay order meja \"ODR 12\" ke POS",
+    "waktu": "15.32.49",
+    "tanggal": "30 Mei 2026",
+    "timestamp": 1780126369160
+  },
+  {
     "id": "f20d40ab-954c-4f73-9fa8-3e3228ca8504",
     "diubah_oleh": "putrahendra699@gmail.com",
     "apa_yang_berubah": "Menyelesaikan relay order meja \"DLM 1\" ke POS",

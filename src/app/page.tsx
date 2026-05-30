@@ -31,10 +31,25 @@ export default function CustomerQRView() {
       </section>
 
       {/* Footer Minimalis */}
-      <footer className="p-8 text-center">
+      <footer className="p-8 text-center flex flex-col items-center gap-3">
         <p className="text-[10px] text-slate-400 font-medium italic">
           Data tersinkronisasi secara real-time dengan bar & kitchen.
         </p>
+        <div className="border-t border-slate-200 w-16 my-1" />
+        <div className="flex flex-col items-center gap-1.5 animate-in fade-in duration-500">
+          <p className="text-[9px] font-black text-slate-400 tracking-[0.15em] uppercase">
+            Developed & Managed by
+          </p>
+          <div className="bg-slate-900 text-white rounded-full px-4.5 py-1 text-[10px] font-bold border border-slate-800 shadow-sm transition-transform hover:scale-105">
+            Jex
+          </div>
+          <p className="text-[11px] font-black text-slate-700 leading-tight">
+            Muhammad Athfal Aulia Putra, S.Kom.
+          </p>
+          <p className="text-[9px] text-slate-400 font-medium max-w-[220px] leading-normal mt-0.5">
+            For Collaboration : putrahendra699@gmail.com / +6282157458222
+          </p>
+        </div>
       </footer>
     </main>
   )

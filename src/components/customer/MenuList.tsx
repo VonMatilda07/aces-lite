@@ -92,8 +92,8 @@ export default function MenuList() {
 
         if (searchQuery.trim() !== '') {
             const query = searchQuery.toLowerCase().trim()
-            list = list.filter((m) => 
-                m.name.toLowerCase().includes(query) || 
+            list = list.filter((m) =>
+                m.name.toLowerCase().includes(query) ||
                 (m.description && m.description.toLowerCase().includes(query)) ||
                 (m.subcategory && m.subcategory.toLowerCase().includes(query))
             )
@@ -119,7 +119,7 @@ export default function MenuList() {
     const handleFeaturedCardClick = (menu: Menu) => {
         // Expand the menu details automatically
         setExpandedMenuId(menu.id)
-        
+
         // Scroll to the list item container smoothly
         setTimeout(() => {
             const element = document.getElementById(`menu-item-${menu.id}`)
@@ -312,9 +312,8 @@ export default function MenuList() {
                                 <div
                                     key={item.id}
                                     id={`menu-item-${item.id}`}
-                                    className={`relative flex flex-col p-4 rounded-3xl border transition-all duration-300 bg-white ${
-                                        isSoldOut ? 'opacity-60 grayscale border-slate-100' : 'border-amber-300 bg-gradient-to-br from-amber-50/20 via-white to-white shadow-md'
-                                    }`}
+                                    className={`relative flex flex-col p-4 rounded-3xl border transition-all duration-300 bg-white ${isSoldOut ? 'opacity-60 grayscale border-slate-100' : 'border-amber-300 bg-gradient-to-br from-amber-50/20 via-white to-white shadow-md'
+                                        }`}
                                 >
                                     {/* Gold badge for promo */}
                                     <div className="absolute -top-2.5 right-4 bg-amber-400 text-slate-950 text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm z-10">
@@ -358,11 +357,10 @@ export default function MenuList() {
 
                                     {/* Panel Detail Ekspansif */}
                                     <div
-                                        className={`overflow-hidden transition-all duration-305 ease-in-out ${
-                                            isExpanded
+                                        className={`overflow-hidden transition-all duration-305 ease-in-out ${isExpanded
                                                 ? 'max-h-[30rem] opacity-100 mt-4 border-t border-slate-100 pt-4'
                                                 : 'max-h-0 opacity-0 pointer-events-none'
-                                        }`}
+                                            }`}
                                     >
                                         <div className="flex flex-col md:flex-row gap-4">
                                             {/* Foto Produk */}
@@ -398,7 +396,7 @@ export default function MenuList() {
                                                 {/* Tampilkan Komponen Bundling */}
                                                 {item.bundle_items && item.bundle_items.length > 0 && (
                                                     <div className="flex flex-col gap-1.5 mt-2 p-3 rounded-2xl border border-slate-100 bg-slate-50">
-                                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Isi Paket (Komponen)</span>
+                                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">What You Got?</span>
                                                         <div className="flex flex-col gap-1.5">
                                                             {item.bundle_items.map((bItem) => {
                                                                 const compMenu = menus.find(m => m.id === bItem.id)
@@ -535,8 +533,8 @@ export default function MenuList() {
                             {/* Panel Detail Ekspansif (Accordion Collapse/Expand) */}
                             <div
                                 className={`overflow-hidden transition-all duration-305 ease-in-out ${isExpanded
-                                        ? 'max-h-[30rem] opacity-100 mt-4 border-t border-slate-100 pt-4'
-                                        : 'max-h-0 opacity-0 pointer-events-none'
+                                    ? 'max-h-[30rem] opacity-100 mt-4 border-t border-slate-100 pt-4'
+                                    : 'max-h-0 opacity-0 pointer-events-none'
                                     }`}
                             >
                                 <div className="flex flex-col md:flex-row gap-4">
@@ -587,11 +585,10 @@ export default function MenuList() {
                                                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Pilihan Varian Tersedia</span>
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {item.variants.map((v) => (
-                                                        <Badge key={v.name} variant="secondary" className={`border-none font-bold text-[9px] px-2.5 py-1 ${
-                                                            v.status === 'sold_out' || v.stock === 0
+                                                        <Badge key={v.name} variant="secondary" className={`border-none font-bold text-[9px] px-2.5 py-1 ${v.status === 'sold_out' || v.stock === 0
                                                                 ? 'bg-slate-200 text-slate-400 line-through'
                                                                 : 'bg-white text-slate-700 shadow-sm border border-slate-100'
-                                                        }`}>
+                                                            }`}>
                                                             {v.name} ({v.status === 'sold_out' || v.stock === 0 ? 'Habis' : (v.stock <= 3 ? `${v.stock} Porsi` : 'Ready')})
                                                         </Badge>
                                                     ))}

@@ -40,6 +40,7 @@ export interface Menu {
     bundle_items?: BundleItem[]
     schedule?: ScheduleItem[]
     alternatives?: string[]
+    station?: 'bar' | 'kitchen'
 }
 
 export interface CartItem {
@@ -60,6 +61,7 @@ export interface TicketItem {
         id: string
         name: string
         price: number
+        station?: 'bar' | 'kitchen'
     } | null
 }
 
@@ -254,7 +256,10 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
 
     fetchMenus: async () => {
         console.log('=== [DEBUG] fetchMenus dipanggil via supabasePublic ===')
-        set({ isLoading: true })
+        // Tampilkan loading screen hanya jika data menu benar-benar kosong (initial load)
+        if (get().menus.length === 0) {
+            set({ isLoading: true })
+        }
 
         const { data, error } = await supabasePublic
             .from('menus')
@@ -634,7 +639,8 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
                     menus (
                         id,
                         name,
-                        price
+                        price,
+                        station
                     )
                 )
             `)

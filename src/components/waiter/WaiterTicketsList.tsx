@@ -148,7 +148,7 @@ export default function WaiterTicketsList({ statusFilter }: WaiterTicketsListPro
                         <div className="p-4 flex flex-col gap-3.5">
                             {ticket.ticket_items?.map((item) => {
                                 const { variant, notes } = parseNotesAndVariant(item.notes)
-                                const isDrink = ['Coffee', 'Non-Coffee'].includes(item.category_snapshot)
+                                const isDrink = item.menus?.station ? item.menus.station === 'bar' : ['Coffee', 'Non-Coffee'].includes(item.category_snapshot)
 
                                 return (
                                     <div key={item.id} className="flex justify-between items-start gap-3">
