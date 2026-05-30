@@ -966,6 +966,9 @@ export default function AdminDashboard() {
                                             <div key={idx} className="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-150 text-[10px] font-medium">
                                                 <span className="text-slate-700">
                                                     {v.name} &mdash; <span className="text-amber-600 font-bold">Stok: {v.stock}</span>
+                                                    {v.price !== undefined && v.price !== null && (
+                                                        <span className="text-emerald-600 font-bold ml-2">Rp {v.price.toLocaleString('id-ID')}</span>
+                                                    )}
                                                 </span>
                                                 <button
                                                     type="button"
@@ -992,13 +995,22 @@ export default function AdminDashboard() {
                                             <input id="variant-stock-input" type="number" defaultValue={10} min={0} className="border border-slate-200 rounded p-1 text-[10px] text-slate-800" />
                                         </div>
 
+                                        <div className="w-20 flex flex-col gap-1">
+                                            <span className="text-[8px] font-bold text-slate-400">Harga (Ops)</span>
+                                            <input id="variant-price-input" type="number" placeholder={price ? price.toString() : 'Opsional'} className="border border-slate-200 rounded p-1 text-[10px] text-slate-800" />
+                                        </div>
+
                                         <button
                                             type="button"
                                             onClick={() => {
                                                 const nameEl = document.getElementById('variant-name-input') as HTMLInputElement
                                                 const stockEl = document.getElementById('variant-stock-input') as HTMLInputElement
+                                                const priceEl = document.getElementById('variant-price-input') as HTMLInputElement
                                                 const vName = nameEl.value.trim()
                                                 const vStock = Number(stockEl.value || 0)
+                                                const vPriceVal = priceEl.value.trim()
+                                                const vPrice = vPriceVal !== '' ? Number(vPriceVal) : null
+
                                                 if (!vName) return
 
                                                 if (variants.some(v => v.name.toLowerCase() === vName.toLowerCase())) {
@@ -1010,9 +1022,10 @@ export default function AdminDashboard() {
                                                     ? 'sold_out' 
                                                     : (vStock <= 3 ? 'low_stock' : 'available')
 
-                                                setVariants([...variants, { name: vName, stock: vStock, status: vStatus }])
+                                                setVariants([...variants, { name: vName, stock: vStock, status: vStatus, price: vPrice }])
                                                 nameEl.value = ''
                                                 stockEl.value = '10'
+                                                priceEl.value = ''
                                             }}
                                             className="bg-slate-900 text-white px-3 py-1.5 rounded text-[10px] font-black uppercase hover:bg-slate-800"
                                         >

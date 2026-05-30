@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { useMenuStore } from '@/store/useMenuStore'
+import { useMenuStore, getCartItemPrice } from '@/store/useMenuStore'
 import { Trash2, Send, CheckCircle2, X } from 'lucide-react'
 
 export default function WaiterCart() {
@@ -12,7 +12,7 @@ export default function WaiterCart() {
 
     // Hitung total item dan total harga belanja
     const totalItems = cart.reduce((acc, item) => acc + item.qty, 0)
-    const totalPrice = cart.reduce((acc, item) => acc + (item.menu.price * item.qty), 0)
+    const totalPrice = cart.reduce((acc, item) => acc + (getCartItemPrice(item) * item.qty), 0)
 
     // Kelompokkan item berdasarkan stasiun saji (Bar vs Kitchen)
     const barItems = useMemo(() => cart.filter(item => item.menu.station === 'bar'), [cart])

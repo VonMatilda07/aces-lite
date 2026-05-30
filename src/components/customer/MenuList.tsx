@@ -366,7 +366,7 @@ export default function MenuList() {
                                     >
                                         <div className="flex flex-col md:flex-row gap-4">
                                             {/* Foto Produk */}
-                                            <div className="w-full md:w-32 h-32 shrink-0 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 relative flex items-center justify-center text-slate-400">
+                                            <div className="w-full md:w-32 h-48 md:h-32 shrink-0 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 relative flex items-center justify-center text-slate-400">
                                                 {item.image_url ? (
                                                     <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                                                 ) : (
@@ -543,7 +543,7 @@ export default function MenuList() {
                             >
                                 <div className="flex flex-col md:flex-row gap-4">
                                     {/* Foto Produk */}
-                                    <div className="w-full md:w-32 h-32 shrink-0 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 relative flex items-center justify-center text-slate-400">
+                                    <div className="w-full md:w-32 h-48 md:h-32 shrink-0 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 relative flex items-center justify-center text-slate-400">
                                         {item.image_url ? (
                                             <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                                         ) : (
@@ -588,14 +588,17 @@ export default function MenuList() {
                                             <div className="flex flex-col gap-1.5 mt-2 bg-slate-55 p-3 rounded-2xl border border-slate-100 bg-slate-50">
                                                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Pilihan Varian Tersedia</span>
                                                 <div className="flex flex-wrap gap-1.5">
-                                                    {item.variants.map((v) => (
-                                                        <Badge key={v.name} variant="secondary" className={`border-none font-bold text-[9px] px-2.5 py-1 ${v.status === 'sold_out' || v.stock === 0
-                                                            ? 'bg-slate-200 text-slate-400 line-through'
-                                                            : 'bg-white text-slate-700 shadow-sm border border-slate-100'
-                                                            }`}>
-                                                            {v.name} ({v.status === 'sold_out' || v.stock === 0 ? 'Habis' : (v.stock <= 3 ? `${v.stock} Porsi` : 'Ready')})
-                                                        </Badge>
-                                                    ))}
+                                                    {item.variants.map((v) => {
+                                                        const isPriceOverride = v.price !== undefined && v.price !== null;
+                                                        return (
+                                                            <Badge key={v.name} variant="secondary" className={`border-none font-bold text-[9px] px-2.5 py-1 ${v.status === 'sold_out' || v.stock === 0
+                                                                ? 'bg-slate-200 text-slate-400 line-through'
+                                                                : 'bg-white text-slate-700 shadow-sm border border-slate-100'
+                                                                }`}>
+                                                                {v.name} {isPriceOverride && `(Rp ${v.price?.toLocaleString('id-ID')})`} &mdash; {v.status === 'sold_out' || v.stock === 0 ? 'Habis' : (v.stock <= 3 ? `${v.stock} Porsi` : 'Ready')}
+                                                            </Badge>
+                                                        )
+                                                    })}
                                                 </div>
                                             </div>
                                         )}

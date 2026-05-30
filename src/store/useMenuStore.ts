@@ -9,6 +9,7 @@ export interface Variant {
     name: string
     stock: number
     status: MenuStatus
+    price?: number | null
 }
 
 export interface BundleItem {
@@ -62,6 +63,7 @@ export interface TicketItem {
         name: string
         price: number
         station?: 'bar' | 'kitchen'
+        variants?: Variant[]
     } | null
 }
 
@@ -171,6 +173,34 @@ export function computeMenuStocksAndStatuses(menusList: Menu[]): Menu[] {
         }
         return menu
     })
+}
+
+export function getCartItemPrice(item: { menu: Menu; selectedVariant?: string }): number {
+    if (item.selectedVariant && item.menu.variants && item.menu.variants.length > 0) {
+        const variant = item.menu.variants.find(v => v.name === item.selectedVariant)
+        if (variant && variant.price !== undefined && variant.price !== null) {
+            return variant.price
+        }
+    }
+    return item.menu.price
+}
+
+export function getTicketItemPrice(item: TicketItem): number {
+    const basePrice = item.menus?.price || 0
+    if (!item.notes || !item.menus?.variants) {
+        return basePrice
+    }
+    
+    // Extract variant name from notes like "[Varian: Iced] no sugar"
+    const match = item.notes.match(/^\[Varian:\s*([^\]]+)\]/)
+    if (match) {
+        const variantName = match[1].trim()
+        const variant = item.menus.variants.find(v => v.name.toLowerCase() === variantName.toLowerCase())
+        if (variant && variant.price !== undefined && variant.price !== null) {
+            return variant.price
+        }
+    }
+    return basePrice
 }
 
 export function isMenuScheduledActive(menu: Menu, allMenus?: Menu[]): boolean {

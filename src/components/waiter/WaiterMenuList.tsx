@@ -267,7 +267,14 @@ export default function WaiterMenuList() {
                                                 : 'bg-white border-slate-200 hover:border-slate-800 active:scale-[0.98]'
                                         }`}
                                     >
-                                        <span className="font-bold text-slate-800 text-sm">{v.name}</span>
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-slate-800 text-sm">{v.name}</span>
+                                            {v.price !== undefined && v.price !== null && (
+                                                <span className="text-[10px] text-emerald-600 font-bold mt-0.5">
+                                                    Rp {v.price.toLocaleString('id-ID')}
+                                                </span>
+                                            )}
+                                        </div>
                                         <div className="flex items-center gap-2">
                                             {isVarSoldOut ? (
                                                 <Badge variant="destructive" className="text-[8px] font-black uppercase">HABIS</Badge>

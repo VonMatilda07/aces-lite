@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useMenuStore, OrderTicket } from '@/store/useMenuStore'
+import { useMenuStore, OrderTicket, getTicketItemPrice } from '@/store/useMenuStore'
 import { Check, ClipboardList, Clock, ArrowRight, User } from 'lucide-react'
 
 interface WaiterTicketsListProps {
@@ -108,7 +108,7 @@ export default function WaiterTicketsList({ statusFilter }: WaiterTicketsListPro
             {tickets.map((ticket) => {
                 // Compute total price of the ticket
                 const ticketTotal = ticket.ticket_items?.reduce((sum, item) => {
-                    const price = item.menus?.price || 0
+                    const price = getTicketItemPrice(item)
                     return sum + (price * item.qty)
                 }, 0) || 0
 
@@ -185,10 +185,10 @@ export default function WaiterTicketsList({ statusFilter }: WaiterTicketsListPro
 
                                         <div className="text-right">
                                             <span className="text-[11px] font-bold text-slate-400">
-                                                @ Rp {((item.menus?.price || 0)).toLocaleString('id-ID')}
+                                                @ Rp {getTicketItemPrice(item).toLocaleString('id-ID')}
                                             </span>
                                             <p className="text-xs font-black text-slate-700 mt-0.5">
-                                                Rp {((item.menus?.price || 0) * item.qty).toLocaleString('id-ID')}
+                                                Rp {(getTicketItemPrice(item) * item.qty).toLocaleString('id-ID')}
                                             </p>
                                         </div>
                                     </div>
