@@ -274,10 +274,16 @@ export default function MenuList() {
                                     </div>
 
                                     {/* Card Price / Stock */}
-                                    <div className="flex justify-between items-end border-t border-slate-800 pt-2.5 z-10">
-                                        <span className="text-sm font-black text-emerald-400">
-                                            Rp {menu.price.toLocaleString('id-ID')}
-                                        </span>
+                                    <div className="flex justify-between items-end border-t border-slate-800 pt-2.5 z-10 w-full">
+                                        {menu.variants && menu.variants.length > 0 ? (
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                                Lihat Varian & Harga
+                                            </span>
+                                        ) : (
+                                            <span className="text-sm font-black text-emerald-400">
+                                                Rp {menu.price.toLocaleString('id-ID')}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             )
@@ -502,9 +508,15 @@ export default function MenuList() {
                                     )}
 
                                     <div className="flex items-center gap-2">
-                                        <p className={`text-xs font-bold ${isSoldOut ? 'line-through text-slate-400' : 'text-slate-600'}`}>
-                                            Rp {item.price.toLocaleString('id-ID')}
-                                        </p>
+                                        {item.variants && item.variants.length > 0 ? (
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                                                Click For More Detail
+                                            </span>
+                                        ) : (
+                                            <p className={`text-xs font-bold ${isSoldOut ? 'line-through text-slate-400' : 'text-slate-600'}`}>
+                                                Rp {item.price.toLocaleString('id-ID')}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 
@@ -589,13 +601,13 @@ export default function MenuList() {
                                                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Pilihan Varian Tersedia</span>
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {item.variants.map((v) => {
-                                                        const isPriceOverride = v.price !== undefined && v.price !== null;
+                                                        const displayPrice = v.price !== undefined && v.price !== null ? v.price : item.price;
                                                         return (
                                                             <Badge key={v.name} variant="secondary" className={`border-none font-bold text-[9px] px-2.5 py-1 ${v.status === 'sold_out' || v.stock === 0
                                                                 ? 'bg-slate-200 text-slate-400 line-through'
                                                                 : 'bg-white text-slate-700 shadow-sm border border-slate-100'
                                                                 }`}>
-                                                                {v.name} {isPriceOverride && `(Rp ${v.price?.toLocaleString('id-ID')})`} &mdash; {v.status === 'sold_out' || v.stock === 0 ? 'Habis' : (v.stock <= 3 ? `${v.stock} Porsi` : 'Ready')}
+                                                                {v.name} (Rp {displayPrice.toLocaleString('id-ID')}) &mdash; {v.status === 'sold_out' || v.stock === 0 ? 'Habis' : (v.stock <= 3 ? `${v.stock} Porsi` : 'Ready')}
                                                             </Badge>
                                                         )
                                                     })}
