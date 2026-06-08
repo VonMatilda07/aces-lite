@@ -15,11 +15,9 @@ interface Profile {
 
 interface AuditLog {
     id: string
-    diubah_oleh: string
-    apa_yang_berubah: string
-    waktu: string
-    tanggal: string
-    timestamp: number
+    created_at: string
+    changed_by: string
+    description: string
 }
 
 export default function UserManagement() {
@@ -256,10 +254,12 @@ export default function UserManagement() {
     // Filtered Logs
     const filteredLogs = logs.filter(l => {
         const query = searchQueryLogs.toLowerCase()
+        const localDate = l.created_at ? new Date(l.created_at) : null
+        const dateStr = localDate ? localDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : ''
         return (
-            l.diubah_oleh?.toLowerCase().includes(query) ||
-            l.apa_yang_berubah?.toLowerCase().includes(query) ||
-            l.tanggal?.toLowerCase().includes(query)
+            l.changed_by?.toLowerCase().includes(query) ||
+            l.description?.toLowerCase().includes(query) ||
+            dateStr.toLowerCase().includes(query)
         )
     })
 
@@ -524,14 +524,19 @@ export default function UserManagement() {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100 font-medium">
-                                            {filteredLogs.map((log) => (
-                                                <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
-                                                    <td className="p-4 font-bold text-slate-700 break-all">{log.diubah_oleh}</td>
-                                                    <td className="p-4 text-slate-800 font-semibold">{log.apa_yang_berubah}</td>
-                                                    <td className="p-4 text-slate-500 font-mono">{log.waktu}</td>
-                                                    <td className="p-4 text-slate-400">{log.tanggal}</td>
-                                                </tr>
-                                            ))}
+                                            {filteredLogs.map((log) => {
+                                                const localDate = log.created_at ? new Date(log.created_at) : new Date()
+                                                const timeStr = localDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                                                const dateStr = localDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                                                return (
+                                                    <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
+                                                        <td className="p-4 font-bold text-slate-700 break-all">{log.changed_by || 'Pelanggan (Customer)'}</td>
+                                                        <td className="p-4 text-slate-800 font-semibold">{log.description}</td>
+                                                        <td className="p-4 text-slate-500 font-mono">{timeStr}</td>
+                                                        <td className="p-4 text-slate-400">{dateStr}</td>
+                                                    </tr>
+                                                )
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>

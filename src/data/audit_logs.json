@@ -1,5 +1,29 @@
 [
   {
+    "id": "14f4fbff-aff3-49a8-b9fa-fa6f4055d268",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menghapus menu \"Dinner CC\" dari database",
+    "waktu": "16.40.57",
+    "tanggal": "1 Juni 2026",
+    "timestamp": 1780303257600
+  },
+  {
+    "id": "eede42d2-22d5-43a4-acb8-802169fd9841",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menambahkan staf baru \"lokidelavie67@gmail.com\" dengan peran \"CAPTAIN\"",
+    "waktu": "16.31.06",
+    "tanggal": "1 Juni 2026",
+    "timestamp": 1780302666890
+  },
+  {
+    "id": "32aeab13-e020-4b31-bc11-c6a502acb40e",
+    "diubah_oleh": "putrahendra699@gmail.com",
+    "apa_yang_berubah": "Menghapus staf \"captaincc01@gmail.com\" dari database",
+    "waktu": "16.30.28",
+    "tanggal": "1 Juni 2026",
+    "timestamp": 1780302628922
+  },
+  {
     "id": "66cf0f92-07b8-4ff4-8a0a-9fa0b57d4674",
     "diubah_oleh": "putrahendra699@gmail.com",
     "apa_yang_berubah": "Menambahkan menu baru \"Ocean Breeze\" (Kategori: Non - Coffee, Harga: Rp 50.000)",

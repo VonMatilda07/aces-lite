@@ -1,33 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import fs from 'fs'
-import path from 'path'
-
-const logsFilePath = path.join(process.cwd(), 'src/data/audit_logs.json')
-
-function readLogs() {
-    try {
-        if (!fs.existsSync(logsFilePath)) {
-            return []
-        }
-        const fileContent = fs.readFileSync(logsFilePath, 'utf-8')
-        return JSON.parse(fileContent || '[]')
-    } catch (error) {
-        console.error('Error reading logs:', error)
-        return []
-    }
-}
-
-function writeLogs(logs: any[]) {
-    try {
-        fs.writeFileSync(logsFilePath, JSON.stringify(logs, null, 2), 'utf-8')
-        return true
-    } catch (error) {
-        console.error('Error writing logs:', error)
-        return false
-    }
-}
 
 export async function GET(request: Request) {
     const cookieStore = await cookies()
@@ -67,7 +40,16 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Forbidden. Hanya Supervisor/Superadmin yang diizinkan.' }, { status: 403 })
     }
 
-    const logs = readLogs()
+    const { data: logs, error: logsError } = await supabase
+        .from('audit_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+    if (logsError) {
+        console.error('Error fetching logs from Supabase:', logsError)
+        return NextResponse.json({ error: 'Failed to fetch logs' }, { status: 500 })
+    }
+
     return NextResponse.json(logs)
 }
 
@@ -102,24 +84,19 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Missing description' }, { status: 400 })
     }
 
-    const logs = readLogs()
-    
-    // Ambil waktu dan tanggal format lokal WIB/GMT+7 atau lokal ID
-    const now = new Date()
-    const time = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-    const date = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+    const { data: newLog, error: insertError } = await supabase
+        .from('audit_logs')
+        .insert({
+            changed_by: author,
+            description: description
+        })
+        .select()
+        .single()
 
-    const newLog = {
-        id: crypto.randomUUID(),
-        diubah_oleh: author,
-        apa_yang_berubah: description,
-        waktu: time,
-        tanggal: date,
-        timestamp: now.getTime()
+    if (insertError) {
+        console.error('Error inserting log into Supabase:', insertError)
+        return NextResponse.json({ error: 'Failed to save log' }, { status: 500 })
     }
-
-    logs.unshift(newLog) // Tambah log baru di baris teratas
-    writeLogs(logs)
 
     return NextResponse.json({ success: true, log: newLog })
 }
