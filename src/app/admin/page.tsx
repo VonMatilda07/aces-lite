@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useMenuStore, Menu, MenuStatus, NutriGrade, Variant, BundleItem, ScheduleItem } from '@/store/useMenuStore'
 import { useAuthStore } from '@/store/useAuthStore'
+import ChatWidget from '@/components/chat/ChatWidget'
 import { Plus, Edit2, Trash2, X, Save, ArrowLeft, LogOut, Image, AlertTriangle, Search, ArrowUpDown, Users } from 'lucide-react'
 
 export default function AdminDashboard() {
@@ -1266,6 +1267,7 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
+            <ChatWidget />
         </main>
     )
 }

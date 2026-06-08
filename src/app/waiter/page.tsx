@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore'
 import WaiterMenuList from '@/components/waiter/WaiterMenuList'
 import WaiterCart from '@/components/waiter/WaiterCart'
 import WaiterTicketsList from '@/components/waiter/WaiterTicketsList'
+import ChatWidget from '@/components/chat/ChatWidget'
 import { LogOut, Settings, Utensils, Inbox, History } from 'lucide-react'
 
 export default function WaiterDashboard() {
@@ -206,6 +207,7 @@ export default function WaiterDashboard() {
             </section>
             
             {activeTab === 'menu' && <WaiterCart />}
+            <ChatWidget />
         </main>
     )
 }

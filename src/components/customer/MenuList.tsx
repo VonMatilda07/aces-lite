@@ -12,17 +12,17 @@ export default function MenuList() {
     const [selectedSubcategory, setSelectedSubcategory] = useState('Semua')
     const [searchQuery, setSearchQuery] = useState('')
 
+    // Reset subkategori saat kategori utama berubah
+    useEffect(() => {
+        setSelectedSubcategory('Semua')
+    }, [selectedCategory])
+    
     // State carousel 3D
     const [activeIndex, setActiveIndex] = useState(0)
     const [touchStart, setTouchStart] = useState<number | null>(null)
 
     // State list item yang diekspansi detailnya
     const [expandedMenuId, setExpandedMenuId] = useState<string | null>(null)
-
-    // Reset subkategori saat kategori utama berubah
-    useEffect(() => {
-        setSelectedSubcategory('Semua')
-    }, [selectedCategory])
 
     // 1. Ambil semua menu unggulan yang tersedia dan aktif secara jadwal (hanya tipe regular/single)
     const featuredMenus = useMemo(() => {
