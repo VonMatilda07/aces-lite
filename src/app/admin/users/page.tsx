@@ -52,7 +52,9 @@ export default function UserManagement() {
     useEffect(() => {
         if (status === 'loading' || status === 'idle') return
 
-        if (status === 'authenticated' && (role === 'admin' || role === 'supervisor')) {
+        if (status === 'authenticated' && role === 'marketing') {
+            window.location.href = '/admin/feedback'
+        } else if (status === 'authenticated' && (role === 'admin' || role === 'supervisor')) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {
             // Redirect captain or waiter to appropriate page
@@ -384,6 +386,7 @@ export default function UserManagement() {
                                 <option value="waiter">Waiter</option>
                                 <option value="kitchen">Kitchen</option>
                                 <option value="barista">Barista</option>
+                                <option value="marketing">Marketing</option>
                             </select>
                         </div>
 
@@ -607,6 +610,7 @@ export default function UserManagement() {
                                     <option value="supervisor">Supervisor</option>
                                     <option value="kitchen">Kitchen</option>
                                     <option value="barista">Barista</option>
+                                    <option value="marketing">Marketing</option>
                                 </select>
                             </div>
 

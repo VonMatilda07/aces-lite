@@ -16,13 +16,28 @@ export default function LoginPage() {
         setIsLoading(true)
         setErrorMsg('')
 
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password })
 
         if (error) {
             setErrorMsg(error.message)
             setIsLoading(false)
+        } else if (authData?.user) {
+            // Ambil data peran (role) dari profil pengguna
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', authData.user.id)
+                .maybeSingle()
+
+            const userRole = profile?.role || 'waiter'
+
+            // Pengalihan berbasis peran
+            if (userRole === 'marketing') {
+                window.location.href = '/admin/feedback'
+            } else {
+                window.location.href = '/waiter'
+            }
         } else {
-            // Gunakan hard reload agar cookie sesi terkirim penuh ke middleware/proxy server
             window.location.href = '/waiter'
         }
     }

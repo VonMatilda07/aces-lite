@@ -4,11 +4,128 @@
 import { useEffect, useState } from 'react'
 import { useMenuStore } from '@/store/useMenuStore'
 import { useAuthStore } from '@/store/useAuthStore'
+import { supabase } from '@/lib/supabase'
 import WaiterMenuList from '@/components/waiter/WaiterMenuList'
 import WaiterCart from '@/components/waiter/WaiterCart'
 import WaiterTicketsList from '@/components/waiter/WaiterTicketsList'
 import ChatWidget from '@/components/chat/ChatWidget'
-import { LogOut, Settings, Utensils, Inbox, History } from 'lucide-react'
+import { LogOut, Settings, Utensils, Inbox, History, Tag } from 'lucide-react'
+
+function WaiterViewVoucherPanel() {
+    const [voucherCodeInput, setVoucherCodeInput] = useState('')
+    const [claimStatus, setClaimStatus] = useState<{ type: 'success' | 'error' | 'idle'; text: string }>({ type: 'idle', text: '' })
+    const [isProcessing, setIsProcessing] = useState(false)
+    const { user } = useAuthStore()
+
+    const handleVerifyAndClaim = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!voucherCodeInput.trim()) return
+
+        setIsProcessing(true)
+        setClaimStatus({ type: 'idle', text: '' })
+
+        try {
+            const { data, error } = await supabase
+                .from('customer_feedback')
+                .select('*')
+                .eq('voucher_code', voucherCodeInput.trim().toUpperCase())
+                .maybeSingle()
+
+            if (error) throw error
+
+            if (!data) {
+                setClaimStatus({ type: 'error', text: 'KODE VOUCHER TIDAK DITEMUKAN. Periksa kembali penulisan kode.' })
+            } else if (data.is_claimed) {
+                const claimedTime = new Date(data.claimed_at).toLocaleTimeString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
+                const claimedDate = new Date(data.claimed_at).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                })
+                setClaimStatus({ 
+                    type: 'error', 
+                    text: `KLAIM DITOLAK! Voucher ini sudah diklaim sebelumnya pada ${claimedDate} ${claimedTime} WITA oleh ${data.claimed_by || 'Staf Kasir'}.` 
+                })
+            } else {
+                const { error: updateError } = await supabase
+                    .from('customer_feedback')
+                    .update({
+                        is_claimed: true,
+                        claimed_at: new Date().toISOString(),
+                        claimed_by: user?.email || 'waiter'
+                    })
+                    .eq('id', data.id)
+
+                if (updateError) throw updateError
+
+                setClaimStatus({ 
+                    type: 'success', 
+                    text: 'VOUCHER VALID! Berikan DISKON 10% untuk transaksi/struk pelanggan ini.' 
+                })
+                
+                try {
+                    const { writeAuditLog } = await import('@/lib/audit')
+                    await writeAuditLog(`Memproses klaim voucher diskon 10% customer (${voucherCodeInput.trim().toUpperCase()})`)
+                } catch (auditErr) {}
+            }
+        } catch (err: any) {
+            console.error('Failed to process voucher claim:', err)
+            setClaimStatus({ type: 'error', text: 'Gagal memproses voucher: ' + err.message })
+        } finally {
+            setIsProcessing(false)
+        }
+    }
+
+    return (
+        <div className="p-5 flex flex-col gap-4 bg-white border border-slate-200 rounded-3xl mx-4 my-2 shadow-sm animate-in fade-in duration-300">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                <div className="p-2 bg-emerald-500 text-white rounded-xl">
+                    <Tag size={16} />
+                </div>
+                <div>
+                    <h3 className="font-black text-slate-800 text-sm uppercase tracking-wide">Klaim Voucher</h3>
+                    <p className="text-[10px] text-slate-400 font-bold leading-none mt-0.5">Validasi diskon 10% feedback pelanggan</p>
+                </div>
+            </div>
+
+            <form onSubmit={handleVerifyAndClaim} className="flex flex-col gap-3.5 text-xs mt-1">
+                <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-slate-400 uppercase tracking-wider text-[9px]">Masukkan Kode Voucher (6 Digit)</label>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            required
+                            placeholder="Contoh: CC-ABCD"
+                            value={voucherCodeInput}
+                            onChange={(e) => setVoucherCodeInput(e.target.value)}
+                            className="flex-1 border border-slate-200 rounded-xl p-3 outline-none focus:border-slate-800 font-black text-sm uppercase bg-slate-50 focus:bg-white text-slate-800 transition-all placeholder:font-medium placeholder:text-xs placeholder:normal-case"
+                        />
+                        <button
+                            type="submit"
+                            disabled={isProcessing || !voucherCodeInput.trim()}
+                            className="bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-black px-5 py-3 rounded-xl uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center shrink-0 shadow-sm"
+                        >
+                            {isProcessing ? 'Proses...' : 'Klaim'}
+                        </button>
+                    </div>
+                </div>
+
+                {claimStatus.type !== 'idle' && (
+                    <div className={`p-4 rounded-2xl border font-semibold leading-relaxed flex items-start gap-2 ${
+                        claimStatus.type === 'success' 
+                            ? 'bg-emerald-50 border-emerald-250 text-emerald-700' 
+                            : 'bg-rose-50 border-rose-250 text-rose-700'
+                    }`}>
+                        <span className="text-xs">{claimStatus.text}</span>
+                    </div>
+                )}
+            </form>
+        </div>
+    )
+}
 
 export default function WaiterDashboard() {
     const { fetchMenus, subscribeToRealtime, activeTickets, fetchTickets, subscribeToTicketsRealtime } = useMenuStore()
@@ -16,7 +133,7 @@ export default function WaiterDashboard() {
 
     // Sesi Authorization Guard Sisi Client
     const [isAuthorized, setIsAuthorized] = useState(false)
-    const [activeTab, setActiveTab] = useState<'menu' | 'queue' | 'history'>('menu')
+    const [activeTab, setActiveTab] = useState<'menu' | 'queue' | 'history' | 'voucher'>('menu')
 
     // Clock widget state
     const [currentTime, setCurrentTime] = useState<Date | null>(null)
@@ -54,7 +171,9 @@ export default function WaiterDashboard() {
         }
 
         const staffRoles = ['admin', 'supervisor', 'captain', 'waiter', 'kitchen', 'barista']
-        if (status === 'authenticated' && role && staffRoles.includes(role)) {
+        if (status === 'authenticated' && role === 'marketing') {
+            window.location.href = '/admin/feedback'
+        } else if (status === 'authenticated' && role && staffRoles.includes(role)) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {
             console.warn('=== [DEBUG] Unauthorized role for waiter page, redirecting to / ===')
@@ -198,12 +317,24 @@ export default function WaiterDashboard() {
                     <History size={14} />
                     Riwayat
                 </button>
+                <button
+                    onClick={() => setActiveTab('voucher')}
+                    className={`flex-1 py-3.5 flex items-center justify-center gap-1.5 border-b-2 transition-all ${
+                        activeTab === 'voucher'
+                            ? 'border-slate-900 text-slate-900 bg-slate-50/50'
+                            : 'border-transparent hover:text-slate-800'
+                    }`}
+                >
+                    <Tag size={14} />
+                    Voucher
+                </button>
             </div>
 
             <section className="py-2">
                 {activeTab === 'menu' && <WaiterMenuList />}
                 {activeTab === 'queue' && <WaiterTicketsList statusFilter="draft" />}
                 {activeTab === 'history' && <WaiterTicketsList statusFilter="relayed" />}
+                {activeTab === 'voucher' && <WaiterViewVoucherPanel />}
             </section>
             
             {activeTab === 'menu' && <WaiterCart />}

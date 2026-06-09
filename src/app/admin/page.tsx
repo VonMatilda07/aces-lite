@@ -70,7 +70,9 @@ export default function AdminDashboard() {
             return
         }
 
-        if (status === 'authenticated' && (role === 'admin' || role === 'supervisor' || role === 'captain')) {
+        if (status === 'authenticated' && role === 'marketing') {
+            window.location.href = '/admin/feedback'
+        } else if (status === 'authenticated' && (role === 'admin' || role === 'supervisor' || role === 'captain')) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {
             console.warn('=== [DEBUG] Unauthorized role for admin page, redirecting to /waiter ===')

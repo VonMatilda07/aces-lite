@@ -5,7 +5,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/useAuthStore'
 import ChatWidget from '@/components/chat/ChatWidget'
-import { ArrowLeft, Trash2, Search, MessageSquare, Star, Clock, AlertTriangle, User } from 'lucide-react'
+import { ArrowLeft, Trash2, Search, MessageSquare, Star, Clock, AlertTriangle, User, LogOut } from 'lucide-react'
 
 interface CustomerFeedback {
     id: string
@@ -13,21 +13,29 @@ interface CustomerFeedback {
     customer_name: string | null
     feedback_text: string
     rating: number | null
+    rating_service: number | null
+    rating_beverage: number | null
+    rating_food: number | null
+    rating_ambiance: number | null
+    voucher_code: string | null
+    is_claimed: boolean
+    claimed_at: string | null
+    claimed_by: string | null
 }
 
 export default function AdminFeedbackPage() {
-    const { user, role, status } = useAuthStore()
+    const { user, role, status, logout } = useAuthStore()
     const [isAuthorized, setIsAuthorized] = useState(false)
     const [feedbacks, setFeedbacks] = useState<CustomerFeedback[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState('')
     const [filterRating, setFilterRating] = useState('All')
 
-    // Client-side route guard (Hanya Admin & Supervisor)
+    // Client-side route guard (Admin, Supervisor & Marketing)
     useEffect(() => {
         if (status === 'loading' || status === 'idle') return
 
-        if (status === 'authenticated' && (role === 'admin' || role === 'supervisor')) {
+        if (status === 'authenticated' && (role === 'admin' || role === 'supervisor' || role === 'marketing')) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {
             window.location.href = role === 'captain' ? '/admin' : '/waiter'
@@ -89,10 +97,39 @@ export default function AdminFeedbackPage() {
         const sumRating = ratedFeedbacks.reduce((sum, f) => sum + (f.rating || 0), 0)
         const average = totalRated > 0 ? (sumRating / totalRated).toFixed(1) : '0.0'
 
+        // Statistik Detail Kategori
+        const serviceFeedbacks = feedbacks.filter(f => f.rating_service !== null && f.rating_service !== undefined)
+        const avgService = serviceFeedbacks.length > 0 
+            ? (serviceFeedbacks.reduce((sum, f) => sum + (f.rating_service || 0), 0) / serviceFeedbacks.length).toFixed(1) 
+            : '0.0'
+
+        const beverageFeedbacks = feedbacks.filter(f => f.rating_beverage !== null && f.rating_beverage !== undefined)
+        const avgBeverage = beverageFeedbacks.length > 0 
+            ? (beverageFeedbacks.reduce((sum, f) => sum + (f.rating_beverage || 0), 0) / beverageFeedbacks.length).toFixed(1) 
+            : '0.0'
+
+        const foodFeedbacks = feedbacks.filter(f => f.rating_food !== null && f.rating_food !== undefined)
+        const avgFood = foodFeedbacks.length > 0 
+            ? (foodFeedbacks.reduce((sum, f) => sum + (f.rating_food || 0), 0) / foodFeedbacks.length).toFixed(1) 
+            : '0.0'
+
+        const ambianceFeedbacks = feedbacks.filter(f => f.rating_ambiance !== null && f.rating_ambiance !== undefined)
+        const avgAmbiance = ambianceFeedbacks.length > 0 
+            ? (ambianceFeedbacks.reduce((sum, f) => sum + (f.rating_ambiance || 0), 0) / ambianceFeedbacks.length).toFixed(1) 
+            : '0.0'
+
         return {
             totalCount: feedbacks.length,
             ratedCount: totalRated,
-            average
+            average,
+            avgService,
+            avgBeverage,
+            avgFood,
+            avgAmbiance,
+            serviceCount: serviceFeedbacks.length,
+            beverageCount: beverageFeedbacks.length,
+            foodCount: foodFeedbacks.length,
+            ambianceCount: ambianceFeedbacks.length
         }
     }, [feedbacks])
 
@@ -145,12 +182,26 @@ export default function AdminFeedbackPage() {
                         <p className="text-[10px] text-slate-400 font-bold mt-0.5 leading-none">{user?.email}</p>
                     </div>
 
-                    <a
-                        href="/admin"
-                        className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors active:scale-95 shadow-sm"
-                    >
-                        <ArrowLeft size={12} /> Dashboard
-                    </a>
+                    {role === 'marketing' ? (
+                        <button
+                            onClick={async () => {
+                                if (confirm('Apakah Anda yakin ingin keluar?')) {
+                                    await logout()
+                                    window.location.href = '/login'
+                                }
+                            }}
+                            className="bg-rose-600/90 text-white hover:bg-rose-700 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-sm"
+                        >
+                            <LogOut size={12} /> Keluar
+                        </button>
+                    ) : (
+                        <a
+                            href="/admin"
+                            className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors active:scale-95 shadow-sm"
+                        >
+                            <ArrowLeft size={12} /> Dashboard
+                        </a>
+                    )}
                 </div>
             </header>
 
@@ -188,6 +239,34 @@ export default function AdminFeedbackPage() {
                                 <span className="text-[9px] text-slate-400 font-bold mt-0.5">dari {stats.ratedCount} rating</span>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                {/* Rerata Rating Kategori */}
+                <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm flex flex-col gap-3">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Rerata Rating Kategori</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-1">
+                        {[
+                            { label: 'Pelayanan', score: stats.avgService, count: stats.serviceCount },
+                            { label: 'Minuman', score: stats.avgBeverage, count: stats.beverageCount },
+                            { label: 'Makanan', score: stats.avgFood, count: stats.foodCount },
+                            { label: 'Suasana', score: stats.avgAmbiance, count: stats.ambianceCount }
+                        ].map((item) => (
+                            <div key={item.label} className="bg-slate-50 border border-slate-100 rounded-2xl p-3.5 flex flex-col gap-1.5 items-center text-center">
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none">{item.label}</span>
+                                <span className="text-xl font-black text-slate-800 mt-1 leading-none">{item.score}</span>
+                                <div className="flex text-amber-450 mt-0.5">
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                        <Star 
+                                            key={s} 
+                                            size={10} 
+                                            className={s <= Math.round(parseFloat(item.score)) ? 'fill-amber-400 text-amber-400' : 'text-slate-200 fill-transparent'} 
+                                        />
+                                    ))}
+                                </div>
+                                <span className="text-[8px] text-slate-400 font-bold leading-none mt-1">({item.count} rating)</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
@@ -294,6 +373,42 @@ export default function AdminFeedbackPage() {
                                                     className={s <= (f.rating || 0) ? 'text-amber-400 fill-amber-400' : 'text-slate-200 fill-transparent'} 
                                                 />
                                             ))}
+                                        </div>
+                                    )}
+
+                                    {/* Mini Category Ratings display */}
+                                    {(f.rating_service || f.rating_beverage || f.rating_food || f.rating_ambiance) && (
+                                        <div className="flex flex-wrap gap-x-4 gap-y-2 py-2 px-3 bg-slate-50 rounded-xl border border-slate-200/60 text-[10px] font-bold text-slate-500 w-fit">
+                                            {[
+                                                { label: 'Pelayanan', val: f.rating_service },
+                                                { label: 'Minuman', val: f.rating_beverage },
+                                                { label: 'Makanan', val: f.rating_food },
+                                                { label: 'Suasana', val: f.rating_ambiance }
+                                            ].filter(item => item.val !== null && item.val !== undefined).map((item) => (
+                                                <div key={item.label} className="flex items-center gap-1">
+                                                    <span className="text-slate-400 uppercase tracking-wider text-[8px]">{item.label}:</span>
+                                                    <span className="text-slate-700 font-black">{item.val}</span>
+                                                    <Star size={10} className="fill-amber-400 text-amber-400" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Voucher info */}
+                                    {f.voucher_code && (
+                                        <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                                            <span className="bg-amber-500/10 text-amber-800 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg border border-amber-500/20 flex items-center gap-1">
+                                                🎫 Voucher: {f.voucher_code}
+                                            </span>
+                                            {f.is_claimed ? (
+                                                <span className="bg-emerald-50 text-emerald-700 border border-emerald-250 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg">
+                                                    Claimed by {f.claimed_by || 'Kasir Staf'}
+                                                </span>
+                                            ) : (
+                                                <span className="bg-slate-100 text-slate-500 border border-slate-200 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg">
+                                                    Aktif (Belum Klaim)
+                                                </span>
+                                            )}
                                         </div>
                                     )}
 
