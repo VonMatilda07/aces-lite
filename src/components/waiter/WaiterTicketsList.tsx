@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { useMenuStore, OrderTicket, getTicketItemPrice } from '@/store/useMenuStore'
-import { Check, ClipboardList, Clock, ArrowRight, User } from 'lucide-react'
+import { Check, ClipboardList, Clock, ArrowRight, User, Users } from 'lucide-react'
 
 interface WaiterTicketsListProps {
     statusFilter: 'draft' | 'relayed'
@@ -125,9 +125,15 @@ export default function WaiterTicketsList({ statusFilter }: WaiterTicketsListPro
                         <div className="bg-slate-50 px-4 py-3 border-b border-slate-100 flex justify-between items-center">
                             <div>
                                 <span className="text-[9px] font-black tracking-wider text-slate-400 uppercase">IDENTITAS</span>
-                                <h3 className="font-black text-slate-800 text-base leading-tight uppercase mt-0.5">
-                                    {ticket.table_identifier}
-                                </h3>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                    <h3 className="font-black text-slate-800 text-base leading-tight uppercase">
+                                        {ticket.table_identifier}
+                                    </h3>
+                                    <span className="bg-slate-200/60 text-slate-700 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 font-bold">
+                                        <Users size={10} className="text-slate-500" />
+                                        {ticket.customer_count || 1} Orang
+                                    </span>
+                                </div>
                             </div>
                             
                             <div className="text-right flex flex-col items-end">

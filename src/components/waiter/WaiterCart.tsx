@@ -3,10 +3,10 @@
 
 import { useState, useMemo } from 'react'
 import { useMenuStore, getCartItemPrice } from '@/store/useMenuStore'
-import { Trash2, Send, CheckCircle2, X } from 'lucide-react'
+import { Trash2, Send, CheckCircle2, X, Users } from 'lucide-react'
 
 export default function WaiterCart() {
-    const { cart, addToCart, removeFromCart, decrementCartQty, updateCartItemNotes, clearCart, tableIdentifier, setTableIdentifier, finalizeOrder } = useMenuStore()
+    const { cart, addToCart, removeFromCart, decrementCartQty, updateCartItemNotes, clearCart, tableIdentifier, setTableIdentifier, customerCount, setCustomerCount, finalizeOrder } = useMenuStore()
     const [isOpen, setIsOpen] = useState(false)
     const [isRelayMode, setIsRelayMode] = useState(false)
 
@@ -27,7 +27,12 @@ export default function WaiterCart() {
             <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col max-w-md mx-auto animate-in slide-in-from-bottom">
                 <div className="p-6 text-white flex-1 overflow-y-auto">
                     <h2 className="text-2xl font-black mb-2 uppercase text-emerald-400">Order Relay</h2>
-                    <p className="text-slate-400 font-medium mb-6">Identitas: <span className="font-bold text-white text-xl">{tableIdentifier}</span></p>
+                    <p className="text-slate-400 font-medium mb-6 flex items-center gap-2 flex-wrap">
+                        Identitas: <span className="font-bold text-white text-xl">{tableIdentifier}</span>
+                        <span className="bg-slate-800 text-emerald-400 text-xs px-2.5 py-1 rounded-full border border-slate-700 flex items-center gap-1 font-bold">
+                            <Users size={12} /> {customerCount} Orang
+                        </span>
+                    </p>
 
                     {/* STATION: BAR */}
                     {barItems.length > 0 && (
@@ -112,6 +117,36 @@ export default function WaiterCart() {
                         onChange={(e) => setTableIdentifier(e.target.value)}
                         className="w-full border-2 border-slate-200 rounded-xl p-4 font-black text-lg focus:border-slate-900 outline-none uppercase placeholder:normal-case placeholder:font-medium placeholder:text-slate-400"
                     />
+
+                    {/* Input Jumlah Pelanggan (Pax) */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <Users size={14} className="text-slate-400" />
+                                Jumlah Orang / Pax
+                            </span>
+                            <span className="text-xs font-black text-slate-800 bg-slate-200/60 px-2 py-0.5 rounded">
+                                {customerCount} Orang
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setCustomerCount(Math.max(1, customerCount - 1))}
+                                disabled={customerCount <= 1}
+                                className="flex-1 bg-white hover:bg-slate-100 disabled:opacity-50 disabled:hover:bg-white text-slate-800 border border-slate-200 rounded-xl py-2.5 font-black text-base shadow-sm transition-all active:scale-95 flex items-center justify-center"
+                            >
+                                -
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setCustomerCount(customerCount + 1)}
+                                className="flex-1 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-xl py-2.5 font-black text-base shadow-sm transition-all active:scale-95 flex items-center justify-center"
+                            >
+                                +
+                            </button>
+                        </div>
+                    </div>
 
                     <div className="flex justify-between items-center border-b border-slate-100 pb-2">
                         <span className="text-sm font-bold text-slate-500">Daftar Item</span>

@@ -71,6 +71,7 @@ export interface OrderTicket {
     id: string
     waiter_id: string | null
     table_identifier: string
+    customer_count: number
     status: 'draft' | 'relayed'
     created_at: string
     ticket_items?: TicketItem[]
@@ -88,6 +89,8 @@ interface MenuStore {
     cart: CartItem[]
     tableIdentifier: string
     setTableIdentifier: (table: string) => void
+    customerCount: number
+    setCustomerCount: (count: number) => void
     addToCart: (menu: Menu, selectedVariant?: string) => void
     removeFromCart: (menuId: string, selectedVariant?: string) => void
     decrementCartQty: (menuId: string, selectedVariant?: string) => void
@@ -279,11 +282,13 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     isLoading: true,
     cart: [],
     tableIdentifier: '',
+    customerCount: 1,
     activeTickets: [],
     completedTickets: [],
     isTicketsLoading: false,
 
     setTableIdentifier: (table) => set({ tableIdentifier: table }),
+    setCustomerCount: (count) => set({ customerCount: count }),
 
     fetchMenus: async () => {
         console.log('=== [DEBUG] fetchMenus dipanggil via supabasePublic ===')
@@ -586,10 +591,10 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
         }))
     },
 
-    clearCart: () => set({ cart: [], tableIdentifier: '' }),
+    clearCart: () => set({ cart: [], tableIdentifier: '', customerCount: 1 }),
 
     finalizeOrder: async () => {
-        const { cart, menus, tableIdentifier } = get()
+        const { cart, menus, tableIdentifier, customerCount } = get()
         
         // Sanity check stok terakhir sebelum kirim order ke database
         for (const item of cart) {
@@ -667,7 +672,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
         }
 
         const computedMenus = computeMenuStocksAndStatuses(Array.from(updatedMenusMap.values()))
-        set({ menus: computedMenus, cart: [], tableIdentifier: '' })
+        set({ menus: computedMenus, cart: [], tableIdentifier: '', customerCount: 1 })
 
         const changedMenus: Menu[] = []
         for (const updatedMenu of computedMenus) {
@@ -712,6 +717,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
                     .insert({
                         waiter_id: waiterId,
                         table_identifier: tableIdentifier || 'Tanpa Meja',
+                        customer_count: customerCount,
                         status: 'draft'
                     })
                     .select()
@@ -777,6 +783,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
             .select(`
                 id,
                 table_identifier,
+                customer_count,
                 status,
                 created_at,
                 waiter_id,
@@ -802,6 +809,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
                 id: t.id,
                 waiter_id: t.waiter_id,
                 table_identifier: t.table_identifier,
+                customer_count: t.customer_count,
                 status: t.status,
                 created_at: t.created_at,
                 ticket_items: t.ticket_items,
