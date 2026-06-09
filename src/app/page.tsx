@@ -4,6 +4,7 @@
 import { useEffect } from 'react'
 import { useMenuStore } from '@/store/useMenuStore'
 import MenuList from '@/components/customer/MenuList'
+import FeedbackBox from '@/components/customer/FeedbackBox'
 
 export default function CustomerQRView() {
   const { fetchMenus, subscribeToRealtime } = useMenuStore()
@@ -28,6 +29,11 @@ export default function CustomerQRView() {
       {/* Section List Menu */}
       <section className="py-2">
         <MenuList />
+      </section>
+
+      {/* Kotak Kritik & Saran */}
+      <section className="py-4">
+        <FeedbackBox />
       </section>
 
       {/* Footer Minimalis */}

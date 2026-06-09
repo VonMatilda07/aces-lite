@@ -4,7 +4,8 @@ import { useEffect, useState, useMemo } from 'react'
 import { useMenuStore, Menu, MenuStatus, NutriGrade, Variant, BundleItem, ScheduleItem } from '@/store/useMenuStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import ChatWidget from '@/components/chat/ChatWidget'
-import { Plus, Edit2, Trash2, X, Save, ArrowLeft, LogOut, Image, AlertTriangle, Search, ArrowUpDown, Users } from 'lucide-react'
+import ImageEditorModal from '@/components/admin/ImageEditorModal'
+import { Plus, Edit2, Trash2, X, Save, ArrowLeft, LogOut, Image, AlertTriangle, Search, ArrowUpDown, Users, MessageSquare } from 'lucide-react'
 
 export default function AdminDashboard() {
     const { menus, fetchMenus, toggleMenuFeatured, subscribeToRealtime } = useMenuStore()
@@ -35,6 +36,10 @@ export default function AdminDashboard() {
     const [imagePreview, setImagePreview] = useState<string>('')
     const [isUploadingImage, setIsUploadingImage] = useState(false)
     const [saveAndAddAnother, setSaveAndAddAnother] = useState(false)
+
+    // State Editor Gambar Produk
+    const [isImageEditorOpen, setIsImageEditorOpen] = useState(false)
+    const [rawImageSrc, setRawImageSrc] = useState('')
 
     // New Features states
     const [menuType, setMenuType] = useState<'single' | 'bundle'>('single')
@@ -413,9 +418,14 @@ export default function AdminDashboard() {
 
                     <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap w-full sm:w-auto">
                         {(role === 'admin' || role === 'supervisor') && (
-                            <a href="/admin/users" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3 py-2.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-none">
-                                <Users size={12} /> Staf
-                            </a>
+                            <>
+                                <a href="/admin/users" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3 py-2.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-none">
+                                    <Users size={12} /> Staf
+                                </a>
+                                <a href="/admin/feedback" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3 py-2.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-none">
+                                    <MessageSquare size={12} /> Feedback
+                                </a>
+                            </>
                         )}
                         <a href="/waiter" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3 py-2.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-none">
                             <ArrowLeft size={12} /> Waiter
@@ -1199,8 +1209,8 @@ export default function AdminDashboard() {
                                                     onChange={(e) => {
                                                         const file = e.target.files?.[0]
                                                         if (file) {
-                                                            setSelectedFile(file)
-                                                            setImagePreview(URL.createObjectURL(file))
+                                                            setRawImageSrc(URL.createObjectURL(file))
+                                                            setIsImageEditorOpen(true)
                                                         }
                                                     }}
                                                 />
@@ -1232,8 +1242,8 @@ export default function AdminDashboard() {
                                             onChange={(e) => {
                                                 const file = e.target.files?.[0]
                                                 if (file) {
-                                                    setSelectedFile(file)
-                                                    setImagePreview(URL.createObjectURL(file))
+                                                    setRawImageSrc(URL.createObjectURL(file))
+                                                    setIsImageEditorOpen(true)
                                                 }
                                             }}
                                         />
@@ -1267,6 +1277,16 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
+            <ImageEditorModal 
+                isOpen={isImageEditorOpen}
+                imageSrc={rawImageSrc}
+                onClose={() => setIsImageEditorOpen(false)}
+                onSave={(croppedFile) => {
+                    setSelectedFile(croppedFile)
+                    setImagePreview(URL.createObjectURL(croppedFile))
+                    setIsImageEditorOpen(false)
+                }}
+            />
             <ChatWidget />
         </main>
     )
