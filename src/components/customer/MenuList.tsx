@@ -405,13 +405,15 @@ export default function MenuList() {
                                     >
                                         <div className="flex flex-col md:flex-row gap-4">
                                             {/* Foto Produk */}
-                                            <div className="w-full md:w-32 h-64 md:h-32 shrink-0 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 relative flex items-center justify-center text-slate-400">
+                                            <div className="w-full md:w-32 h-auto md:h-32 shrink-0 bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 relative flex items-center justify-center text-slate-400">
                                                 {item.image_url ? (
-                                                    <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                                                    <img src={item.image_url} alt={item.name} className="w-full h-auto md:h-full object-cover max-h-80 md:max-h-none" />
                                                 ) : (
-                                                    <svg className="w-12 h-12 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l9-5-9-5-9 5 9 5zm0 0v6.5m0 0L7.5 18M12 20.5l4.5-2.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
+                                                    <div className="py-12 md:py-0">
+                                                        <svg className="w-12 h-12 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l9-5-9-5-9 5 9 5zm0 0v6.5m0 0L7.5 18M12 20.5l4.5-2.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    </div>
                                                 )}
                                             </div>
 
@@ -588,14 +590,16 @@ export default function MenuList() {
                             >
                                 <div className="flex flex-col md:flex-row gap-4">
                                     {/* Foto Produk */}
-                                    <div className="w-full md:w-32 h-64 md:h-32 shrink-0 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 relative flex items-center justify-center text-slate-400">
+                                    <div className="w-full md:w-32 h-auto md:h-32 shrink-0 bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 relative flex items-center justify-center text-slate-400">
                                         {item.image_url ? (
-                                            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                                            <img src={item.image_url} alt={item.name} className="w-full h-auto md:h-full object-cover max-h-80 md:max-h-none" />
                                         ) : (
                                             /* Render SVG kopi placeholder cantik */
-                                            <svg className="w-12 h-12 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l9-5-9-5-9 5 9 5zm0 0v6.5m0 0L7.5 18M12 20.5l4.5-2.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
+                                            <div className="py-12 md:py-0">
+                                                <svg className="w-12 h-12 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l9-5-9-5-9 5 9 5zm0 0v6.5m0 0L7.5 18M12 20.5l4.5-2.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
                                         )}
                                     </div>
 
