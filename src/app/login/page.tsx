@@ -34,6 +34,10 @@ export default function LoginPage() {
             // Pengalihan berbasis peran
             if (userRole === 'marketing') {
                 window.location.href = '/admin/feedback'
+            } else if (userRole === 'barista' || userRole === 'head_barista') {
+                window.location.href = '/barista'
+            } else if (userRole === 'cook' || userRole === 'head_kitchen' || userRole === 'kitchen') {
+                window.location.href = '/kitchen'
             } else {
                 window.location.href = '/waiter'
             }

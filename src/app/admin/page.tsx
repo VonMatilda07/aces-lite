@@ -72,6 +72,10 @@ export default function AdminDashboard() {
 
         if (status === 'authenticated' && role === 'marketing') {
             window.location.href = '/admin/feedback'
+        } else if (status === 'authenticated' && (role === 'barista' || role === 'head_barista')) {
+            window.location.href = '/barista'
+        } else if (status === 'authenticated' && (role === 'cook' || role === 'head_kitchen' || role === 'kitchen')) {
+            window.location.href = '/kitchen'
         } else if (status === 'authenticated' && (role === 'admin' || role === 'supervisor' || role === 'captain')) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {
@@ -173,25 +177,21 @@ export default function AdminDashboard() {
             setIsUploadingImage(true)
             try {
                 const fileExt = selectedFile.name.split('.').pop()
-                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`
-                const filePath = `products/${fileName}`
+                const formData = new FormData()
+                formData.append('file', selectedFile)
 
-                const { data: uploadData, error: uploadError } = await supabase.storage
-                    .from('menu-images')
-                    .upload(filePath, selectedFile, {
-                        cacheControl: '3600',
-                        upsert: false
-                    })
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                })
 
-                if (uploadError) {
-                    throw new Error('Gagal menyimpan file ke Supabase Storage: ' + uploadError.message)
+                if (!response.ok) {
+                    const errRes = await response.json()
+                    throw new Error(errRes.error || 'Gagal menyimpan file ke Cloudflare R2')
                 }
 
-                const { data: { publicUrl } } = supabase.storage
-                    .from('menu-images')
-                    .getPublicUrl(filePath)
-
-                finalImageUrl = publicUrl
+                const uploadData = await response.json()
+                finalImageUrl = uploadData.url
             } catch (err: any) {
                 console.error('File upload failed:', err)
                 setErrorMsg(err.message || 'Gagal mengunggah foto produk.')

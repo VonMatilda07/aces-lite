@@ -78,7 +78,7 @@ export default function UserManagement() {
         } else if (data) {
             const mappedProfiles = (data as Profile[]).map(p => ({
                 ...p,
-                role: p.role === 'admin' ? 'supervisor' : (p.role === 'barista' ? 'captain' : p.role)
+                role: p.role === 'admin' ? 'supervisor' : p.role
             }))
             setProfiles(mappedProfiles)
         }
@@ -119,7 +119,7 @@ export default function UserManagement() {
     // Handle Role Update
     const handleUpdateRole = async (userId: string, newRoleName: string, userEmail: string, oldRoleName: string) => {
         setIsUpdating(userId)
-        const dbRole = newRoleName === 'supervisor' ? 'admin' : (newRoleName === 'captain' ? 'barista' : newRoleName)
+        const dbRole = newRoleName === 'supervisor' ? 'admin' : newRoleName
         const { error } = await supabase
             .from('profiles')
             .update({ role: dbRole })
@@ -187,7 +187,7 @@ export default function UserManagement() {
             }
 
             // 2. Insert/Update into profiles table to assign their role
-            const dbRole = newRole === 'supervisor' ? 'admin' : (newRole === 'captain' ? 'barista' : newRole)
+            const dbRole = newRole === 'supervisor' ? 'admin' : newRole
             
             // Tunggu sebentar (500ms) agar trigger di server Supabase selesai dieksekusi
             await new Promise(resolve => setTimeout(resolve, 500))
@@ -384,8 +384,11 @@ export default function UserManagement() {
                                 <option value="supervisor">Supervisor</option>
                                 <option value="captain">Captain</option>
                                 <option value="waiter">Waiter</option>
-                                <option value="kitchen">Kitchen</option>
+                                <option value="head_barista">Head Barista</option>
+                                <option value="head_kitchen">Head Kitchen</option>
+                                <option value="cook">Cook</option>
                                 <option value="barista">Barista</option>
+                                <option value="kitchen">Kitchen (Legacy)</option>
                                 <option value="marketing">Marketing</option>
                             </select>
                         </div>
@@ -433,9 +436,15 @@ export default function UserManagement() {
                                                                 ? 'bg-amber-50 border-amber-250 text-amber-600'
                                                                 : item.role === 'waiter'
                                                                 ? 'bg-emerald-50 border-emerald-250 text-emerald-600'
+                                                                : item.role.includes('head')
+                                                                ? 'bg-indigo-50 border-indigo-200 text-indigo-650'
+                                                                : item.role === 'cook' || item.role === 'kitchen'
+                                                                ? 'bg-purple-50 border-purple-200 text-purple-650'
+                                                                : item.role === 'barista'
+                                                                ? 'bg-amber-50/50 border-amber-200 text-amber-650'
                                                                 : 'bg-sky-50 border-sky-200 text-sky-655'
                                                         }`}>
-                                                            {item.role.toUpperCase()}
+                                                            {item.role.replace('_', ' ').toUpperCase()}
                                                         </span>
                                                     </td>
                                                     <td className="p-4 text-center">
@@ -448,8 +457,12 @@ export default function UserManagement() {
                                                             <option value="supervisor">Supervisor</option>
                                                             <option value="captain">Captain</option>
                                                             <option value="waiter">Waiter</option>
-                                                            <option value="kitchen">Kitchen</option>
+                                                            <option value="head_barista">Head Barista</option>
+                                                            <option value="head_kitchen">Head Kitchen</option>
+                                                            <option value="cook">Cook</option>
                                                             <option value="barista">Barista</option>
+                                                            <option value="kitchen">Kitchen (Legacy)</option>
+                                                            <option value="marketing">Marketing</option>
                                                         </select>
                                                     </td>
                                                     <td className="p-4 text-center">
@@ -608,8 +621,11 @@ export default function UserManagement() {
                                     <option value="waiter">Waiter</option>
                                     <option value="captain">Captain</option>
                                     <option value="supervisor">Supervisor</option>
-                                    <option value="kitchen">Kitchen</option>
+                                    <option value="head_barista">Head Barista</option>
+                                    <option value="head_kitchen">Head Kitchen</option>
+                                    <option value="cook">Cook</option>
                                     <option value="barista">Barista</option>
+                                    <option value="kitchen">Kitchen (Legacy)</option>
                                     <option value="marketing">Marketing</option>
                                 </select>
                             </div>

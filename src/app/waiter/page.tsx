@@ -170,10 +170,14 @@ export default function WaiterDashboard() {
             return
         }
 
-        const staffRoles = ['admin', 'supervisor', 'captain', 'waiter', 'kitchen', 'barista']
+        const waiterRoles = ['admin', 'supervisor', 'captain', 'waiter']
         if (status === 'authenticated' && role === 'marketing') {
             window.location.href = '/admin/feedback'
-        } else if (status === 'authenticated' && role && staffRoles.includes(role)) {
+        } else if (status === 'authenticated' && (role === 'barista' || role === 'head_barista')) {
+            window.location.href = '/barista'
+        } else if (status === 'authenticated' && (role === 'cook' || role === 'head_kitchen' || role === 'kitchen')) {
+            window.location.href = '/kitchen'
+        } else if (status === 'authenticated' && role && waiterRoles.includes(role)) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {
             console.warn('=== [DEBUG] Unauthorized role for waiter page, redirecting to / ===')

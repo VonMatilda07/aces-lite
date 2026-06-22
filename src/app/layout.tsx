@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Figtree } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import AuthInitializer from "@/components/auth/AuthInitializer";
+import PushRegister from "@/components/push/PushRegister";
 
 const figtree = Figtree({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -19,6 +20,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Aces Lite",
   description: "Aces Lite CoffeeCommunitas",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -34,6 +36,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         {/* Menjalankan inisialisasi auth tanpa merusak metadata server */}
         <AuthInitializer />
+        <PushRegister />
         {children}
       </body>
     </html>

@@ -37,7 +37,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
                 } else {
                     // Map database role to UI role
                     const dbRole = data.role
-                    const mappedRole = dbRole === 'admin' ? 'supervisor' : (dbRole === 'barista' ? 'captain' : dbRole)
+                    const mappedRole = dbRole === 'admin' ? 'supervisor' : dbRole
                     set({ user: session.user, role: mappedRole, status: 'authenticated', isLoading: false })
                 }
             } catch (e) {

@@ -76,6 +76,12 @@ export interface OrderTicket {
     created_at: string
     ticket_items?: TicketItem[]
     waiter_email?: string
+    bar_status?: 'none' | 'pending' | 'preparing' | 'ready'
+    kitchen_status?: 'none' | 'pending' | 'preparing' | 'ready'
+    bar_prep_start?: string | null
+    bar_prep_end?: string | null
+    kitchen_prep_start?: string | null
+    kitchen_prep_end?: string | null
 }
 
 interface MenuStore {
@@ -104,6 +110,8 @@ interface MenuStore {
     isTicketsLoading: boolean
     fetchTickets: () => Promise<void>
     markTicketAsRelayed: (ticketId: string) => Promise<void>
+    updateBarPrepStatus: (ticketId: string, status: 'preparing' | 'ready') => Promise<void>
+    updateKitchenPrepStatus: (ticketId: string, status: 'preparing' | 'ready') => Promise<void>
     subscribeToTicketsRealtime: () => () => void
 }
 
@@ -711,6 +719,9 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
                 const { useAuthStore } = await import('./useAuthStore')
                 const waiterId = useAuthStore.getState().user?.id || null
 
+                const hasBar = cart.some(item => item.menu.station === 'bar')
+                const hasKitchen = cart.some(item => item.menu.station === 'kitchen')
+
                 // Insert into order_tickets
                 const { data: ticketData, error: ticketError } = await supabase
                     .from('order_tickets')
@@ -718,7 +729,9 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
                         waiter_id: waiterId,
                         table_identifier: tableIdentifier || 'Tanpa Meja',
                         customer_count: customerCount,
-                        status: 'draft'
+                        status: 'draft',
+                        bar_status: hasBar ? 'pending' : 'none',
+                        kitchen_status: hasKitchen ? 'pending' : 'none'
                     })
                     .select()
                     .single()
@@ -750,6 +763,43 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
 
                     if (itemsError) {
                         console.error('Failed to create ticket items in DB:', itemsError)
+                    } else {
+                        // Trigger Web Push Notification for Bar/Kitchen asynchronously
+                        setTimeout(async () => {
+                            try {
+                                if (hasBar) {
+                                    const barItems = cart.filter(item => item.menu.station === 'bar')
+                                    const barSummary = barItems.map(item => `${item.menu.name}${item.selectedVariant ? ` (${item.selectedVariant})` : ''} x${item.qty}`).join(', ')
+                                    fetch('/api/push/send', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            station: 'bar',
+                                            ticketId,
+                                            tableIdentifier: tableIdentifier || 'Tanpa Meja',
+                                            itemSummary: barSummary
+                                        })
+                                    }).catch(err => console.error('Error sending bar push notification:', err))
+                                }
+
+                                if (hasKitchen) {
+                                    const kitchenItems = cart.filter(item => item.menu.station === 'kitchen')
+                                    const kitchenSummary = kitchenItems.map(item => `${item.menu.name}${item.selectedVariant ? ` (${item.selectedVariant})` : ''} x${item.qty}`).join(', ')
+                                    fetch('/api/push/send', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            station: 'kitchen',
+                                            ticketId,
+                                            tableIdentifier: tableIdentifier || 'Tanpa Meja',
+                                            itemSummary: kitchenSummary
+                                        })
+                                    }).catch(err => console.error('Error sending kitchen push notification:', err))
+                                }
+                            } catch (pushErr) {
+                                console.error('Error triggering push notifications:', pushErr)
+                            }
+                        }, 0)
                     }
                 }
             } catch (dbErr) {
@@ -787,6 +837,12 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
                 status,
                 created_at,
                 waiter_id,
+                bar_status,
+                kitchen_status,
+                bar_prep_start,
+                bar_prep_end,
+                kitchen_prep_start,
+                kitchen_prep_end,
                 ticket_items (
                     id,
                     qty,
@@ -813,7 +869,13 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
                 status: t.status,
                 created_at: t.created_at,
                 ticket_items: t.ticket_items,
-                waiter_email: t.waiter_id ? emailMap.get(t.waiter_id) : undefined
+                waiter_email: t.waiter_id ? emailMap.get(t.waiter_id) : undefined,
+                bar_status: t.bar_status || 'none',
+                kitchen_status: t.kitchen_status || 'none',
+                bar_prep_start: t.bar_prep_start || null,
+                bar_prep_end: t.bar_prep_end || null,
+                kitchen_prep_start: t.kitchen_prep_start || null,
+                kitchen_prep_end: t.kitchen_prep_end || null
             }))
             
             const active = typedTickets.filter(t => t.status === 'draft')
@@ -855,6 +917,68 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
                     console.error('Error logging markTicketAsRelayed:', err)
                 }
             }
+        }
+    },
+
+    updateBarPrepStatus: async (ticketId, status) => {
+        const updateData: any = { bar_status: status }
+        const timestamp = new Date().toISOString()
+        if (status === 'preparing') {
+            updateData.bar_prep_start = timestamp
+        } else if (status === 'ready') {
+            updateData.bar_prep_end = timestamp
+        }
+
+        const { error } = await supabase
+            .from('order_tickets')
+            .update(updateData)
+            .eq('id', ticketId)
+
+        if (error) {
+            console.error('Failed to update bar prep status:', error)
+            alert(`Gagal memperbarui status bar: ${error.message}`)
+        } else {
+            const updateTicket = (t: OrderTicket) => t.id === ticketId ? {
+                ...t,
+                bar_status: status,
+                bar_prep_start: status === 'preparing' ? timestamp : t.bar_prep_start,
+                bar_prep_end: status === 'ready' ? timestamp : t.bar_prep_end
+            } : t
+            set((state) => ({
+                activeTickets: state.activeTickets.map(updateTicket),
+                completedTickets: state.completedTickets.map(updateTicket)
+            }))
+        }
+    },
+
+    updateKitchenPrepStatus: async (ticketId, status) => {
+        const updateData: any = { kitchen_status: status }
+        const timestamp = new Date().toISOString()
+        if (status === 'preparing') {
+            updateData.kitchen_prep_start = timestamp
+        } else if (status === 'ready') {
+            updateData.kitchen_prep_end = timestamp
+        }
+
+        const { error } = await supabase
+            .from('order_tickets')
+            .update(updateData)
+            .eq('id', ticketId)
+
+        if (error) {
+            console.error('Failed to update kitchen prep status:', error)
+            alert(`Gagal memperbarui status dapur: ${error.message}`)
+        } else {
+            const updateTicket = (t: OrderTicket) => t.id === ticketId ? {
+                ...t,
+                kitchen_status: status,
+                kitchen_prep_start: status === 'preparing' ? timestamp : t.kitchen_prep_start,
+                kitchen_prep_end: status === 'ready' ? timestamp : t.kitchen_prep_end
+            } : t
+            set((state) => ({
+                activeTickets: state.activeTickets.map(updateTicket),
+                completedTickets: state.completedTickets.map(updateTicket)
+            }))
         }
     },
 
