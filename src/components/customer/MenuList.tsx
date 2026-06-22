@@ -6,6 +6,19 @@ import { useMemo, useState, useEffect } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Leaf, Info, Star, Plus, ChevronLeft, ChevronRight, Search, X } from 'lucide-react'
 
+// Helper to get category glow shadow colors for featured cards
+const getCategoryGlow = (category: string) => {
+    if (!category) return 'rgba(245, 158, 11, 0.35)'
+    const cat = category.toLowerCase()
+    if (cat.includes('coffee') || cat.includes('kopi')) {
+        return 'rgba(245, 158, 11, 0.45)' // Warm amber glow for coffee
+    }
+    if (cat.includes('non-coffee') || cat.includes('tea') || cat.includes('teh') || cat.includes('matcha')) {
+        return 'rgba(16, 185, 129, 0.45)' // Fresh emerald green glow
+    }
+    return 'rgba(244, 63, 94, 0.45)' // Rose/orange glow for food/snacks
+}
+
 export default function MenuList() {
     const { menus, isLoading } = useMenuStore()
     const [selectedCategory, setSelectedCategory] = useState('Semua')
@@ -227,6 +240,12 @@ export default function MenuList() {
                                 transformStyle = 'translateX(52%) translateZ(-150px) rotateY(-35deg) scale(0.85)'
                             }
 
+                            const glowColor = getCategoryGlow(menu.category)
+                            const activeShadow = isActive 
+                                ? `0 20px 40px -10px ${glowColor}` 
+                                : '0 4px 20px -2px rgba(0,0,0,0.4)'
+                            const hasImage = !!menu.image_url
+
                             return (
                                 <div
                                     key={menu.id}
@@ -240,50 +259,64 @@ export default function MenuList() {
                                     style={{
                                         transform: transformStyle,
                                         zIndex: isActive ? 10 : 5,
-                                        opacity: isActive ? 1 : 0.55,
+                                        opacity: isActive ? 1 : 0.6,
                                         transition: 'all 500ms cubic-bezier(0.25, 0.8, 0.25, 1)',
+                                        boxShadow: activeShadow,
                                     }}
-                                    className="absolute w-72 h-[11rem] rounded-[2rem] bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 p-5 text-white shadow-2xl border border-slate-700/50 cursor-pointer flex flex-col justify-between overflow-hidden"
+                                    className="absolute w-72 h-[12rem] rounded-[2.5rem] bg-gradient-to-br from-slate-900/95 via-slate-950/98 to-slate-950 p-5 text-white shadow-2xl border border-slate-800/80 cursor-pointer flex flex-col justify-between overflow-hidden group"
                                 >
                                     {/* Glass reflection overlay */}
-                                    <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 pointer-events-none"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 pointer-events-none z-[3]"></div>
 
-                                    {/* Card Header */}
-                                    <div className="flex justify-between items-center z-10">
-                                        <Badge className="bg-slate-800 border-none text-[8px] tracking-wide text-slate-300">
-                                            {menu.category.toUpperCase()}
-                                        </Badge>
-                                        {menu.station === 'bar' && menu.nutri_grade && (
-                                            <Badge className={`${getGradeColor(menu.nutri_grade)} border-none text-[9px] px-2 py-0.5`}>
-                                                Grade {menu.nutri_grade}
-                                            </Badge>
-                                        )}
-                                    </div>
-
-                                    {/* Card Image Thumbnail if available */}
-                                    {menu.image_url && isActive && (
-                                        <div className="absolute right-4 bottom-10 w-20 h-20 rounded-full overflow-hidden border border-slate-700/30 shadow-md transform rotate-6 opacity-30 pointer-events-none">
-                                            <img src={menu.image_url} alt={menu.name} className="w-full h-full object-cover" />
+                                    {/* Full-Bleed Background Image */}
+                                    {hasImage ? (
+                                        <div className="absolute inset-0 z-0 select-none pointer-events-none overflow-hidden rounded-[2.5rem]">
+                                            <img 
+                                                src={menu.image_url} 
+                                                alt={menu.name} 
+                                                className="w-full h-full object-cover transition-transform duration-[10s] ease-out group-hover:scale-110" 
+                                            />
+                                            {/* Minimal base vignette overlay */}
+                                            <div className="absolute inset-0 bg-slate-950/15 z-[1]"></div>
                                         </div>
+                                    ) : (
+                                        // Fallback background glow if no image is present
+                                        <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-900/40 via-slate-950/60 to-slate-950/90" />
                                     )}
 
-                                    {/* Card Content */}
-                                    <div className="z-10 mt-2">
-                                        <h3 className="text-md font-black tracking-tight leading-tight line-clamp-2">{menu.name}</h3>
-                                        <p className="text-[9px] text-slate-400 line-clamp-1 mt-0.5">{menu.description || 'Pilihan terbaik barista hari ini.'}</p>
+                                    {/* Card Header (Floating Glass Badges) */}
+                                    <div className="flex justify-between items-center w-full z-10">
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                            <span className="text-[7.5px] font-black tracking-widest text-amber-400 uppercase bg-slate-950/65 backdrop-blur-md border border-amber-500/25 px-2.5 py-1 rounded-full shadow-sm">
+                                                {menu.category}
+                                            </span>
+                                            {menu.station === 'bar' && menu.nutri_grade && (
+                                                <span className={`text-[7.5px] font-black tracking-widest text-white ${getGradeColor(menu.nutri_grade)} px-2.5 py-1 rounded-full shadow-sm bg-opacity-80 backdrop-blur-md`}>
+                                                    GRADE {menu.nutri_grade}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
 
-                                    {/* Card Price / Stock */}
-                                    <div className="flex justify-between items-end border-t border-slate-800 pt-2.5 z-10 w-full">
-                                        {menu.variants && menu.variants.length > 0 ? (
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                                Lihat Varian & Harga
-                                            </span>
-                                        ) : (
-                                            <span className="text-sm font-black text-emerald-400">
-                                                Rp {menu.price.toLocaleString('id-ID')}
-                                            </span>
-                                        )}
+                                    {/* Bottom Info Section (Floating Text over Bottom Fade) */}
+                                    <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent p-5 pt-8 flex flex-col gap-1">
+                                        <h3 className="text-[12.5px] font-black tracking-tight leading-snug text-white drop-shadow-md line-clamp-1">
+                                            {menu.name}
+                                        </h3>
+                                        <p className="text-[8.5px] text-slate-200 font-medium leading-relaxed line-clamp-2 drop-shadow-sm opacity-95">
+                                            {menu.description || 'Pilihan terbaik barista hari ini.'}
+                                        </p>
+                                        <div className="flex items-center justify-between mt-1">
+                                            {menu.variants && menu.variants.length > 0 ? (
+                                                <span className="text-[7.5px] font-black text-amber-400 uppercase tracking-widest bg-amber-400/20 border border-amber-400/35 px-2.5 py-1 rounded-xl backdrop-blur-sm shadow-sm">
+                                                    Lihat Varian & Harga
+                                                </span>
+                                            ) : (
+                                                <span className="text-[12px] font-black text-emerald-450 tracking-tight drop-shadow-md">
+                                                    Rp {menu.price.toLocaleString('id-ID')}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             )
@@ -366,13 +399,13 @@ export default function MenuList() {
                                     {/* Panel Detail Ekspansif */}
                                     <div
                                         className={`overflow-hidden transition-all duration-305 ease-in-out ${isExpanded
-                                            ? 'max-h-[30rem] opacity-100 mt-4 border-t border-slate-100 pt-4'
+                                            ? 'max-h-[60rem] opacity-100 mt-4 border-t border-slate-100 pt-4'
                                             : 'max-h-0 opacity-0 pointer-events-none'
                                             }`}
                                     >
                                         <div className="flex flex-col md:flex-row gap-4">
                                             {/* Foto Produk */}
-                                            <div className="w-full md:w-32 h-48 md:h-32 shrink-0 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 relative flex items-center justify-center text-slate-400">
+                                            <div className="w-full md:w-32 h-64 md:h-32 shrink-0 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 relative flex items-center justify-center text-slate-400">
                                                 {item.image_url ? (
                                                     <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                                                 ) : (
@@ -549,13 +582,13 @@ export default function MenuList() {
                             {/* Panel Detail Ekspansif (Accordion Collapse/Expand) */}
                             <div
                                 className={`overflow-hidden transition-all duration-305 ease-in-out ${isExpanded
-                                    ? 'max-h-[30rem] opacity-100 mt-4 border-t border-slate-100 pt-4'
+                                    ? 'max-h-[60rem] opacity-100 mt-4 border-t border-slate-100 pt-4'
                                     : 'max-h-0 opacity-0 pointer-events-none'
                                     }`}
                             >
                                 <div className="flex flex-col md:flex-row gap-4">
                                     {/* Foto Produk */}
-                                    <div className="w-full md:w-32 h-48 md:h-32 shrink-0 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 relative flex items-center justify-center text-slate-400">
+                                    <div className="w-full md:w-32 h-64 md:h-32 shrink-0 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 relative flex items-center justify-center text-slate-400">
                                         {item.image_url ? (
                                             <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                                         ) : (
