@@ -26,8 +26,13 @@ export default function PushRegister() {
 
         async function registerPush() {
             if (typeof window === 'undefined') return
-            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-                console.log('=== [PUSH] Push notifications are not supported in this browser. ===')
+            if (
+                !('serviceWorker' in navigator) || 
+                !('PushManager' in window) || 
+                !('Notification' in window) ||
+                typeof Notification === 'undefined'
+            ) {
+                console.log('=== [PUSH] Push notifications or Notification API are not supported in this browser. ===')
                 return
             }
 
