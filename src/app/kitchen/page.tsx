@@ -60,9 +60,19 @@ export default function KitchenPage() {
     const [soundEnabled, setSoundEnabled] = useState(true)
     const [wakeLockActive, setWakeLockActive] = useState(false)
     const [updatingId, setUpdatingId] = useState<string | null>(null)
+    const [secondsTick, setSecondsTick] = useState(0)
 
     const wakeLockRef = useRef<any>(null)
     const ticketsLengthRef = useRef<number>(0)
+
+    // Ticking interval to force re-render elapsed timers every second
+    useEffect(() => {
+        if (!isAuthorized) return
+        const timer = setInterval(() => {
+            setSecondsTick(prev => prev + 1)
+        }, 1000)
+        return () => clearInterval(timer)
+    }, [isAuthorized])
 
     // Auth Guard
     useEffect(() => {
