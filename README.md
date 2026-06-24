@@ -15,7 +15,7 @@ Lupakan sistem manual atau egress limit Supabase yang mahal. Dengan migrasi **Cl
 
 ---
 
-## ✨ Fitur Gokil & Modern
+##  Fitur Anjay Mabar
 
 ### 1. Tampilan Pelanggan / Customer QR View (`/`)
 * **Live Sync Menu**: Daftar menu pelanggan ter-update secara senyap di latar belakang (*silent fetch*) tanpa merusak posisi scroll/kedipan layar.
