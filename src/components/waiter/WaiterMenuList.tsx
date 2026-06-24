@@ -51,8 +51,9 @@ export default function WaiterMenuList() {
 
     return (
         <div className="flex flex-col gap-4">
-            {/* PENCARIAN MENU WAITER */}
-            <div className="px-4 pt-2">
+            {/* STICKY CONTAINER: PENCARIAN & KATEGORI */}
+            <div className="sticky top-[121px] bg-slate-50/95 backdrop-blur-md z-20 pb-3 pt-2 px-4 border-b border-slate-200/60 flex flex-col gap-3 shadow-sm">
+                {/* PENCARIAN MENU WAITER */}
                 <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl shadow-sm focus-within:border-slate-800 transition-colors">
                     <span className="absolute left-4 text-slate-400">
                         <Search size={16} />
@@ -73,25 +74,25 @@ export default function WaiterMenuList() {
                         </button>
                     )}
                 </div>
-            </div>
 
-            {/* TAB NAVIGASI KATEGORI UNTUK WAITER */}
-            <div className="w-full overflow-x-auto scrollbar-none px-4 py-2 flex gap-2">
-                {categories.map((cat) => {
-                    const isActive = selectedCategory === cat
-                    return (
-                        <button
-                            key={cat}
-                            onClick={() => setSelectedCategory(cat)}
-                            className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all duration-200 active:scale-95 ${isActive
-                                    ? 'bg-slate-900 text-white shadow-md'
-                                    : 'bg-white text-slate-500 border border-slate-200'
-                                }`}
-                        >
-                            {cat}
-                        </button>
-                    )
-                })}
+                {/* TAB NAVIGASI KATEGORI UNTUK WAITER */}
+                <div className="w-full overflow-x-auto scrollbar-none flex gap-2">
+                    {categories.map((cat) => {
+                        const isActive = selectedCategory === cat
+                        return (
+                            <button
+                                key={cat}
+                                onClick={() => setSelectedCategory(cat)}
+                                className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all duration-200 active:scale-95 ${isActive
+                                        ? 'bg-slate-900 text-white shadow-md'
+                                        : 'bg-white text-slate-500 border border-slate-200'
+                                    }`}
+                            >
+                                {cat}
+                            </button>
+                        )
+                    })}
+                </div>
             </div>
 
             <div className="flex flex-col gap-4 p-4 pb-32 pt-0">
