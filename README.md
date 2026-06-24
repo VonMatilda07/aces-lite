@@ -1,76 +1,100 @@
-# ACES Lite - Smart Menu & Order Relay System
+# ACES Lite - Smart Menu & Order Relay System ☕🚀
 
-ACES Lite adalah sistem manajemen ketersediaan menu real-time dan kompilasi pesanan cerdas, dirancang khusus untuk mempercepat alur kerja operasional pramusaji (waiter), bar, dan dapur pada kafe modern.
+[![Next.js](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Cloudflare R2](https://img.shields.io/badge/Cloudflare_R2-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://www.cloudflare.com/products/r2/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Web Push](https://img.shields.io/badge/Web_Push-Active-red?style=for-the-badge&logo=webpush&logoColor=white)]()
+[![PWA Ready](https://img.shields.io/badge/PWA-Ready-blueviolet?style=for-the-badge&logo=progressive-web-apps&logoColor=white)]()
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 
-Sistem ini memfasilitasi pencatatan pesanan di meja pelanggan oleh waiter (*taking order*), antrean pemrosesan ke mesin kasir fisik (*POS Relay Queue*), sinkronisasi stok otomatis/manual secara real-time, serta riwayat handout.
+**ACES Lite** adalah asisten operasional kafe modern super cepat dan cerdas! Sistem ini dirancang khusus untuk menyelaraskan alur kerja pramusaji (waiter), bar (barista), dapur (kitchen), dan pelanggan secara real-time tanpa jeda. 
+
+Lupakan sistem manual atau egress limit Supabase yang mahal. Dengan migrasi **Cloudflare R2 (kustom domain)**, sistem notifikasi **Web Push PWA**, serta pengaman transaksi **Double-Order Prevention**, kafe Anda siap berjalan di level yang jauh lebih tinggi! 
 
 ---
 
-## 🚀 Fitur Utama
+## ✨ Fitur Gokil & Modern
 
-### 1. Customer QR View (`/`)
-* **Live Sync Menu**: Menampilkan menu terkini yang sinkron secara instan dengan perubahan stok dari pramusaji.
-* **Dynamic Sorting**: Menu yang berstatus Habis (*Sold Out*) otomatis digeser ke urutan terbawah agar tidak mengganggu navigasi pelanggan.
-* **Search & Filter**: Fitur pencarian instan dan klasifikasi sub-kategori menu untuk navigasi yang cepat.
-* **Smart Alternative Suggestion**: Jika menu berstatus habis, sistem otomatis menyarankan 3 alternatif menu serupa (secara cerdas berbasis sub-kategori, atau alternatif khusus yang diatur oleh Admin).
-* **Bundle Menu Viewer**: Menampilkan informasi komponen penyusun menu paket/bundling beserta nutri-grade masing-masing komponen.
+### 1. Tampilan Pelanggan / Customer QR View (`/`)
+* **Live Sync Menu**: Daftar menu pelanggan ter-update secara senyap di latar belakang (*silent fetch*) tanpa merusak posisi scroll/kedipan layar.
+* **Auto-Sort Sold Out**: Menu yang habis otomatis bergeser ke posisi paling bawah biar pelanggan tidak kecewa saat scroll.
+* **Rekomendasi Pintar (Smart Alternatives)**: Jika menu habis, sistem secara otomatis merekomendasikan 3 menu pengganti yang relevan berdasarkan subkategori.
+* **Kotak Masukan & Voucher Diskon 10%**: Pelanggan bisa mengirim kritik & saran (pelayanan, makanan, minuman, suasana) untuk mendapatkan kode voucher diskon unik (`CC-XXXX`). Dilengkapi proteksi isi ulang 24 jam berbasis `localStorage` dan pengecekan server-side (Supabase RPC) otomatis.
+* **Desain Premium Tanpa Potong**: Gambar produk menggunakan gaya *full-bleed card background* bergradasi lembut. Pada mode mobile detail accordion, aspek rasio foto produk menyesuaikan secara dinamis agar terlihat utuh (*zero cropping*).
 
-### 2. Waiter Command Center (`/waiter`)
-* **Clock & Date Widget**: Widget jam dinamis real-time (detik, menit, jam, hari, dan tanggal) untuk mempermudah koordinasi operasional.
-* **1-Tap Stock Control**: Memungkinkan pramusaji mengubah status ketersediaan menu (*Tersedia, Menipis, Habis*) dan jumlah stok hanya dalam sekali ketuk.
-* **Order Tab System**:
-  * **Catat Order**: Halaman pencatatan pesanan pelanggan berbasis stasiun saji (Bar vs Kitchen) lengkap dengan catatan khusus per item.
-  * **Antrean POS**: Menampilkan daftar taking order aktif berstatus `draft` yang siap dimasukkan oleh waiter ke sistem kasir fisik. Dilengkapi badge jumlah antrean interaktif yang bergerak memantul (*bounce animation*).
-  * **Riwayat**: Menampilkan log pesanan yang telah di-relay ke POS fisik (status `relayed`).
+### 2. Dasbor Waiter Command Center (`/waiter`)
+* **Catat Order & Varian Inline**: Tombol pencatatan varian rasa/suhu (Hot/Iced) disajikan secara inline langsung di bawah nama produk untuk mempercepat input pramusaji (sekali ketuk).
+* **Proteksi Transaksional (Aman Sinyal)**: Keranjang pesanan hanya akan dihapus jika database Supabase sukses menyimpan data order. Jika koneksi seluler mati/glitch, keranjang tidak akan terhapus dan waiter bisa menekan tombol kirim ulang.
+* **Double-Order & Over-selling Guard**: Validasi stok real-time otomatis mendeteksi dan menyesuaikan kuantitas keranjang jika ada stok produk yang habis disapu pramusaji lain pada detik yang sama.
+* **Widget Jam & Pax Counter**: Dilengkapi penghitung jumlah pelanggan (Pax) meja terintegrasi dan widget jam digital operasional yang detail.
+* **Klaim Voucher Kasir**: Waiter/Kasir bisa memverifikasi dan menandai voucher diskon 10% pelanggan secara real-time di database.
 
-### 3. Admin Command Center (`/admin`)
-* **Menu Management**: CRUD menu, penentuan sub-kategori, pengisian alternatif menu, pembagian varian rasa/suhu dengan stok mandiri, dan tipe menu (single vs bundle).
-* **Weekly Menu Scheduler**: Penjadwalan menu dinamis berdasarkan hari dan rentang jam tertentu (misal: menu sarapan hanya muncul Senin-Jumat pukul 07:00 - 10:00).
-* **Staff Profile Management**: Mengatur akun staf beserta otorisasi peran (*Admin, Supervisor, Captain, Waiter, Kitchen, Barista*).
-* **Audit Logs**: Melacak setiap tindakan krusial staf (seperti perubahan status menu, otorisasi staf, penyelesaian transaksi) untuk transparansi operasional.
+### 3. Dasbor Barista (`/barista`) & Kitchen (`/kitchen`)
+* **Stasiun Kerja Terpisah**: Pesanan otomatis terbagi ke halaman Barista (hanya menampilkan minuman/bar) dan Kitchen (hanya menampilkan makanan/dapur).
+* **Wake Lock Screen API**: Menjaga agar layar HP/Tablet stasiun barista dan dapur tetap menyala terus selama aplikasi dibuka (tidak terkunci otomatis).
+* **Audio Chime Alerts**: Membunyikan suara lonceng secara otomatis menggunakan Web Audio API lokal saat ada pesanan baru masuk stasiun.
+* **Web Push Notifications (PWA)**: Staf tetap menerima notifikasi banner sistem di HP mereka (lengkap dengan getaran) meskipun layar HP sedang mati atau browser ditutup.
+* **Analytics COMING SOON!**: Halaman analisis performa stasiun saji khusus untuk level pimpinan (Head Barista / Head Kitchen).
+
+### 4. Dasbor Admin & Marketing (`/admin`)
+* **Image Editor Crop 1:1 & Rotate**: Form tambah menu dilengkapi modal crop lingkaran/persegi 1:1, garis bantu *rule of thirds*, putar foto 90°, serta auto-compress ke JPEG ~100KB sebelum diunggah ke Cloudflare R2 secara server-side.
+* **Weekly Scheduler**: Penjadwalan menu dinamis otomatis berdasarkan hari dan rentang jam.
+* **Audit Logs Terpusat**: Seluruh aktivitas krusial staf (ubah peran, hapus feedback, reset stok) tercatat aman di database.
+* **Peran Khusus Marketing**: Staf dengan peran `marketing` otomatis masuk ke halaman khusus monitoring statistik kepuasan pelanggan kafe (sub-rating kategori).
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Framework:** Next.js 14/15 (App Router & Turbopack)
-* **Database & Realtime Engine:** Supabase (PostgreSQL + Realtime PostgreSQL Changes via WebSocket)
+* **Framework:** Next.js (App Router, Turbopack)
+* **Database & WebSocket Real-time:** Supabase
+* **Object Storage:** Cloudflare R2 (S3 Client SDK) dengan kustom domain `storage.coffeecomunitas.shop` (Bypass Telkomsel DNS block)
 * **State Management:** Zustand
-* **Styling & UI:** Tailwind CSS, Lucide Icons, ShadCN UI
+* **Desain UI:** Tailwind CSS, Lucide Icons, ShadCN UI
 * **Deployment:** Vercel
 
 ---
 
-## 📂 Struktur Direktori Utama
+## 📂 Struktur Direktori Proyek
 
 ```text
-├── docs/                 # Dokumentasi arsitektur dan komponen
-├── public/               # Aset statis & logo
-├── scratch/              # Skrip utilitas pengembang & simulasi tes lokal
+├── docs/                      # Dokumentasi arsitektur dan komponen
+├── public/                    # Aset statis, manifest PWA & sw.js (Service Worker)
+├── scratch/                   # Skrip utilitas migrasi & uji lokal (.mjs)
 └── src/
     ├── app/
-    │   ├── page.tsx      # Tampilan Menu Pelanggan (QR View)
-    │   ├── login/        # Halaman Masuk Staff
-    │   ├── waiter/       # Dasbor Pramusaji (Command Center)
-    │   └── admin/        # Dasbor Admin & Supervisor (Manajemen & Audit)
+    │   ├── page.tsx           # Tampilan Menu Pelanggan (QR View)
+    │   ├── login/             # Halaman Masuk Staff
+    │   ├── waiter/            # Dasbor Pramusaji (Command Center)
+    │   ├── barista/           # Dasbor Barista (Antrean Minuman & Audio Chime)
+    │   ├── kitchen/           # Dasbor Kitchen (Antrean Makanan & Audio Chime)
+    │   └── admin/             # Dasbor Admin & Supervisor (Manajemen, Audit & Feedback)
     ├── components/
-    │   ├── waiter/       # Komponen khusus Waiter (Cart, Tiket Antrean POS)
-    │   └── ui/           # Komponen UI dasar yang dapat digunakan kembali
+    │   ├── customer/          # Komponen QR View (MenuList, FeedbackBox)
+    │   ├── waiter/            # Komponen Waiter (Cart, Tiket Antrean)
+    │   ├── push/              # Pendaftar Token Notifikasi HP Staf (PushRegister)
+    │   └── ui/                # Komponen dasar UI Tailwind
     ├── lib/
-    │   ├── supabase.ts   # Inisialisasi client Supabase (SSR & Stateless)
-    │   └── audit.ts      # Engine pencatat Log Audit staf ke database
+    │   ├── supabase.ts        # Inisialisasi client Supabase (Stateless & SSR)
+    │   └── audit.ts           # Engine pencatat Log Audit staf ke database
     └── store/
-        ├── useMenuStore.ts # Core Engine: State menu, keranjang, order tickets, & realtime listener
-        └── useAuthStore.ts # Auth Engine: Sesi masuk & otorisasi peran staf
+        ├── useMenuStore.ts    # Core Engine: State menu, keranjang, tiket, & realtime listener
+        └── useAuthStore.ts    # Auth Engine: Sesi masuk & otorisasi peran staf
 ```
 
 ---
 
-## 🗄️ Skema Database Supabase (DDL SQL)
+## 🗄️ Skema Database Supabase (DDL SQL Terbaru)
 
-Jalankan query SQL berikut di dalam **SQL Editor** pada Console Supabase Anda untuk mempersiapkan tabel-tabel sistem:
+Salin dan jalankan query berikut di **SQL Editor** Supabase Anda untuk membangun tabel-tabel sistem:
 
 ```sql
+-- ========================================================
+-- DATABASE ACES LITE DDL
+-- ========================================================
+
 -- 1. Tabel Profil Staf
 CREATE TABLE public.profiles (
     id uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL PRIMARY KEY,
@@ -97,6 +121,7 @@ CREATE TABLE public.menus (
     bundle_items jsonb DEFAULT '[]'::jsonb,
     schedule jsonb DEFAULT '[]'::jsonb,
     alternatives jsonb DEFAULT '[]'::jsonb,
+    station text DEFAULT 'bar'::text,
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -107,7 +132,14 @@ CREATE TABLE public.order_tickets (
     id uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
     waiter_id uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
     table_identifier text NOT NULL,
+    customer_count integer DEFAULT 1 NOT NULL,
     status ticket_status DEFAULT 'draft'::ticket_status NOT NULL,
+    bar_status text DEFAULT 'pending'::text,
+    kitchen_status text DEFAULT 'pending'::text,
+    bar_prep_start timestamp with time zone,
+    bar_prep_end timestamp with time zone,
+    kitchen_prep_start timestamp with time zone,
+    kitchen_prep_end timestamp with time zone,
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -129,48 +161,88 @@ CREATE TABLE public.audit_logs (
     action text NOT NULL,
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- 6. Tabel Kritik & Saran Pelanggan
+CREATE TABLE public.customer_feedback (
+    id uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
+    customer_name text,
+    feedback_text text NOT NULL,
+    rating integer,
+    rating_service integer,
+    rating_beverage integer,
+    rating_food integer,
+    rating_ambiance integer,
+    voucher_code text,
+    is_claimed boolean DEFAULT false,
+    claimed_at timestamp with time zone,
+    claimed_by text,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 7. Tabel Token Notifikasi HP Staf (Push Notifications)
+CREATE TABLE public.push_subscriptions (
+    id bigint GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+    subscription jsonb NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
 ```
 
 ---
 
-## ⚙️ Panduan Setup Lokal (Development)
+## ⚙️ Panduan Setup & Jalankan Lokal
 
-### 1. Prasyarat
-Pastikan komputer Anda sudah terinstal **Node.js (LTS)**.
-
-### 2. Kloning dan Instalasi
-Kloning repositori dan instal paket dependensi:
+### 1. Kloning Repositori
 ```bash
 git clone <repository-url>
 cd aces-lite
 npm install
 ```
 
-### 3. Konfigurasi Variabel Lingkungan (`.env.local`)
-Buat file bernama `.env.local` di direktori utama proyek, lalu isi dengan URL dan API Key dari proyek Supabase Anda:
+### 2. Konfigurasi Lingkungan (`.env.local`)
+Buat file `.env.local` di direktori utama, lalu isi dengan konfigurasi Supabase & Cloudflare R2 Anda:
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://<id-proyek-anda>.supabase.co
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://<proyek-anda>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key-anda>
+
+# Web Push VAPID Keys
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=<vapid-public-key-anda>
+VAPID_PRIVATE_KEY=<vapid-private-key-anda>
+
+# Cloudflare R2 Configuration
+R2_ACCESS_KEY_ID=<access-key-id-anda>
+R2_SECRET_ACCESS_KEY=<secret-access-key-anda>
+R2_ENDPOINT=https://<cloudflare-account-id>.r2.cloudflarestorage.com
+R2_BUCKET_NAME=aces-lite-storage
+NEXT_PUBLIC_R2_PUBLIC_URL=https://storage.coffeecomunitas.shop
 ```
 
-### 4. Menjalankan Server Lokal
-Jalankan server pengembangan lokal:
+### 3. Jalankan Server Dev
 ```bash
 npm run dev
 ```
-Buka browser Anda di alamat [http://localhost:3000](http://localhost:3000) untuk mengakses halaman pelanggan, atau [http://localhost:3000/waiter](http://localhost:3000/waiter) untuk dasbor pramusaji.
+Buka browser di alamat [http://localhost:3000](http://localhost:3000) untuk tampilan pelanggan QR, atau [http://localhost:3000/waiter](http://localhost:3000/waiter) untuk dasbor waiter.
 
 ---
 
-## 🧪 Skrip Pengujian & Utilitas
+## 🧪 Skrip Pengujian & Pemeliharaan (Folder `/scratch`)
 
-Di dalam folder `/scratch`, terdapat beberapa skrip utilitas pengujian database lokal berbasis Node.js. Anda dapat menjalankannya untuk memvalidasi performa database dan autentikasi:
+Tersedia skrip Node.js mandiri yang bisa dijalankan di terminal lokal untuk keperluan tes database & aset:
 
-* **Menguji Alur Order & POS Relay**:
+* **Update Massal Domain Gambar ke Kustom Domain R2**:
+  ```bash
+  node scratch/update-db-to-custom-domain.mjs
+  ```
+* **Simulasi Alur Order Tiket & POS Relay**:
   ```bash
   node scratch/test-tickets-flow.mjs
   ```
-* **Memeriksa Daftar Profil Staf**:
+* **Uji Coba Ambil Gambar R2 dari Kustom Domain**:
+  ```bash
+  node scratch/test-fetch-r2.mjs
+  ```
+* **Cek Sesi Profil Staf**:
   ```bash
   node scratch/check-profiles.mjs
   ```
