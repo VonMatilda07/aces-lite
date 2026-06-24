@@ -19,7 +19,14 @@ const QUICK_TEMPLATES = [
     '📢 Piring/Gelas Kotor Menumpuk!',
     '📢 Tolong Bantu Angkat Meja',
     '📢 Orderan Siap Disajikan!',
-    '📢 Stok Kopi/Susu Menipis!'
+    '📢 Stok Kopi/Susu Menipis!',
+    '📢 Mesin Espresso Trouble',
+    '📢 Mesin Kasir Error',
+    '📢 Rijal Terlalu Hitam',
+    '📢 Adam Terlalu Hitam',
+    '📢 Dapur Terlalu Panas',
+    '📢 Tolong Backup Dulu, Saya Mau Ke Toilet',
+
 ]
 
 export default function ChatWidget() {
@@ -133,7 +140,7 @@ export default function ChatWidget() {
             {/* CHAT DRAWER PANEL */}
             {isOpen && (
                 <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex justify-end animate-in fade-in duration-200">
-                    <div 
+                    <div
                         className="bg-white w-full max-w-sm h-full shadow-2xl border-l border-slate-200 flex flex-col animate-in slide-in-from-right duration-200"
                     >
                         {/* Header */}
@@ -165,7 +172,7 @@ export default function ChatWidget() {
                                 messages.map((msg) => {
                                     const isMe = msg.sender_email === user.email
                                     const senderAlias = msg.sender_email.split('@')[0]
-                                    
+
                                     // Format Time (WITA/Local browser)
                                     const localTime = new Date(msg.created_at).toLocaleTimeString('id-ID', {
                                         hour: '2-digit',
@@ -173,32 +180,30 @@ export default function ChatWidget() {
                                     })
 
                                     return (
-                                        <div 
-                                            key={msg.id} 
+                                        <div
+                                            key={msg.id}
                                             className={`flex flex-col gap-1 max-w-[80%] ${isMe ? 'self-end items-end' : 'self-start items-start'}`}
                                         >
                                             {/* Sender Name & Role Badge */}
                                             <div className="flex items-center gap-1.5 px-1">
                                                 <span className="text-[9px] font-black text-slate-500 lowercase">{senderAlias}</span>
-                                                <span className={`text-[7px] font-black uppercase px-1 rounded border ${
-                                                    msg.sender_role === 'admin' || msg.sender_role === 'supervisor'
+                                                <span className={`text-[7px] font-black uppercase px-1 rounded border ${msg.sender_role === 'admin' || msg.sender_role === 'supervisor'
                                                         ? 'bg-rose-50 border-rose-200 text-rose-600'
                                                         : msg.sender_role === 'captain'
-                                                        ? 'bg-amber-50 border-amber-200 text-amber-600'
-                                                        : msg.sender_role === 'waiter'
-                                                        ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
-                                                        : 'bg-slate-100 border-slate-200 text-slate-500'
-                                                }`}>
+                                                            ? 'bg-amber-50 border-amber-200 text-amber-600'
+                                                            : msg.sender_role === 'waiter'
+                                                                ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                                                                : 'bg-slate-100 border-slate-200 text-slate-500'
+                                                    }`}>
                                                     {msg.sender_role}
                                                 </span>
                                             </div>
 
                                             {/* Bubble */}
-                                            <div className={`p-3 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm break-words ${
-                                                isMe 
-                                                    ? 'bg-indigo-600 text-white rounded-tr-none' 
+                                            <div className={`p-3 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm break-words ${isMe
+                                                    ? 'bg-indigo-600 text-white rounded-tr-none'
                                                     : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none'
-                                            }`}>
+                                                }`}>
                                                 {msg.message}
                                             </div>
 

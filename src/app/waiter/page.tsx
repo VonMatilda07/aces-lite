@@ -45,9 +45,9 @@ function WaiterViewVoucherPanel() {
                     month: 'short',
                     year: 'numeric'
                 })
-                setClaimStatus({ 
-                    type: 'error', 
-                    text: `KLAIM DITOLAK! Voucher ini sudah diklaim sebelumnya pada ${claimedDate} ${claimedTime} WITA oleh ${data.claimed_by || 'Staf Kasir'}.` 
+                setClaimStatus({
+                    type: 'error',
+                    text: `KLAIM DITOLAK! Voucher ini sudah diklaim sebelumnya pada ${claimedDate} ${claimedTime} WITA oleh ${data.claimed_by || 'Staf Kasir'}.`
                 })
             } else {
                 const { error: updateError } = await supabase
@@ -61,15 +61,15 @@ function WaiterViewVoucherPanel() {
 
                 if (updateError) throw updateError
 
-                setClaimStatus({ 
-                    type: 'success', 
-                    text: 'VOUCHER VALID! Berikan DISKON 10% untuk transaksi/struk pelanggan ini.' 
+                setClaimStatus({
+                    type: 'success',
+                    text: 'VOUCHER VALID! Berikan DISKON 10% untuk transaksi/struk pelanggan ini.'
                 })
-                
+
                 try {
                     const { writeAuditLog } = await import('@/lib/audit')
                     await writeAuditLog(`Memproses klaim voucher diskon 10% customer (${voucherCodeInput.trim().toUpperCase()})`)
-                } catch (auditErr) {}
+                } catch (auditErr) { }
             }
         } catch (err: any) {
             console.error('Failed to process voucher claim:', err)
@@ -114,11 +114,10 @@ function WaiterViewVoucherPanel() {
                 </div>
 
                 {claimStatus.type !== 'idle' && (
-                    <div className={`p-4 rounded-2xl border font-semibold leading-relaxed flex items-start gap-2 ${
-                        claimStatus.type === 'success' 
-                            ? 'bg-emerald-50 border-emerald-250 text-emerald-700' 
+                    <div className={`p-4 rounded-2xl border font-semibold leading-relaxed flex items-start gap-2 ${claimStatus.type === 'success'
+                            ? 'bg-emerald-50 border-emerald-250 text-emerald-700'
                             : 'bg-rose-50 border-rose-250 text-rose-700'
-                    }`}>
+                        }`}>
                         <span className="text-xs">{claimStatus.text}</span>
                     </div>
                 )}
@@ -196,7 +195,7 @@ export default function WaiterDashboard() {
         fetchTickets()
         const unsubscribeMenus = subscribeToRealtime()
         const unsubscribeTickets = subscribeToTicketsRealtime()
-        
+
         return () => {
             console.log('=== [DEBUG] WaiterDashboard unmounting, unsubscribing ===')
             unsubscribeMenus()
@@ -222,7 +221,7 @@ export default function WaiterDashboard() {
                         <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-500/20">
                             Security Verification
                         </span>
-                        <h2 className="text-md font-bold mt-3 text-slate-200">Memverifikasi Otoritas Staff...</h2>
+                        <h2 className="text-md font-bold mt-3 text-slate-200">Sumat Yoh Maseh Di Check Kan Ni, Sabar Koyok.</h2>
                         <p className="text-[11px] text-slate-500 mt-1">Harap tunggu sebentar selagi sistem melakukan autentikasi sesi Anda.</p>
                     </div>
                 </div>
@@ -285,22 +284,20 @@ export default function WaiterDashboard() {
             <div className="bg-white border-b border-slate-200 sticky top-[73px] z-10 flex text-xs font-black uppercase tracking-wider text-slate-500 shadow-sm">
                 <button
                     onClick={() => setActiveTab('menu')}
-                    className={`flex-1 py-3.5 flex items-center justify-center gap-1.5 border-b-2 transition-all ${
-                        activeTab === 'menu'
+                    className={`flex-1 py-3.5 flex items-center justify-center gap-1.5 border-b-2 transition-all ${activeTab === 'menu'
                             ? 'border-slate-900 text-slate-900 bg-slate-50/50'
                             : 'border-transparent hover:text-slate-800'
-                    }`}
+                        }`}
                 >
                     <Utensils size={14} />
                     Catat Order
                 </button>
                 <button
                     onClick={() => setActiveTab('queue')}
-                    className={`flex-1 py-3.5 flex items-center justify-center gap-1.5 border-b-2 transition-all relative ${
-                        activeTab === 'queue'
+                    className={`flex-1 py-3.5 flex items-center justify-center gap-1.5 border-b-2 transition-all relative ${activeTab === 'queue'
                             ? 'border-slate-900 text-slate-900 bg-slate-50/50'
                             : 'border-transparent hover:text-slate-800'
-                    }`}
+                        }`}
                 >
                     <Inbox size={14} />
                     Antrean POS
@@ -312,22 +309,20 @@ export default function WaiterDashboard() {
                 </button>
                 <button
                     onClick={() => setActiveTab('history')}
-                    className={`flex-1 py-3.5 flex items-center justify-center gap-1.5 border-b-2 transition-all ${
-                        activeTab === 'history'
+                    className={`flex-1 py-3.5 flex items-center justify-center gap-1.5 border-b-2 transition-all ${activeTab === 'history'
                             ? 'border-slate-900 text-slate-900 bg-slate-50/50'
                             : 'border-transparent hover:text-slate-800'
-                    }`}
+                        }`}
                 >
                     <History size={14} />
                     Riwayat
                 </button>
                 <button
                     onClick={() => setActiveTab('voucher')}
-                    className={`flex-1 py-3.5 flex items-center justify-center gap-1.5 border-b-2 transition-all ${
-                        activeTab === 'voucher'
+                    className={`flex-1 py-3.5 flex items-center justify-center gap-1.5 border-b-2 transition-all ${activeTab === 'voucher'
                             ? 'border-slate-900 text-slate-900 bg-slate-50/50'
                             : 'border-transparent hover:text-slate-800'
-                    }`}
+                        }`}
                 >
                     <Tag size={14} />
                     Voucher
@@ -340,7 +335,7 @@ export default function WaiterDashboard() {
                 {activeTab === 'history' && <WaiterTicketsList statusFilter="relayed" />}
                 {activeTab === 'voucher' && <WaiterViewVoucherPanel />}
             </section>
-            
+
             {activeTab === 'menu' && <WaiterCart />}
             <ChatWidget />
         </main>
