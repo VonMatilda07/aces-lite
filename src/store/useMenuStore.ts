@@ -680,7 +680,6 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
         }
 
         const computedMenus = computeMenuStocksAndStatuses(Array.from(updatedMenusMap.values()))
-        set({ menus: computedMenus, cart: [], tableIdentifier: '', customerCount: 1 })
 
         const changedMenus: Menu[] = []
         for (const updatedMenu of computedMenus) {
@@ -695,6 +694,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
         }
 
         let hasError = false
+        let errorMsg = ''
         for (const changedMenu of changedMenus) {
             const { error } = await supabase
                 .from('menus')
@@ -707,13 +707,18 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
 
             if (error) {
                 console.error(`Gagal mengurangi stok untuk ${changedMenu.name}:`, error)
-                set({ menus: previousMenus })
+                errorMsg = `Gagal memperbarui stok ${changedMenu.name}: ${error.message}`
                 hasError = true
                 break
             }
         }
 
-        if (!hasError && cart.length > 0) {
+        if (hasError) {
+            alert(`Gagal mengirim pesanan.\n${errorMsg}\n\nKeranjang pesanan Anda tidak dihapus. Silakan coba kirim ulang.`)
+            return
+        }
+
+        if (cart.length > 0) {
             try {
                 // Get current waiter ID from useAuthStore
                 const { useAuthStore } = await import('./useAuthStore')
@@ -738,7 +743,11 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
 
                 if (ticketError) {
                     console.error('Failed to create order ticket in DB:', ticketError)
-                } else if (ticketData) {
+                    alert(`Gagal membuat tiket pesanan di database: ${ticketError.message}\n\nKeranjang pesanan Anda tidak dihapus. Silakan coba kirim ulang.`)
+                    return
+                }
+
+                if (ticketData) {
                     const ticketId = ticketData.id
                     
                     // Prepare ticket items
@@ -763,47 +772,56 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
 
                     if (itemsError) {
                         console.error('Failed to create ticket items in DB:', itemsError)
-                    } else {
-                        // Trigger Web Push Notification for Bar/Kitchen asynchronously
-                        setTimeout(async () => {
-                            try {
-                                if (hasBar) {
-                                    const barItems = cart.filter(item => item.menu.station === 'bar')
-                                    const barSummary = barItems.map(item => `${item.menu.name}${item.selectedVariant ? ` (${item.selectedVariant})` : ''} x${item.qty}`).join(', ')
-                                    fetch('/api/push/send', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({
-                                            station: 'bar',
-                                            ticketId,
-                                            tableIdentifier: tableIdentifier || 'Tanpa Meja',
-                                            itemSummary: barSummary
-                                        })
-                                    }).catch(err => console.error('Error sending bar push notification:', err))
-                                }
-
-                                if (hasKitchen) {
-                                    const kitchenItems = cart.filter(item => item.menu.station === 'kitchen')
-                                    const kitchenSummary = kitchenItems.map(item => `${item.menu.name}${item.selectedVariant ? ` (${item.selectedVariant})` : ''} x${item.qty}`).join(', ')
-                                    fetch('/api/push/send', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({
-                                            station: 'kitchen',
-                                            ticketId,
-                                            tableIdentifier: tableIdentifier || 'Tanpa Meja',
-                                            itemSummary: kitchenSummary
-                                        })
-                                    }).catch(err => console.error('Error sending kitchen push notification:', err))
-                                }
-                            } catch (pushErr) {
-                                console.error('Error triggering push notifications:', pushErr)
-                            }
-                        }, 0)
+                        alert(`Gagal memasukkan item pesanan di database: ${itemsError.message}\n\nKeranjang pesanan Anda tidak dihapus. Silakan coba kirim ulang.`)
+                        // Hapus parent ticket agar tidak ada data sampah di database
+                        await supabase.from('order_tickets').delete().eq('id', ticketId)
+                        return
                     }
+
+                    // Hanya kosongkan keranjang jika semua proses database di atas berhasil sukses
+                    set({ menus: computedMenus, cart: [], tableIdentifier: '', customerCount: 1 })
+
+                    // Trigger Web Push Notification for Bar/Kitchen asynchronously
+                    setTimeout(async () => {
+                        try {
+                            if (hasBar) {
+                                const barItems = cart.filter(item => item.menu.station === 'bar')
+                                const barSummary = barItems.map(item => `${item.menu.name}${item.selectedVariant ? ` (${item.selectedVariant})` : ''} x${item.qty}`).join(', ')
+                                fetch('/api/push/send', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        station: 'bar',
+                                        ticketId,
+                                        tableIdentifier: tableIdentifier || 'Tanpa Meja',
+                                        itemSummary: barSummary
+                                    })
+                                }).catch(err => console.error('Error sending bar push notification:', err))
+                            }
+
+                            if (hasKitchen) {
+                                const kitchenItems = cart.filter(item => item.menu.station === 'kitchen')
+                                const kitchenSummary = kitchenItems.map(item => `${item.menu.name}${item.selectedVariant ? ` (${item.selectedVariant})` : ''} x${item.qty}`).join(', ')
+                                fetch('/api/push/send', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        station: 'kitchen',
+                                        ticketId,
+                                        tableIdentifier: tableIdentifier || 'Tanpa Meja',
+                                        itemSummary: kitchenSummary
+                                    })
+                                }).catch(err => console.error('Error sending kitchen push notification:', err))
+                            }
+                        } catch (pushErr) {
+                            console.error('Error triggering push notifications:', pushErr)
+                        }
+                    }, 0)
                 }
-            } catch (dbErr) {
+            } catch (dbErr: any) {
                 console.error('Database order insertion crashed:', dbErr)
+                alert(`Error tak terduga saat menyimpan pesanan: ${dbErr.message || dbErr}\n\nKeranjang pesanan Anda tidak dihapus.`)
+                return
             }
 
             try {
