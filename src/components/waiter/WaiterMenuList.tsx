@@ -33,7 +33,9 @@ export default function WaiterMenuList() {
                 (m.subcategory && m.subcategory.toLowerCase().includes(query))
             )
         }
-        return list
+        const available = list.filter(m => m.status !== 'sold_out')
+        const soldOut = list.filter(m => m.status === 'sold_out')
+        return [...available, ...soldOut]
     }, [menus, selectedCategory, searchQuery])
 
     const getBtnStyle = (currentStatus: MenuStatus, targetStatus: MenuStatus) => {
