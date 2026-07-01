@@ -781,6 +781,9 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
                     // Hanya kosongkan keranjang jika semua proses database di atas berhasil sukses
                     set({ menus: computedMenus, cart: [], tableIdentifier: '', customerCount: 1 })
 
+                    // Ambil tiket terbaru untuk mensinkronisasikan state lokal secara instan
+                    await get().fetchTickets()
+
                     // Trigger Web Push Notification for Bar/Kitchen asynchronously
                     setTimeout(async () => {
                         try {

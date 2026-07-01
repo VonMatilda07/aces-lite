@@ -5,7 +5,7 @@ import { useMenuStore, Menu, MenuStatus, NutriGrade, Variant, BundleItem, Schedu
 import { useAuthStore } from '@/store/useAuthStore'
 import ChatWidget from '@/components/chat/ChatWidget'
 import ImageEditorModal from '@/components/admin/ImageEditorModal'
-import { Plus, Edit2, Trash2, X, Save, ArrowLeft, LogOut, Image, AlertTriangle, Search, ArrowUpDown, Users, MessageSquare } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, Save, ArrowLeft, LogOut, Image, AlertTriangle, Search, ArrowUpDown, Users, MessageSquare, BarChart3 } from 'lucide-react'
 
 export default function AdminDashboard() {
     const { menus, fetchMenus, toggleMenuFeatured, subscribeToRealtime } = useMenuStore()
@@ -421,6 +421,9 @@ export default function AdminDashboard() {
                     <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap w-full sm:w-auto">
                         {(role === 'admin' || role === 'supervisor') && (
                             <>
+                                <a href="/admin/analytics" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3 py-2.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-none">
+                                    <BarChart3 size={12} /> Analitik
+                                </a>
                                 <a href="/admin/users" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3 py-2.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-none">
                                     <Users size={12} /> Staf
                                 </a>

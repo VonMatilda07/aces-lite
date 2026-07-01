@@ -130,16 +130,35 @@ export default function MenuList() {
     }
 
     const handleFeaturedCardClick = (menu: Menu) => {
-        // Expand the menu details automatically
+        // Reset filter kategori jika item target berada di luar kategori aktif
+        if (selectedCategory !== 'Semua' && menu.category !== selectedCategory) {
+            setSelectedCategory(menu.category)
+        } else if (selectedSubcategory !== 'Semua' && menu.subcategory !== selectedSubcategory) {
+            setSelectedSubcategory(menu.subcategory || 'Semua')
+        }
+
+        // Bersihkan query pencarian jika kata kunci saat ini memfilter item target
+        if (searchQuery.trim() !== '') {
+            const query = searchQuery.toLowerCase().trim()
+            const matchesQuery = 
+                menu.name.toLowerCase().includes(query) ||
+                (menu.description && menu.description.toLowerCase().includes(query)) ||
+                (menu.subcategory && menu.subcategory.toLowerCase().includes(query))
+            if (!matchesQuery) {
+                setSearchQuery('')
+            }
+        }
+
+        // Ekspansi accordion detail item secara otomatis
         setExpandedMenuId(menu.id)
 
-        // Scroll to the list item container smoothly
+        // Scroll secara halus ke elemen target setelah DOM selesai di-update
         setTimeout(() => {
             const element = document.getElementById(`menu-item-${menu.id}`)
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' })
             }
-        }, 150)
+        }, 180)
     }
 
     if (isLoading) return (
