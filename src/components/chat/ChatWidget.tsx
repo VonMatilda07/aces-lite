@@ -26,6 +26,9 @@ const QUICK_TEMPLATES = [
     '📢 Adam Terlalu Hitam',
     '📢 Dapur Terlalu Panas',
     '📢 Tolong Backup Dulu, Saya Mau Ke Toilet',
+    'Kecap Anjing',
+    'Deki Gelap',
+    ''
 
 ]
 
@@ -188,12 +191,12 @@ export default function ChatWidget() {
                                             <div className="flex items-center gap-1.5 px-1">
                                                 <span className="text-[9px] font-black text-slate-500 lowercase">{senderAlias}</span>
                                                 <span className={`text-[7px] font-black uppercase px-1 rounded border ${msg.sender_role === 'admin' || msg.sender_role === 'supervisor'
-                                                        ? 'bg-rose-50 border-rose-200 text-rose-600'
-                                                        : msg.sender_role === 'captain'
-                                                            ? 'bg-amber-50 border-amber-200 text-amber-600'
-                                                            : msg.sender_role === 'waiter'
-                                                                ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
-                                                                : 'bg-slate-100 border-slate-200 text-slate-500'
+                                                    ? 'bg-rose-50 border-rose-200 text-rose-600'
+                                                    : msg.sender_role === 'captain'
+                                                        ? 'bg-amber-50 border-amber-200 text-amber-600'
+                                                        : msg.sender_role === 'waiter'
+                                                            ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                                                            : 'bg-slate-100 border-slate-200 text-slate-500'
                                                     }`}>
                                                     {msg.sender_role}
                                                 </span>
@@ -201,8 +204,8 @@ export default function ChatWidget() {
 
                                             {/* Bubble */}
                                             <div className={`p-3 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm break-words ${isMe
-                                                    ? 'bg-indigo-600 text-white rounded-tr-none'
-                                                    : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none'
+                                                ? 'bg-indigo-600 text-white rounded-tr-none'
+                                                : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none'
                                                 }`}>
                                                 {msg.message}
                                             </div>
