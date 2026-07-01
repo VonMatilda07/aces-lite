@@ -4,6 +4,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/useAuthStore'
+import { useMenuStore } from '@/store/useMenuStore'
 import ChatWidget from '@/components/chat/ChatWidget'
 import { ArrowLeft, Calendar, Coins, Users, Receipt, TrendingUp, Award, Clock, Timer, Loader2, RefreshCw } from 'lucide-react'
 
@@ -13,6 +14,7 @@ interface TicketItemWithMenu {
         name: string
         price: number
         category: string
+        subcategory: string | null
     } | null
 }
 
@@ -110,12 +112,25 @@ const getDateRange = (range: string, customStart?: string, customEnd?: string) =
 
 export default function AdminAnalyticsPage() {
     const { role, status } = useAuthStore()
+    const { menus: allShopMenus, fetchMenus } = useMenuStore()
     const [isAuthorized, setIsAuthorized] = useState(false)
     const [tickets, setTickets] = useState<DBOrderTicket[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [timeRange, setTimeRange] = useState<string>('7d')
     const [customStartDate, setCustomStartDate] = useState<string>('')
     const [customEndDate, setCustomEndDate] = useState<string>('')
+
+    // States untuk filter dan sort tabel penjualan menu semua item
+    const [menuSearch, setMenuSearch] = useState('')
+    const [menuSort, setMenuSort] = useState('qty_desc')
+    const [menuFilterCategory, setMenuFilterCategory] = useState('Semua')
+    const [menuFilterSubcategory, setMenuFilterSubcategory] = useState('Semua')
+    const [menuFilterShowOnlyTop5, setMenuFilterShowOnlyTop5] = useState(false)
+
+    // Load data menus dari store
+    useEffect(() => {
+        fetchMenus()
+    }, [fetchMenus])
 
     // Inisialisasi tanggal custom default (7 hari lalu s.d. hari ini)
     useEffect(() => {
@@ -178,7 +193,8 @@ export default function AdminAnalyticsPage() {
                         menus (
                             name,
                             price,
-                            category
+                            category,
+                            subcategory
                         )
                     )
                 `)
@@ -236,8 +252,21 @@ export default function AdminAnalyticsPage() {
         // Agregasi performa waiter
         const waiterMap: Record<string, { email: string; orders: number; pax: number }> = {}
 
-        // Agregasi menu terlaris
-        const itemSalesMap: Record<string, { name: string; qty: number; category: string }> = {}
+        // Agregasi menu terlaris (inisialisasi dari daftar menu aktif kafe untuk menampilkan item 0 penjualan)
+        const itemSalesMap: Record<string, { name: string; qty: number; category: string; subcategory: string; price: number; revenue: number }> = {}
+        
+        allShopMenus.forEach(m => {
+            if (m.menu_type !== 'bundle') {
+                itemSalesMap[m.name] = {
+                    name: m.name,
+                    qty: 0,
+                    category: m.category,
+                    subcategory: m.subcategory || 'Lainnya',
+                    price: m.price,
+                    revenue: 0
+                }
+            }
+        })
 
         // SLA Persiapan Stasiun
         let totalBarPrepTime = 0
@@ -302,9 +331,17 @@ export default function AdminAnalyticsPage() {
                         // Agregasi menu terlaris
                         const menuId = item.menus.name
                         if (!itemSalesMap[menuId]) {
-                            itemSalesMap[menuId] = { name: item.menus.name, qty: 0, category: item.menus.category }
+                            itemSalesMap[menuId] = {
+                                name: item.menus.name,
+                                qty: 0,
+                                category: item.menus.category,
+                                subcategory: item.menus.subcategory || 'Lainnya',
+                                price: price,
+                                revenue: 0
+                            }
                         }
                         itemSalesMap[menuId].qty += qty
+                        itemSalesMap[menuId].revenue += itemCost
                     }
                 })
             }
@@ -323,10 +360,13 @@ export default function AdminAnalyticsPage() {
             .sort((a, b) => b.pax - a.pax)
             .slice(0, 5)
 
-        // Ambil top 5 menu terlaris
+        // Ambil top 5 menu terlaris yang memiliki volume penjualan > 0
         const topMenus = Object.values(itemSalesMap)
+            .filter(m => m.qty > 0)
             .sort((a, b) => b.qty - a.qty)
             .slice(0, 5)
+
+        const allMenuSales = Object.values(itemSalesMap)
 
         // Cari hari tersibuk
         let maxDayIndex = 0
@@ -361,12 +401,71 @@ export default function AdminAnalyticsPage() {
             hourCounts,
             waiterLeaderboard,
             topMenus,
+            allMenuSales,
             avgBarSLA,
             avgKitchenSLA,
             barPrepCount,
             kitchenPrepCount
         }
-    }, [filteredTickets])
+    }, [filteredTickets, allShopMenus])
+
+    // Mengambil daftar kategori unik dari data menu
+    const categories = useMemo(() => {
+        const cats = analytics.allMenuSales.map(m => m.category)
+        return ['Semua', ...Array.from(new Set(cats))]
+    }, [analytics.allMenuSales])
+
+    // Mengambil daftar subkategori unik berdasarkan kategori terpilih
+    const subcategories = useMemo(() => {
+        let list = analytics.allMenuSales
+        if (menuFilterCategory !== 'Semua') {
+            list = list.filter(m => m.category === menuFilterCategory)
+        }
+        const subcats = list.map(m => m.subcategory).filter(Boolean)
+        return ['Semua', ...Array.from(new Set(subcats))]
+    }, [analytics.allMenuSales, menuFilterCategory])
+
+    // Memproses penyaringan dan pengurutan data menu di tabel
+    const sortedAndFilteredMenuSales = useMemo(() => {
+        let list = [...analytics.allMenuSales]
+
+        // 1. Filter Kata Kunci Pencarian
+        if (menuSearch.trim() !== '') {
+            const query = menuSearch.toLowerCase().trim()
+            list = list.filter(m => m.name.toLowerCase().includes(query))
+        }
+
+        // 2. Filter Kategori Utama
+        if (menuFilterCategory !== 'Semua') {
+            list = list.filter(m => m.category === menuFilterCategory)
+        }
+
+        // 3. Filter Subkategori
+        if (menuFilterSubcategory !== 'Semua') {
+            list = list.filter(m => m.subcategory === menuFilterSubcategory)
+        }
+
+        // 4. Pengurutan (Sorting)
+        list.sort((a, b) => {
+            if (menuSort === 'qty_desc') {
+                return b.qty - a.qty
+            } else if (menuSort === 'qty_asc') {
+                return a.qty - b.qty
+            } else if (menuSort === 'name_asc') {
+                return a.name.localeCompare(b.name)
+            } else if (menuSort === 'revenue_desc') {
+                return b.revenue - a.revenue
+            }
+            return 0
+        })
+
+        // 5. Filter Hanya Top 5 Teratas
+        if (menuFilterShowOnlyTop5) {
+            return list.slice(0, 5)
+        }
+
+        return list
+    }, [analytics.allMenuSales, menuSearch, menuFilterCategory, menuFilterSubcategory, menuSort, menuFilterShowOnlyTop5])
 
     // Kalkulasi koordinat untuk SVG Line Chart (Skala 1000x200)
     const svgChartPath = useMemo(() => {
@@ -847,6 +946,148 @@ export default function AdminAnalyticsPage() {
                                     ))}
                                 </div>
                             )}
+                        </section>
+
+                        {/* Laporan Penjualan Semua Produk */}
+                        <section className="bg-[#1e2020] border border-[#282a2b] rounded-3xl p-5 shadow-lg flex flex-col gap-5 w-full">
+                            <div className="flex flex-col gap-1 border-b border-[#333535] pb-4">
+                                <h3 className="flex items-center text-xs font-extrabold text-white uppercase tracking-wider gap-1.5">
+                                    <Receipt size={16} className="text-[#ffb692]" />
+                                    Laporan Penjualan Semua Produk
+                                </h3>
+                                <p className="text-[10px] text-[#c4c7c8] font-medium leading-none mt-1">Daftar penjualan lengkap seluruh item menu yang ada di kafe</p>
+                            </div>
+
+                            {/* Controls */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-[#121414]/40 p-3.5 rounded-2xl border border-[#282a2b]">
+                                {/* Search */}
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[9px] font-mono text-[#c4c7c8] uppercase tracking-wider pl-1">Cari Produk</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Cari nama menu..."
+                                        value={menuSearch}
+                                        onChange={(e) => setMenuSearch(e.target.value)}
+                                        className="bg-[#282a2b] text-white text-xs font-bold px-3 py-2 rounded-xl border border-[#333535] outline-none focus:border-purple-400 transition-all placeholder:text-slate-650"
+                                    />
+                                </div>
+
+                                {/* Category */}
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[9px] font-mono text-[#c4c7c8] uppercase tracking-wider pl-1">Kategori</label>
+                                    <select
+                                        value={menuFilterCategory}
+                                        onChange={(e) => {
+                                            setMenuFilterCategory(e.target.value)
+                                            setMenuFilterSubcategory('Semua')
+                                        }}
+                                        className="bg-[#282a2b] text-white text-xs font-bold px-3 py-2 rounded-xl border border-[#333535] outline-none focus:border-purple-400 transition-all cursor-pointer"
+                                    >
+                                        {categories.map(cat => (
+                                            <option key={cat} value={cat}>{cat === 'Semua' ? 'Semua Kategori' : cat}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Subcategory */}
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[9px] font-mono text-[#c4c7c8] uppercase tracking-wider pl-1">Subkategori</label>
+                                    <select
+                                        value={menuFilterSubcategory}
+                                        onChange={(e) => setMenuFilterSubcategory(e.target.value)}
+                                        className="bg-[#282a2b] text-white text-xs font-bold px-3 py-2 rounded-xl border border-[#333535] outline-none focus:border-purple-400 transition-all cursor-pointer disabled:opacity-50"
+                                        disabled={menuFilterCategory === 'Semua'}
+                                    >
+                                        {subcategories.map(sub => (
+                                            <option key={sub} value={sub}>{sub === 'Semua' ? 'Semua Subkategori' : sub}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Sort */}
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[9px] font-mono text-[#c4c7c8] uppercase tracking-wider pl-1">Urutkan</label>
+                                    <select
+                                        value={menuSort}
+                                        onChange={(e) => setMenuSort(e.target.value)}
+                                        className="bg-[#282a2b] text-white text-xs font-bold px-3 py-2 rounded-xl border border-[#333535] outline-none focus:border-purple-400 transition-all cursor-pointer"
+                                    >
+                                        <option value="qty_desc">Terlaris (Volume Tinggi)</option>
+                                        <option value="qty_asc">Kurang Laris (Volume Rendah)</option>
+                                        <option value="revenue_desc">Omzet Terbesar</option>
+                                        <option value="name_asc">Nama Produk (A-Z)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Checkbox for Top 5 inside Category filter */}
+                            <div className="flex items-center gap-2 pl-1 select-none">
+                                <input
+                                    type="checkbox"
+                                    id="showOnlyTop5Checkbox"
+                                    checked={menuFilterShowOnlyTop5}
+                                    onChange={(e) => setMenuFilterShowOnlyTop5(e.target.checked)}
+                                    className="w-4 h-4 rounded border-[#333535] text-[#ffb692] focus:ring-[#ffb692] bg-[#282a2b] cursor-pointer"
+                                />
+                                <label htmlFor="showOnlyTop5Checkbox" className="text-xs font-bold text-[#c4c7c8] cursor-pointer select-none">
+                                    Hanya tampilkan Top 5 Terlaris berdasarkan filter saat ini
+                                </label>
+                            </div>
+
+                            {/* Table */}
+                            <div className="overflow-x-auto rounded-2xl border border-[#333535]">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-[#121414] text-[#c4c7c8] font-bold text-[10px] uppercase tracking-wider border-b border-[#333535]">
+                                            <th className="py-3 px-4 w-14 text-center">Rank</th>
+                                            <th className="py-3 px-4">Nama Produk</th>
+                                            <th className="py-3 px-4">Kategori / Sub</th>
+                                            <th className="py-3 px-4 text-center">Terjual</th>
+                                            <th className="py-3 px-4 text-right">Omzet</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {sortedAndFilteredMenuSales.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={5} className="py-8 text-center text-[#c4c7c8] text-xs font-medium bg-[#1e2020]/20">
+                                                    Tidak ada produk yang cocok dengan pencarian / filter aktif.
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            sortedAndFilteredMenuSales.map((menu, idx) => {
+                                                // Cari rank absolut keseluruhan (disortir berdasarkan penjualan Qty desc)
+                                                const overallRank = [...analytics.allMenuSales]
+                                                    .sort((a, b) => b.qty - a.qty)
+                                                    .findIndex(m => m.name === menu.name) + 1;
+
+                                                return (
+                                                    <tr key={menu.name} className="border-b border-[#333535]/40 hover:bg-[#282a2b]/20 transition-colors text-xs font-medium">
+                                                        <td className="py-3 px-4 text-center">
+                                                            <span className={`inline-flex w-5 h-5 rounded-full items-center justify-center text-[9px] font-black ${
+                                                                overallRank === 1 ? 'bg-[#ffb692] text-[#341100]' :
+                                                                overallRank <= 5 ? 'bg-purple-950/60 text-purple-300 border border-purple-500/30' :
+                                                                'bg-[#282a2b] text-[#c4c7c8]'
+                                                            }`}>
+                                                                {overallRank}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-3 px-4 text-white font-bold">{menu.name}</td>
+                                                        <td className="py-3 px-4">
+                                                            <span className="text-[9px] font-mono text-[#c4c7c8] bg-[#282a2b] px-2 py-0.5 rounded border border-[#333535]/65">
+                                                                {menu.category} {menu.subcategory && `/ ${menu.subcategory}`}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-3 px-4 text-center font-bold text-white font-mono">{menu.qty}x</td>
+                                                        <td className="py-3 px-4 text-right font-mono text-white">
+                                                            Rp {menu.revenue.toLocaleString('id-ID')}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </section>
                     </>
                 )}
