@@ -35,12 +35,99 @@ interface DBOrderTicket {
     ticket_items: TicketItemWithMenu[]
 }
 
+const getDateRange = (range: string, customStart?: string, customEnd?: string) => {
+    const now = new Date()
+    let startDate = new Date()
+    let endDate = new Date()
+
+    // Standarisasi jam ke batas akhir hari untuk cakupan penuh
+    endDate.setHours(23, 59, 59, 999)
+
+    switch (range) {
+        case '7d':
+            startDate.setDate(now.getDate() - 7)
+            startDate.setHours(0, 0, 0, 0)
+            break
+        case '14d':
+            startDate.setDate(now.getDate() - 14)
+            startDate.setHours(0, 0, 0, 0)
+            break
+        case '21d':
+            startDate.setDate(now.getDate() - 21)
+            startDate.setHours(0, 0, 0, 0)
+            break
+        case '28d':
+            startDate.setDate(now.getDate() - 28)
+            startDate.setHours(0, 0, 0, 0)
+            break
+        case 'month':
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+            startDate.setHours(0, 0, 0, 0)
+            break
+        case 'prev_month':
+            startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+            startDate.setHours(0, 0, 0, 0)
+            endDate = new Date(now.getFullYear(), now.getMonth(), 0)
+            endDate.setHours(23, 59, 59, 999)
+            break
+        case '2_months_prev':
+            startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1)
+            startDate.setHours(0, 0, 0, 0)
+            endDate = new Date(now.getFullYear(), now.getMonth() - 1, 0)
+            endDate.setHours(23, 59, 59, 999)
+            break
+        case '3_months_prev':
+            startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1)
+            startDate.setHours(0, 0, 0, 0)
+            endDate = new Date(now.getFullYear(), now.getMonth() - 2, 0)
+            endDate.setHours(23, 59, 59, 999)
+            break
+        case 'year':
+            startDate = new Date(now.getFullYear(), 0, 1)
+            startDate.setHours(0, 0, 0, 0)
+            break
+        case 'prev_year':
+            startDate = new Date(now.getFullYear() - 1, 0, 1)
+            startDate.setHours(0, 0, 0, 0)
+            endDate = new Date(now.getFullYear() - 1, 11, 31)
+            endDate.setHours(23, 59, 59, 999)
+            break
+        case 'custom':
+            if (customStart) {
+                startDate = new Date(customStart)
+                startDate.setHours(0, 0, 0, 0)
+            } else {
+                startDate.setDate(now.getDate() - 7)
+                startDate.setHours(0, 0, 0, 0)
+            }
+            if (customEnd) {
+                endDate = new Date(customEnd)
+                endDate.setHours(23, 59, 59, 999)
+            }
+            break
+    }
+    return { startDate, endDate }
+}
+
 export default function AdminAnalyticsPage() {
     const { role, status } = useAuthStore()
     const [isAuthorized, setIsAuthorized] = useState(false)
     const [tickets, setTickets] = useState<DBOrderTicket[]>([])
     const [isLoading, setIsLoading] = useState(true)
-    const [timeRange, setTimeRange] = useState<'7d' | '30d' | 'month'>('7d')
+    const [timeRange, setTimeRange] = useState<string>('7d')
+    const [customStartDate, setCustomStartDate] = useState<string>('')
+    const [customEndDate, setCustomEndDate] = useState<string>('')
+
+    // Inisialisasi tanggal custom default (7 hari lalu s.d. hari ini)
+    useEffect(() => {
+        const today = new Date().toISOString().split('T')[0]
+        const sevenDaysAgo = new Date()
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+        const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0]
+        
+        setCustomStartDate(sevenDaysAgoStr)
+        setCustomEndDate(today)
+    }, [])
 
     // Client-side route guard (Hanya Admin, Supervisor, dan Marketing)
     useEffect(() => {
@@ -124,23 +211,12 @@ export default function AdminAnalyticsPage() {
 
     // Filter tickets berdasarkan time range terpilih
     const filteredTickets = useMemo(() => {
-        const now = new Date()
+        const { startDate, endDate } = getDateRange(timeRange, customStartDate, customEndDate)
         return tickets.filter(t => {
             const ticketDate = new Date(t.created_at)
-            const diffTime = Math.abs(now.getTime() - ticketDate.getTime())
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-            if (timeRange === '7d') {
-                return diffDays <= 7
-            } else if (timeRange === '30d') {
-                return diffDays <= 30
-            } else if (timeRange === 'month') {
-                // Filter bulan berjalan
-                return ticketDate.getMonth() === now.getMonth() && ticketDate.getFullYear() === now.getFullYear()
-            }
-            return true
+            return ticketDate >= startDate && ticketDate <= endDate
         })
-    }, [tickets, timeRange])
+    }, [tickets, timeRange, customStartDate, customEndDate])
 
     // Agregasi & kalkulasi metrik utama
     const analytics = useMemo(() => {
@@ -361,26 +437,58 @@ export default function AdminAnalyticsPage() {
 
             <div className="max-w-4xl mx-auto p-4 flex flex-col gap-5 mt-2 animate-in fade-in duration-300">
                 {/* DATE FILTER BUTTONS */}
-                <div className="flex justify-between items-center bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
-                    <span className="flex items-center gap-2 text-xs font-bold text-slate-400 pl-2">
-                        <Calendar size={14} className="text-indigo-500" />
-                        Rentang Waktu:
-                    </span>
-                    <div className="flex bg-slate-100 p-1 rounded-xl">
-                        {(['7d', '30d', 'month'] as const).map((range) => (
-                            <button
-                                key={range}
-                                onClick={() => setTimeRange(range)}
-                                className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${
-                                    timeRange === range
-                                        ? 'bg-slate-900 text-white shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-800'
-                                }`}
+                <div className="flex flex-col gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm transition-all">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                        <span className="flex items-center gap-2 text-xs font-black text-slate-800 uppercase tracking-wider pl-1">
+                            <Calendar size={14} className="text-indigo-500" />
+                            Filter Waktu Laporan:
+                        </span>
+                        
+                        <div className="relative flex-1 sm:max-w-[240px]">
+                            <select
+                                value={timeRange}
+                                onChange={(e) => setTimeRange(e.target.value)}
+                                className="w-full bg-slate-100 hover:bg-slate-200/80 text-slate-800 text-[11px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl border border-transparent focus:outline-none focus:border-slate-800 transition-all cursor-pointer appearance-none"
                             >
-                                {range === '7d' ? '7 Hari' : range === '30d' ? '30 Hari' : 'Bulan Ini'}
-                            </button>
-                        ))}
+                                <option value="7d">7 Hari Terakhir</option>
+                                <option value="14d">2 Minggu Terakhir</option>
+                                <option value="21d">3 Minggu Terakhir</option>
+                                <option value="28d">4 Minggu Terakhir</option>
+                                <option value="month">Bulan Ini</option>
+                                <option value="prev_month">Bulan Kemarin</option>
+                                <option value="2_months_prev">2 Bulan Kemarin</option>
+                                <option value="3_months_prev">3 Bulan Kemarin</option>
+                                <option value="year">Tahun Ini</option>
+                                <option value="prev_year">Tahun Lalu</option>
+                                <option value="custom">Pilih Tanggal Mandiri (Custom)</option>
+                            </select>
+                            <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 text-[8px] font-black uppercase">▼</span>
+                        </div>
                     </div>
+
+                    {/* Conditional Date Pickers for Custom Range */}
+                    {timeRange === 'custom' && (
+                        <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t border-slate-100 animate-in slide-in-from-top-2 duration-200">
+                            <div className="flex-1 flex flex-col gap-1.5">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Tanggal Mulai</label>
+                                <input
+                                    type="date"
+                                    value={customStartDate}
+                                    onChange={(e) => setCustomStartDate(e.target.value)}
+                                    className="w-full bg-slate-50 hover:bg-slate-100/50 text-slate-800 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 outline-none focus:border-slate-800 transition-all"
+                                />
+                            </div>
+                            <div className="flex-1 flex flex-col gap-1.5">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Tanggal Selesai</label>
+                                <input
+                                    type="date"
+                                    value={customEndDate}
+                                    onChange={(e) => setCustomEndDate(e.target.value)}
+                                    className="w-full bg-slate-50 hover:bg-slate-100/50 text-slate-800 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 outline-none focus:border-slate-800 transition-all"
+                                />
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {isLoading ? (
