@@ -60,6 +60,19 @@ export default function AdminAnalyticsPage() {
     const fetchData = async () => {
         setIsLoading(true)
         try {
+            // Pertama, ambil data profiles untuk pemetaan email pramusaji secara lokal
+            const { data: profilesData, error: profilesError } = await supabase
+                .from('profiles')
+                .select('id, email')
+
+            if (profilesError) throw profilesError
+            
+            const emailMap = new Map<string, string>()
+            profilesData?.forEach(p => {
+                if (p.id && p.email) emailMap.set(p.id, p.email)
+            })
+
+            // Kedua, ambil data tiket pesanan
             const { data, error } = await supabase
                 .from('order_tickets')
                 .select(`
@@ -74,9 +87,6 @@ export default function AdminAnalyticsPage() {
                     bar_prep_end,
                     kitchen_prep_start,
                     kitchen_prep_end,
-                    profiles (
-                        email
-                    ),
                     ticket_items (
                         qty,
                         menus (
@@ -91,7 +101,12 @@ export default function AdminAnalyticsPage() {
 
             if (error) throw error
             if (data) {
-                setTickets(data as unknown as DBOrderTicket[])
+                // Petakan profil secara manual untuk menghindari error cache PostgREST relasi profiles
+                const mappedData = (data as any[]).map(t => ({
+                    ...t,
+                    profiles: t.waiter_id && emailMap.has(t.waiter_id) ? { email: emailMap.get(t.waiter_id)! } : null
+                }))
+                setTickets(mappedData as unknown as DBOrderTicket[])
             }
         } catch (err: any) {
             console.error('Error fetching analytics data:', err)
