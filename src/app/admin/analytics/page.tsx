@@ -4,9 +4,8 @@
 import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/useAuthStore'
-import { getTicketItemPrice } from '@/store/useMenuStore'
 import ChatWidget from '@/components/chat/ChatWidget'
-import { ArrowLeft, Calendar, DollarSign, Users, ShoppingBag, Clock, TrendingUp, Award, Activity, Loader2, RefreshCw } from 'lucide-react'
+import { ArrowLeft, Calendar, Coins, Users, Receipt, TrendingUp, Award, Clock, Timer, Loader2, RefreshCw } from 'lucide-react'
 
 interface TicketItemWithMenu {
     qty: number
@@ -249,7 +248,7 @@ export default function AdminAnalyticsPage() {
         filteredTickets.forEach(ticket => {
             const ticketDate = new Date(ticket.created_at)
             
-            // Format tanggal lokal (YYYY-MM-DD)
+            // Format tanggal lokal (DD MMM)
             const dateStr = ticketDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
             
             // Inisialisasi trend harian
@@ -369,14 +368,14 @@ export default function AdminAnalyticsPage() {
         }
     }, [filteredTickets])
 
-    // Kalkulasi koordinat untuk SVG Line Chart
+    // Kalkulasi koordinat untuk SVG Line Chart (Skala 1000x200)
     const svgChartPath = useMemo(() => {
         const trends = analytics.trendData
         if (trends.length < 2) return { line: '', fill: '', points: [] }
 
-        const width = 500
-        const height = 150
-        const padding = 15
+        const width = 1000
+        const height = 200
+        const padding = 20
 
         const maxRevenue = Math.max(...trends.map(t => t.revenue), 100000)
 
@@ -394,7 +393,7 @@ export default function AdminAnalyticsPage() {
 
     if (!isAuthorized) {
         return (
-            <main className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-white">
+            <main className="min-h-screen bg-[#121414] flex flex-col items-center justify-center p-6 text-center text-[#e2e2e2]">
                 <div className="flex flex-col items-center gap-4 max-w-sm">
                     <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
                     <div>
@@ -407,48 +406,48 @@ export default function AdminAnalyticsPage() {
     }
 
     return (
-        <main className="min-h-screen bg-slate-50 text-slate-800 pb-20">
-            {/* HEADER */}
-            <header className="bg-slate-900 text-white p-5 sticky top-0 z-20 shadow-md border-b border-slate-800">
-                <div className="max-w-4xl mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <a
-                            href="/admin"
-                            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-colors active:scale-95"
-                            title="Kembali ke Dashboard"
-                        >
-                            <ArrowLeft size={16} />
-                        </a>
-                        <div>
-                            <p className="text-[9px] font-black text-emerald-400 tracking-[0.2em] uppercase">ACES LITE REPORT</p>
-                            <h1 className="text-base font-black">Analisis Performa Kafe</h1>
-                        </div>
-                    </div>
-                    <button
-                        onClick={fetchData}
-                        disabled={isLoading}
-                        className="p-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 rounded-xl transition-all active:scale-95 border border-slate-700 shadow-sm flex items-center justify-center"
-                        title="Segarkan Data"
+        <main className="min-h-screen bg-[#121414] text-[#e2e2e2] pb-24 antialiased selection:bg-purple-500/30 selection:text-white">
+            {/* Header / TopAppBar */}
+            <header className="bg-[#121414] border-b border-[#333535] flex justify-between items-center w-full px-4 md:px-10 py-4 sticky top-0 z-30 backdrop-blur-md bg-opacity-80">
+                <div className="flex items-center space-x-4">
+                    <a
+                        href="/admin"
+                        className="p-2.5 rounded-full bg-[#1e2020] hover:bg-[#333535] text-[#c4c7c8] hover:text-white active:scale-95 transition-all flex items-center justify-center border border-[#333535]"
+                        title="Kembali ke Dashboard"
                     >
-                        <RefreshCw size={14} className={isLoading ? 'animate-spin text-emerald-400' : ''} />
-                    </button>
+                        <ArrowLeft size={16} />
+                    </a>
+                    <div>
+                        <div className="text-[9px] font-mono font-bold text-[#ffb692] tracking-[0.2em] uppercase mb-0.5">ACES LITE REPORT</div>
+                        <h2 className="text-base font-extrabold text-white tracking-tight">Analisis Performa Kafe</h2>
+                    </div>
                 </div>
+                <button
+                    onClick={fetchData}
+                    disabled={isLoading}
+                    className="p-2.5 rounded-full bg-[#1e2020] hover:bg-[#333535] text-[#c4c7c8] hover:text-white active:scale-95 transition-all flex items-center justify-center border border-[#333535] disabled:opacity-50"
+                    title="Segarkan Data"
+                >
+                    <RefreshCw size={14} className={isLoading ? 'animate-spin text-purple-400' : ''} />
+                </button>
             </header>
 
-            <div className="max-w-4xl mx-auto p-4 flex flex-col gap-5 mt-2 animate-in fade-in duration-300">
-                {/* DATE FILTER BUTTONS */}
-                <div className="flex flex-col gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm transition-all">
+            {/* Canvas / Container */}
+            <div className="max-w-4xl mx-auto p-4 md:p-10 flex flex-col gap-6 animate-in fade-in duration-300">
+                
+                {/* Date Picker & Controls */}
+                <section className="flex flex-col gap-3 bg-[#1a1c1c] p-4 rounded-2xl border border-[#333535] shadow-lg">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                        <span className="flex items-center gap-2 text-xs font-black text-slate-800 uppercase tracking-wider pl-1">
-                            <Calendar size={14} className="text-indigo-500" />
-                            Filter Waktu Laporan:
+                        <span className="flex items-center gap-2 text-xs font-bold text-[#c4c7c8] uppercase tracking-wider pl-1">
+                            <Calendar size={14} className="text-purple-400" />
+                            Rentang Waktu Laporan:
                         </span>
                         
                         <div className="relative flex-1 sm:max-w-[240px]">
                             <select
                                 value={timeRange}
                                 onChange={(e) => setTimeRange(e.target.value)}
-                                className="w-full bg-slate-100 hover:bg-slate-200/80 text-slate-800 text-[11px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl border border-transparent focus:outline-none focus:border-slate-800 transition-all cursor-pointer appearance-none"
+                                className="w-full bg-[#282a2b] hover:bg-[#333535] text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-[#333535] focus:outline-none focus:border-purple-400 transition-all cursor-pointer appearance-none"
                             >
                                 <option value="7d">7 Hari Terakhir</option>
                                 <option value="14d">2 Minggu Terakhir</option>
@@ -462,112 +461,148 @@ export default function AdminAnalyticsPage() {
                                 <option value="prev_year">Tahun Lalu</option>
                                 <option value="custom">Pilih Tanggal Mandiri (Custom)</option>
                             </select>
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 text-[8px] font-black uppercase">▼</span>
+                            <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-[8px]">▼</span>
                         </div>
                     </div>
 
                     {/* Conditional Date Pickers for Custom Range */}
                     {timeRange === 'custom' && (
-                        <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t border-slate-100 animate-in slide-in-from-top-2 duration-200">
-                            <div className="flex-1 flex flex-col gap-1.5">
-                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Tanggal Mulai</label>
+                        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#333535] animate-in slide-in-from-top-2 duration-200">
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[9px] font-mono text-[#c4c7c8] uppercase tracking-wider">Tanggal Mulai</label>
                                 <input
                                     type="date"
                                     value={customStartDate}
                                     onChange={(e) => setCustomStartDate(e.target.value)}
-                                    className="w-full bg-slate-50 hover:bg-slate-100/50 text-slate-800 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 outline-none focus:border-slate-800 transition-all"
+                                    className="w-full bg-[#1e2020] text-white text-xs font-bold px-3 py-2.5 rounded-xl border border-[#333535] outline-none focus:border-purple-400 transition-all"
                                 />
                             </div>
-                            <div className="flex-1 flex flex-col gap-1.5">
-                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Tanggal Selesai</label>
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[9px] font-mono text-[#c4c7c8] uppercase tracking-wider">Tanggal Selesai</label>
                                 <input
                                     type="date"
                                     value={customEndDate}
                                     onChange={(e) => setCustomEndDate(e.target.value)}
-                                    className="w-full bg-slate-50 hover:bg-slate-100/50 text-slate-800 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 outline-none focus:border-slate-800 transition-all"
+                                    className="w-full bg-[#1e2020] text-white text-xs font-bold px-3 py-2.5 rounded-xl border border-[#333535] outline-none focus:border-purple-400 transition-all"
                                 />
                             </div>
                         </div>
                     )}
-                </div>
+                </section>
 
                 {isLoading ? (
-                    <div className="flex flex-col items-center justify-center py-28 text-slate-400 gap-3">
-                        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                    <div className="flex flex-col items-center justify-center py-32 text-[#c4c7c8] gap-3">
+                        <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
                         <p className="text-xs font-bold uppercase tracking-wider">Menganalisis Transaksi Kafe...</p>
                     </div>
                 ) : (
                     <>
-                        {/* KPI GRID CARDS */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {/* Card 1: Omzet */}
-                            <div className="bg-gradient-to-br from-indigo-500 to-indigo-650 text-white p-4 rounded-3xl shadow-sm border border-indigo-400/20 flex flex-col gap-2 relative overflow-hidden">
-                                <div className="absolute right-3 top-3 opacity-15"><DollarSign size={36} /></div>
-                                <span className="text-[9px] font-black text-indigo-200 tracking-wider uppercase">Total Omzet</span>
-                                <h3 className="text-lg font-black leading-none">
-                                    Rp {analytics.totalRevenue.toLocaleString('id-ID')}
-                                </h3>
-                                <p className="text-[9px] font-semibold text-indigo-200 leading-none mt-1">Akumulasi Transaksi Relayed</p>
+                        {/* KPI Cards Grid */}
+                        <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {/* Card 1: Total Omzet */}
+                            <div className="bg-[#1e2020] border border-[#282a2b] rounded-2xl p-5 relative overflow-hidden group hover:border-[#333535] transition-all">
+                                <div className="absolute -right-4 -top-4 text-white/5 group-hover:text-white/10 transition-colors duration-300 pointer-events-none">
+                                    <Coins size={96} />
+                                </div>
+                                <div className="relative z-10 flex flex-col justify-between h-full">
+                                    <div>
+                                        <p className="text-[9px] font-mono font-bold text-[#e2e2e2] mb-1.5 uppercase tracking-wider">Total Omzet</p>
+                                        <h3 className="text-base font-extrabold text-white leading-none">
+                                            Rp {analytics.totalRevenue.toLocaleString('id-ID')}
+                                        </h3>
+                                    </div>
+                                    <p className="text-[9px] text-[#c4c7c8] mt-3 flex items-center gap-1">
+                                        <TrendingUp size={10} className="text-[#ffb692]" />
+                                        Transaksi terdistribusi
+                                    </p>
+                                </div>
                             </div>
 
-                            {/* Card 2: Pengunjung */}
-                            <div className="bg-gradient-to-br from-emerald-500 to-emerald-650 text-white p-4 rounded-3xl shadow-sm border border-emerald-400/20 flex flex-col gap-2 relative overflow-hidden">
-                                <div className="absolute right-3 top-3 opacity-15"><Users size={36} /></div>
-                                <span className="text-[9px] font-black text-emerald-200 tracking-wider uppercase">Total Pengunjung</span>
-                                <h3 className="text-lg font-black leading-none">
-                                    {analytics.totalPax} <span className="text-xs font-bold text-emerald-100">Pax</span>
-                                </h3>
-                                <p className="text-[9px] font-semibold text-emerald-200 leading-none mt-1">Rerata: {analytics.avgPax} Pax/Meja</p>
+                            {/* Card 2: Total Pengunjung */}
+                            <div className="bg-[#1e2020] border border-[#282a2b] rounded-2xl p-5 relative overflow-hidden group hover:border-[#333535] transition-all">
+                                <div className="absolute -right-4 -top-4 text-[#ffb692]/5 group-hover:text-[#ffb692]/10 transition-colors duration-300 pointer-events-none">
+                                    <Users size={96} />
+                                </div>
+                                <div className="relative z-10 flex flex-col justify-between h-full">
+                                    <div>
+                                        <p className="text-[9px] font-mono font-bold text-[#ffb692] mb-1.5 uppercase tracking-wider">Total Pengunjung</p>
+                                        <h3 className="text-base font-extrabold text-white leading-none">
+                                            {analytics.totalPax} <span className="text-xs text-[#c4c7c8] font-bold">Pax</span>
+                                        </h3>
+                                    </div>
+                                    <p className="text-[9px] text-[#c4c7c8] mt-3">
+                                        Rerata: {analytics.avgPax} Pax/Meja
+                                    </p>
+                                </div>
                             </div>
 
-                            {/* Card 3: Transaksi */}
-                            <div className="bg-gradient-to-br from-amber-500 to-amber-650 text-white p-4 rounded-3xl shadow-sm border border-amber-400/20 flex flex-col gap-2 relative overflow-hidden">
-                                <div className="absolute right-3 top-3 opacity-15"><ShoppingBag size={36} /></div>
-                                <span className="text-[9px] font-black text-amber-200 tracking-wider uppercase">Total Transaksi</span>
-                                <h3 className="text-lg font-black leading-none">
-                                    {analytics.totalTransactions} <span className="text-xs font-bold text-amber-100">Order</span>
-                                </h3>
-                                <p className="text-[9px] font-semibold text-amber-200 leading-none mt-1">Tiket Terdistribusi ke POS</p>
+                            {/* Card 3: Total Transaksi */}
+                            <div className="bg-[#1e2020] border border-[#282a2b] rounded-2xl p-5 relative overflow-hidden group hover:border-[#333535] transition-all">
+                                <div className="absolute -right-4 -top-4 text-purple-400/5 group-hover:text-purple-400/10 transition-colors duration-300 pointer-events-none">
+                                    <Receipt size={96} />
+                                </div>
+                                <div className="relative z-10 flex flex-col justify-between h-full">
+                                    <div>
+                                        <p className="text-[9px] font-mono font-bold text-purple-400 mb-1.5 uppercase tracking-wider">Total Transaksi</p>
+                                        <h3 className="text-base font-extrabold text-white leading-none">
+                                            {analytics.totalTransactions} <span className="text-xs text-[#c4c7c8] font-bold">Order</span>
+                                        </h3>
+                                    </div>
+                                    <p className="text-[9px] text-[#c4c7c8] mt-3">
+                                        Tiket Relay aktif
+                                    </p>
+                                </div>
                             </div>
 
-                            {/* Card 4: Rata-Rata Keranjang */}
-                            <div className="bg-gradient-to-br from-slate-800 to-slate-900 text-white p-4 rounded-3xl shadow-sm border border-slate-700/50 flex flex-col gap-2 relative overflow-hidden">
-                                <div className="absolute right-3 top-3 opacity-15"><Activity size={36} /></div>
-                                <span className="text-[9px] font-black text-slate-400 tracking-wider uppercase">Rerata Tiket</span>
-                                <h3 className="text-lg font-black leading-none">
-                                    Rp {analytics.avgTicket.toLocaleString('id-ID')}
-                                </h3>
-                                <p className="text-[9px] font-semibold text-slate-400 leading-none mt-1">Belanja Rata-Rata per Meja</p>
+                            {/* Card 4: Rerata Tiket */}
+                            <div className="bg-[#1e2020] border border-[#282a2b] rounded-2xl p-5 relative overflow-hidden group hover:border-[#333535] transition-all">
+                                <div className="absolute -right-4 -top-4 text-white/5 group-hover:text-white/10 transition-colors duration-300 pointer-events-none">
+                                    <TrendingUp size={96} />
+                                </div>
+                                <div className="relative z-10 flex flex-col justify-between h-full">
+                                    <div>
+                                        <p className="text-[9px] font-mono font-bold text-[#c4c7c8] mb-1.5 uppercase tracking-wider">Rerata Tiket</p>
+                                        <h3 className="text-base font-extrabold text-white leading-none">
+                                            Rp {analytics.avgTicket.toLocaleString('id-ID')}
+                                        </h3>
+                                    </div>
+                                    <p className="text-[9px] text-[#c4c7c8] mt-3">
+                                        Belanja rata-rata
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                        </section>
 
-                        {/* LINE CHART TREND OMZET */}
-                        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col gap-4">
-                            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-                                <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                                    <TrendingUp size={16} className="text-indigo-500" />
-                                    Tren Penjualan Harian
-                                </span>
+                        {/* Main Chart: Tren Penjualan Harian */}
+                        <section className="bg-[#1e2020] border border-[#282a2b] rounded-3xl p-5 shadow-lg flex flex-col gap-4">
+                            <div className="flex justify-between items-center border-b border-[#333535] pb-4">
+                                <h3 className="flex items-center text-xs font-extrabold text-white uppercase tracking-wider gap-1.5">
+                                    <TrendingUp size={16} className="text-purple-400" />
+                                    TREN PENJUALAN HARIAN
+                                </h3>
                                 {analytics.trendData.length > 0 && (
-                                    <span className="text-[10px] font-bold text-slate-400">
+                                    <span className="text-[9px] font-mono text-[#c4c7c8] uppercase tracking-wider">
                                         {analytics.trendData[0].date} - {analytics.trendData[analytics.trendData.length - 1].date}
                                     </span>
                                 )}
                             </div>
 
                             {analytics.trendData.length < 2 ? (
-                                <div className="h-32 flex items-center justify-center text-slate-400 text-xs font-medium">
+                                <div className="h-44 flex items-center justify-center text-[#c4c7c8] text-xs font-semibold">
                                     Data belum cukup untuk menampilkan tren grafik.
                                 </div>
                             ) : (
-                                <div className="w-full flex flex-col gap-2 items-center">
+                                <div className="w-full flex flex-col gap-4 relative pt-2">
                                     {/* Line Graph SVG Container */}
-                                    <div className="w-full overflow-x-auto select-none">
-                                        <svg viewBox="0 0 500 150" className="w-full h-auto overflow-visible">
+                                    <div className="w-full overflow-hidden select-none relative h-64">
+                                        {/* Decorative Grid */}
+                                        <div className="absolute inset-0 bg-[linear-gradient(to_right,#333535_1px,transparent_1px),linear-gradient(to_bottom,#333535_1px,transparent_1px)] bg-[size:40px_40px] opacity-10 rounded-lg pointer-events-none"></div>
+                                        
+                                        <svg viewBox="0 0 1000 200" className="w-full h-full overflow-visible">
                                             <defs>
                                                 <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.2" />
-                                                    <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.0" />
+                                                    <stop offset="0%" stopColor="#d0bcff" stopOpacity="0.2" />
+                                                    <stop offset="100%" stopColor="#d0bcff" stopOpacity="0.0" />
                                                 </linearGradient>
                                             </defs>
                                             
@@ -575,15 +610,15 @@ export default function AdminAnalyticsPage() {
                                             <path d={svgChartPath.fill} fill="url(#chartGradient)" />
 
                                             {/* Line Path */}
-                                            <path d={svgChartPath.line} fill="none" stroke="#4f46e5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                            <path d={svgChartPath.line} fill="none" stroke="#d0bcff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
 
-                                            {/* Dots & Labels */}
+                                            {/* Dots */}
                                             {svgChartPath.points.map((p, idx) => {
                                                 const trendVal = analytics.trendData[idx]
                                                 return (
                                                     <g key={idx} className="group cursor-pointer">
-                                                        <circle cx={p.x} cy={p.y} r="3.5" fill="#ffffff" stroke="#4f46e5" strokeWidth="2" className="transition-all hover:r-5" />
-                                                        <text x={p.x} y={p.y - 8} textAnchor="middle" className="text-[7px] font-black fill-slate-700 opacity-0 group-hover:opacity-100 transition-opacity bg-white px-1">
+                                                        <circle cx={p.x} cy={p.y} r="4.5" fill="#121414" stroke="#d0bcff" strokeWidth="2.5" className="transition-all hover:r-6" />
+                                                        <text x={p.x} y={p.y - 10} textAnchor="middle" className="text-[8px] font-black fill-[#e2e2e2] opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 px-1.5 py-0.5 rounded shadow-lg">
                                                             Rp {(trendVal.revenue / 1000).toFixed(0)}k
                                                         </text>
                                                     </g>
@@ -593,44 +628,45 @@ export default function AdminAnalyticsPage() {
                                     </div>
 
                                     {/* Axis Labels */}
-                                    <div className="w-full flex justify-between text-[8px] font-black text-slate-400 uppercase tracking-widest border-t border-slate-100 pt-2 px-3">
+                                    <div className="w-full flex justify-between text-[8px] font-mono font-bold text-[#c4c7c8] uppercase tracking-widest border-t border-[#333535] pt-3 px-2">
                                         <span>{analytics.trendData[0].date}</span>
-                                        <span>Tengah Periode</span>
+                                        <span>TENGAH PERIODE</span>
                                         <span>{analytics.trendData[analytics.trendData.length - 1].date}</span>
                                     </div>
                                 </div>
                             )}
-                        </div>
+                        </section>
 
-                        {/* ROW 3: PEAK TRAFFIC (DAYS & HOURS) */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Secondary Charts Grid: Days & Hours */}
+                        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {/* Hari Tersibuk */}
-                            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col gap-4">
-                                <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-                                    <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                                        <Calendar size={16} className="text-amber-500" />
-                                        Hari Tersibuk Mingguan
-                                    </span>
-                                    <span className="bg-amber-100 text-amber-800 text-[9px] font-black px-2 py-0.5 rounded-full">
+                            <div className="bg-[#1e2020] border border-[#282a2b] rounded-3xl p-5 shadow-lg flex flex-col gap-4">
+                                <div className="flex justify-between items-center border-b border-[#333535] pb-4">
+                                    <h3 className="flex items-center text-xs font-extrabold text-white uppercase tracking-wider gap-1.5">
+                                        <Calendar size={16} className="text-purple-400" />
+                                        HARI TERSIBUK MINGGUAN
+                                    </h3>
+                                    <span className="bg-[#ffb692]/10 text-[#ffb692] text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider border border-[#ffb692]/20">
                                         Puncak: {analytics.busiestDay}
                                     </span>
                                 </div>
 
-                                <div className="flex flex-col gap-3">
+                                <div className="flex flex-col gap-3.5">
                                     {analytics.dayNames.map((name, idx) => {
                                         const count = analytics.dayCounts[idx]
                                         const maxCount = analytics.maxDayCount || 1
                                         const percentage = Math.round((count / maxCount) * 100)
+                                        const isPeak = name === analytics.busiestDay
 
                                         return (
                                             <div key={name} className="flex items-center gap-3 text-xs leading-none">
-                                                <span className="w-14 font-bold text-slate-500 text-left">{name}</span>
-                                                <div className="flex-1 bg-slate-100 h-6 rounded-lg overflow-hidden relative border border-slate-100/50">
+                                                <span className={`w-14 font-bold text-left ${isPeak ? 'text-[#ffb692]' : 'text-[#c4c7c8]'}`}>{name}</span>
+                                                <div className="flex-1 bg-[#282a2b] h-6 rounded-lg overflow-hidden relative border border-[#333535]/30">
                                                     <div
-                                                        className="bg-amber-400 h-full rounded-r-md transition-all duration-500"
+                                                        className={`h-full rounded-r-md transition-all duration-500 ${isPeak ? 'bg-[#ffb692]' : 'bg-[#e2e2e2]'}`}
                                                         style={{ width: `${percentage}%` }}
                                                     />
-                                                    <span className="absolute inset-y-0 right-2 flex items-center text-[9px] font-black text-slate-700">
+                                                    <span className="absolute inset-y-0 right-3 flex items-center text-[9px] font-mono font-bold text-[#e2e2e2]">
                                                         {count} Order
                                                     </span>
                                                 </div>
@@ -641,82 +677,97 @@ export default function AdminAnalyticsPage() {
                             </div>
 
                             {/* Jam Tersibuk */}
-                            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col gap-4">
-                                <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-                                    <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                                        <Clock size={16} className="text-indigo-500" />
-                                        Jam Sibuk Operasional
-                                    </span>
+                            <div className="bg-[#1e2020] border border-[#282a2b] rounded-3xl p-5 shadow-lg flex flex-col justify-between">
+                                <div className="flex justify-between items-center border-b border-[#333535] pb-4">
+                                    <h3 className="flex items-center text-xs font-extrabold text-white uppercase tracking-wider gap-1.5">
+                                        <Clock size={16} className="text-purple-400" />
+                                        JAM SIBUK OPERASIONAL
+                                    </h3>
                                 </div>
 
-                                <div className="flex flex-col gap-3">
-                                    {/* Custom vertical bar graph for hours (selected hours: 09, 12, 15, 18, 20, 22) */}
-                                    <div className="flex items-end justify-between h-40 pt-4 px-2 border-b border-slate-100">
+                                <div className="flex-1 flex flex-col justify-end mt-4">
+                                    {/* Custom vertical bar graph */}
+                                    <div className="flex items-end justify-between h-44 pt-4 px-2 border-b border-[#333535] relative">
+                                        {/* Grid lines */}
+                                        <div className="absolute inset-0 flex flex-col justify-between opacity-5 pointer-events-none">
+                                            <div className="w-full border-t border-white"></div>
+                                            <div className="w-full border-t border-white"></div>
+                                            <div className="w-full border-t border-white"></div>
+                                            <div className="w-full border-t border-white"></div>
+                                        </div>
+
                                         {[9, 12, 15, 17, 19, 21, 23].map((hour) => {
                                             const count = analytics.hourCounts[hour]
                                             const maxHourCount = Math.max(...analytics.hourCounts, 1)
                                             const heightPercent = Math.max(5, Math.round((count / maxHourCount) * 100))
+                                            const isPeakHour = count === maxHourCount && count > 0
 
                                             return (
-                                                <div key={hour} className="flex flex-col items-center gap-2 group w-8">
+                                                <div key={hour} className="flex flex-col items-center gap-2 group w-8 relative z-10">
                                                     <div className="relative w-full flex justify-center">
-                                                        <span className="absolute -top-6 text-[9px] font-black text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-100 px-1 rounded shadow-sm">
+                                                        <span className="absolute -top-7 text-[9px] font-mono font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity bg-[#282a2b] border border-[#333535] px-1.5 py-0.5 rounded shadow-md">
                                                             {count}
                                                         </span>
                                                         <div
-                                                            className="w-4 bg-indigo-500 hover:bg-indigo-650 rounded-t-md transition-all duration-500 shadow-sm"
+                                                            className={`w-5 rounded-t-lg transition-all duration-300 group-hover:glow-active ${
+                                                                isPeakHour 
+                                                                    ? 'bg-[#ffb692] shadow-[0_0_15px_rgba(255,182,146,0.3)]' 
+                                                                    : 'bg-white hover:bg-purple-300'
+                                                            }`}
                                                             style={{ height: `${heightPercent}px` }}
                                                         />
                                                     </div>
-                                                    <span className="text-[9px] font-mono font-black text-slate-400">
+                                                    <span className={`text-[9px] font-mono ${isPeakHour ? 'text-[#ffb692] font-bold' : 'text-[#c4c7c8]'}`}>
                                                         {hour.toString().padStart(2, '0')}:00
                                                     </span>
                                                 </div>
                                             )
                                         })}
                                     </div>
-                                    <p className="text-[9px] font-semibold text-slate-400 text-center uppercase tracking-wider">Arahkan kursor ke grafik batang untuk detail kuantitas</p>
+                                    <p className="text-center text-[9px] text-[#c4c7c8] uppercase tracking-wider mt-4">Arahkan kursor ke grafik batang untuk detail kuantitas</p>
                                 </div>
                             </div>
-                        </div>
+                        </section>
 
-                        {/* ROW 4: SLA STASIUN & WAITER LEADERBOARD */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* SLA Penyiapan Stasiun */}
-                            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col gap-4">
-                                <div className="flex items-center gap-1.5 border-b border-slate-100 pb-3">
-                                    <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                                        <Clock size={16} className="text-emerald-500" />
-                                        Kecepatan Penyajian (SLA)
-                                    </span>
+                        {/* Bottom Grid: SLA & Leaderboard */}
+                        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {/* SLA Performance */}
+                            <div className="bg-[#1e2020] border border-[#282a2b] rounded-3xl p-5 shadow-lg flex flex-col gap-4">
+                                <div className="flex items-center gap-1.5 border-b border-[#333535] pb-4">
+                                    <h3 className="flex items-center text-xs font-extrabold text-white uppercase tracking-wider gap-1.5">
+                                        <Timer size={16} className="text-[#ffb692]" />
+                                        KECEPATAN PENYAJIAN (SLA)
+                                    </h3>
                                 </div>
 
-                                <div className="flex flex-col gap-4 justify-center py-2.5">
+                                <div className="space-y-4">
                                     {/* Barista Speed */}
-                                    <div className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200/50 rounded-2xl">
+                                    <div className="bg-[#121414]/60 backdrop-blur-md rounded-xl p-4 flex justify-between items-center border border-[#282a2b] hover:border-[#ffb692]/30 transition-colors group">
                                         <div>
-                                            <h4 className="font-black text-slate-800 text-xs uppercase tracking-wider">Barista (Minuman)</h4>
-                                            <p className="text-[9px] font-bold text-slate-400 mt-0.5">Berdasarkan {analytics.barPrepCount} pesanan selesai</p>
+                                            <h4 className="font-bold text-white text-xs uppercase tracking-wider">BARISTA (MINUMAN)</h4>
+                                            <p className="text-[10px] text-[#c4c7c8]">Berdasarkan {analytics.barPrepCount} pesanan selesai</p>
                                         </div>
                                         <div className="text-right">
-                                            <span className="text-xl font-black text-indigo-600 font-mono">{analytics.avgBarSLA}</span>
-                                            <span className="text-[10px] font-bold text-indigo-400 ml-0.5">menit</span>
-                                            <span className="block text-[8px] font-black uppercase text-emerald-500 tracking-widest mt-0.5">
+                                            <div className="text-base font-extrabold text-white font-mono flex items-baseline justify-end leading-none">
+                                                {analytics.avgBarSLA} <span className="text-[10px] text-[#c4c7c8] font-bold ml-1">menit</span>
+                                            </div>
+                                            <span className="text-[9px] font-bold text-[#ffb692] uppercase tracking-wider block mt-1.5">
                                                 {parseFloat(analytics.avgBarSLA) <= 5 ? 'Sangat Cepat' : parseFloat(analytics.avgBarSLA) <= 12 ? 'Normal' : 'Lambat'}
                                             </span>
                                         </div>
                                     </div>
 
                                     {/* Kitchen Speed */}
-                                    <div className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200/50 rounded-2xl">
+                                    <div className="bg-[#121414]/60 backdrop-blur-md rounded-xl p-4 flex justify-between items-center border border-[#282a2b] hover:border-purple-500/30 transition-colors group">
                                         <div>
-                                            <h4 className="font-black text-slate-800 text-xs uppercase tracking-wider">Kitchen (Makanan)</h4>
-                                            <p className="text-[9px] font-bold text-slate-400 mt-0.5">Berdasarkan {analytics.kitchenPrepCount} pesanan selesai</p>
+                                            <h4 className="font-bold text-white text-xs uppercase tracking-wider">KITCHEN (MAKANAN)</h4>
+                                            <p className="text-[10px] text-[#c4c7c8]">Berdasarkan {analytics.kitchenPrepCount} pesanan selesai</p>
                                         </div>
                                         <div className="text-right">
-                                            <span className="text-xl font-black text-amber-600 font-mono">{analytics.avgKitchenSLA}</span>
-                                            <span className="text-[10px] font-bold text-amber-400 ml-0.5">menit</span>
-                                            <span className="block text-[8px] font-black uppercase text-emerald-500 tracking-widest mt-0.5">
+                                            <div className="text-base font-extrabold text-white font-mono flex items-baseline justify-end leading-none">
+                                                {analytics.avgKitchenSLA} <span className="text-[10px] text-[#c4c7c8] font-bold ml-1">menit</span>
+                                            </div>
+                                            <span className="text-[9px] font-bold text-purple-400 uppercase tracking-wider block mt-1.5">
                                                 {parseFloat(analytics.avgKitchenSLA) <= 12 ? 'Sangat Cepat' : parseFloat(analytics.avgKitchenSLA) <= 20 ? 'Normal' : 'Lambat'}
                                             </span>
                                         </div>
@@ -724,79 +775,79 @@ export default function AdminAnalyticsPage() {
                                 </div>
                             </div>
 
-                            {/* Leaderboard Staf Waiter */}
-                            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col gap-4">
-                                <div className="flex items-center gap-1.5 border-b border-slate-100 pb-3">
-                                    <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                                        <Award size={16} className="text-indigo-500" />
-                                        Leaderboard Pramusaji
-                                    </span>
+                            {/* Leaderboard Pramusaji */}
+                            <div className="bg-[#1e2020] border border-[#282a2b] rounded-3xl p-5 shadow-lg flex flex-col gap-4">
+                                <div className="flex items-center gap-1.5 border-b border-[#333535] pb-4">
+                                    <h3 className="flex items-center text-xs font-extrabold text-white uppercase tracking-wider gap-1.5">
+                                        <Award size={16} className="text-white" />
+                                        LEADERBOARD PRAMUSAJI
+                                    </h3>
                                 </div>
 
                                 {analytics.waiterLeaderboard.length === 0 ? (
-                                    <div className="py-8 text-center text-slate-400 text-xs font-medium">
+                                    <div className="py-8 text-center text-[#c4c7c8] text-xs font-medium">
                                         Belum ada aktivitas pelayanan tercatat.
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col gap-3">
+                                    <div className="space-y-2.5">
                                         {analytics.waiterLeaderboard.map((waiter, index) => (
-                                            <div key={waiter.email} className="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                                                <div className="flex items-center gap-2.5">
-                                                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black leading-none ${
-                                                        index === 0 ? 'bg-amber-400 text-slate-900' :
-                                                        index === 1 ? 'bg-slate-300 text-slate-800' :
-                                                        index === 2 ? 'bg-amber-600 text-white' : 'bg-slate-200 text-slate-600'
+                                            <div key={waiter.email} className="flex justify-between items-center bg-[#282a2b]/35 hover:bg-[#282a2b]/60 p-3 rounded-xl border border-transparent hover:border-[#333535] transition-all">
+                                                <div className="flex items-center gap-3">
+                                                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black leading-none ${
+                                                        index === 0 ? 'bg-[#ffb692] text-[#341100] shadow-[0_0_12px_rgba(255,182,146,0.3)]' :
+                                                        index === 1 ? 'bg-[#c4c7c8] text-[#121414]' :
+                                                        index === 2 ? 'bg-[#ffb692]/40 text-[#ffb692]' : 'bg-[#121414] text-[#c4c7c8]'
                                                     }`}>
                                                         {index + 1}
                                                     </span>
-                                                    <span className="font-bold text-slate-700 text-xs lowercase leading-none">{waiter.email}</span>
+                                                    <span className="font-bold text-[#e2e2e2] text-xs lowercase leading-none">{waiter.email}</span>
                                                 </div>
                                                 <div className="text-right leading-none">
-                                                    <span className="text-[10px] font-black text-slate-800">{waiter.pax} Pax</span>
-                                                    <span className="block text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-wider">{waiter.orders} Tiket</span>
+                                                    <span className="text-xs font-extrabold text-white">{waiter.pax} Pax</span>
+                                                    <span className="block text-[8px] text-[#c4c7c8] mt-1.5 uppercase tracking-wider">{waiter.orders} Tiket</span>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 )}
                             </div>
-                        </div>
+                        </section>
 
-                        {/* ROW 5: MENU TERLARIS */}
-                        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col gap-4">
-                            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-                                <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                                    <Award size={16} className="text-amber-500" />
-                                    Daftar Menu Terlaris (Top 5)
-                                </span>
+                        {/* Top Menu Scrollable List */}
+                        <section className="bg-[#1e2020] border border-[#282a2b] rounded-3xl p-5 shadow-lg w-full overflow-hidden flex flex-col gap-4">
+                            <div className="flex justify-between items-center border-b border-[#333535] pb-4">
+                                <h3 className="flex items-center text-xs font-extrabold text-white uppercase tracking-wider gap-1.5">
+                                    <Award size={16} className="text-[#ffb692]" />
+                                    DAFTAR MENU TERLARIS (TOP 5)
+                                </h3>
                             </div>
 
                             {analytics.topMenus.length === 0 ? (
-                                <div className="py-8 text-center text-slate-400 text-xs font-medium">
+                                <div className="py-8 text-center text-[#c4c7c8] text-xs font-medium">
                                     Belum ada transaksi makanan/minuman terjual.
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                                <div className="flex space-x-4 overflow-x-auto pb-3 snap-x">
                                     {analytics.topMenus.map((menu, index) => (
-                                        <div key={menu.name} className="flex flex-col justify-between p-3.5 bg-slate-50 border border-slate-200/50 rounded-2xl relative shadow-sm overflow-hidden hover:scale-102 transition-transform duration-200">
-                                            <div className="absolute -right-4 -bottom-4 w-12 h-12 bg-indigo-500/5 rounded-full flex items-center justify-center">
-                                                <span className="font-black text-slate-200 text-2xl">#{index + 1}</span>
+                                        <div key={menu.name} className="min-w-[220px] flex-shrink-0 bg-[#121414]/50 backdrop-blur-md rounded-xl p-5 border border-[#333535] relative overflow-hidden group snap-start">
+                                            <div className="absolute -right-4 -bottom-4 text-6xl font-black text-[#282a2b]/30 group-hover:text-white/5 transition-colors pointer-events-none">
+                                                #{index + 1}
                                             </div>
-                                            <span className="text-[8px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-full w-max uppercase tracking-wider">
+                                            <span className="inline-block bg-[#ffb692]/10 text-[#ffb692] text-[8px] font-black px-2 py-0.5 rounded tracking-wider uppercase border border-[#ffb692]/20">
                                                 {menu.category}
                                             </span>
-                                            <h4 className="font-black text-slate-800 text-xs leading-tight mt-2 min-h-[2rem]">
+                                            <h4 className="font-extrabold text-white text-xs leading-snug mt-3 mb-6 min-h-[2rem]">
                                                 {menu.name}
                                             </h4>
-                                            <div className="mt-2 border-t border-dashed border-slate-200 pt-2 flex justify-between items-baseline">
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Volume</span>
-                                                <span className="text-sm font-black text-slate-700 font-mono">{menu.qty}x</span>
+                                            <div className="border-t border-dashed border-[#333535] pt-3 flex justify-between items-end relative z-10">
+                                                <span className="text-[9px] text-[#c4c7c8] tracking-wider uppercase font-bold">VOLUME</span>
+                                                <span className="text-lg font-extrabold text-white font-mono leading-none">{menu.qty}x</span>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
-                        </div>
+                        </section>
                     </>
                 )}
             </div>
