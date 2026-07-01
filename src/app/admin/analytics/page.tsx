@@ -1,7 +1,7 @@
 // src/app/admin/analytics/page.tsx
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, Fragment } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useMenuStore } from '@/store/useMenuStore'
@@ -10,11 +10,13 @@ import { ArrowLeft, Calendar, Coins, Users, Receipt, TrendingUp, Award, Clock, T
 
 interface TicketItemWithMenu {
     qty: number
+    notes: string | null
     menus: {
         name: string
         price: number
         category: string
         subcategory: string | null
+        variants: any[] | null
     } | null
 }
 
@@ -126,6 +128,14 @@ export default function AdminAnalyticsPage() {
     const [menuFilterCategory, setMenuFilterCategory] = useState('Semua')
     const [menuFilterSubcategory, setMenuFilterSubcategory] = useState('Semua')
     const [menuFilterShowOnlyTop5, setMenuFilterShowOnlyTop5] = useState(false)
+    const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({})
+
+    const toggleMenuExpand = (name: string) => {
+        setExpandedMenus(prev => ({
+            ...prev,
+            [name]: !prev[name]
+        }))
+    }
 
     // Load data menus dari store
     useEffect(() => {
@@ -190,11 +200,13 @@ export default function AdminAnalyticsPage() {
                     kitchen_prep_end,
                     ticket_items (
                         qty,
+                        notes,
                         menus (
                             name,
                             price,
                             category,
-                            subcategory
+                            subcategory,
+                            variants
                         )
                     )
                 `)
@@ -253,7 +265,15 @@ export default function AdminAnalyticsPage() {
         const waiterMap: Record<string, { email: string; orders: number; pax: number }> = {}
 
         // Agregasi menu terlaris (inisialisasi dari daftar menu aktif kafe untuk menampilkan item 0 penjualan)
-        const itemSalesMap: Record<string, { name: string; qty: number; category: string; subcategory: string; price: number; revenue: number }> = {}
+        const itemSalesMap: Record<string, { 
+            name: string; 
+            qty: number; 
+            category: string; 
+            subcategory: string; 
+            price: number; 
+            revenue: number;
+            variantsSold: Record<string, { qty: number; revenue: number }>
+        }> = {}
         
         allShopMenus.forEach(m => {
             if (m.menu_type !== 'bundle') {
@@ -263,7 +283,8 @@ export default function AdminAnalyticsPage() {
                     category: m.category,
                     subcategory: m.subcategory || 'Lainnya',
                     price: m.price,
-                    revenue: 0
+                    revenue: 0,
+                    variantsSold: {}
                 }
             }
         })
@@ -324,7 +345,22 @@ export default function AdminAnalyticsPage() {
                 ticket.ticket_items.forEach(item => {
                     if (item.menus) {
                         const qty = item.qty || 1
-                        const price = item.menus.price || 0
+                        
+                        // Hitung harga disesuaikan dengan Varian
+                        let price = item.menus.price || 0
+                        let variantName = ''
+
+                        if (item.notes && item.menus.variants) {
+                            const match = item.notes.match(/^\[Varian:\s*([^\]]+)\]/)
+                            if (match) {
+                                variantName = match[1].trim()
+                                const variant = item.menus.variants.find((v: any) => v.name.toLowerCase() === variantName.toLowerCase())
+                                if (variant && variant.price !== undefined && variant.price !== null) {
+                                    price = variant.price
+                                }
+                            }
+                        }
+
                         const itemCost = price * qty
                         ticketRevenue += itemCost
 
@@ -336,12 +372,22 @@ export default function AdminAnalyticsPage() {
                                 qty: 0,
                                 category: item.menus.category,
                                 subcategory: item.menus.subcategory || 'Lainnya',
-                                price: price,
-                                revenue: 0
+                                price: item.menus.price || 0,
+                                revenue: 0,
+                                variantsSold: {}
                             }
                         }
                         itemSalesMap[menuId].qty += qty
                         itemSalesMap[menuId].revenue += itemCost
+
+                        // Catat detail varian yang terjual
+                        if (variantName) {
+                            if (!itemSalesMap[menuId].variantsSold[variantName]) {
+                                itemSalesMap[menuId].variantsSold[variantName] = { qty: 0, revenue: 0 }
+                            }
+                            itemSalesMap[menuId].variantsSold[variantName].qty += qty
+                            itemSalesMap[menuId].variantsSold[variantName].revenue += itemCost
+                        }
                     }
                 })
             }
@@ -927,23 +973,38 @@ export default function AdminAnalyticsPage() {
                                 </div>
                             ) : (
                                 <div className="flex space-x-4 overflow-x-auto pb-3 snap-x">
-                                    {analytics.topMenus.map((menu, index) => (
-                                        <div key={menu.name} className="min-w-[220px] flex-shrink-0 bg-[#121414]/50 backdrop-blur-md rounded-xl p-5 border border-[#333535] relative overflow-hidden group snap-start">
-                                            <div className="absolute -right-4 -bottom-4 text-6xl font-black text-[#282a2b]/30 group-hover:text-white/5 transition-colors pointer-events-none">
-                                                #{index + 1}
+                                    {analytics.topMenus.map((menu, index) => {
+                                        // Cari varian terlaris untuk item ini
+                                        const topVariant = Object.entries(menu.variantsSold || {})
+                                            .sort((a, b) => b[1].qty - a[1].qty)[0];
+
+                                        return (
+                                            <div key={menu.name} className="min-w-[220px] flex-shrink-0 bg-[#121414]/50 backdrop-blur-md rounded-xl p-5 border border-[#333535] relative overflow-hidden group snap-start">
+                                                <div className="absolute -right-4 -bottom-4 text-6xl font-black text-[#282a2b]/30 group-hover:text-white/5 transition-colors pointer-events-none">
+                                                    #{index + 1}
+                                                </div>
+                                                <span className="inline-block bg-[#ffb692]/10 text-[#ffb692] text-[8px] font-black px-2 py-0.5 rounded tracking-wider uppercase border border-[#ffb692]/20">
+                                                    {menu.category}
+                                                </span>
+                                                <h4 className="font-extrabold text-white text-xs leading-snug mt-3 mb-1 min-h-[2rem] line-clamp-2">
+                                                    {menu.name}
+                                                </h4>
+                                                
+                                                <div className="text-[9px] text-slate-400 mb-6 min-h-[1rem]">
+                                                    {topVariant ? (
+                                                        <span>Varian Terpopuler: <strong className="text-[#ffb692]">{topVariant[0]} ({topVariant[1].qty}x)</strong></span>
+                                                    ) : (
+                                                        <span className="italic">Tanpa varian</span>
+                                                    )}
+                                                </div>
+
+                                                <div className="border-t border-dashed border-[#333535] pt-3 flex justify-between items-end relative z-10">
+                                                    <span className="text-[9px] text-[#c4c7c8] tracking-wider uppercase font-bold">VOLUME</span>
+                                                    <span className="text-lg font-extrabold text-white font-mono leading-none">{menu.qty}x</span>
+                                                </div>
                                             </div>
-                                            <span className="inline-block bg-[#ffb692]/10 text-[#ffb692] text-[8px] font-black px-2 py-0.5 rounded tracking-wider uppercase border border-[#ffb692]/20">
-                                                {menu.category}
-                                            </span>
-                                            <h4 className="font-extrabold text-white text-xs leading-snug mt-3 mb-6 min-h-[2rem]">
-                                                {menu.name}
-                                            </h4>
-                                            <div className="border-t border-dashed border-[#333535] pt-3 flex justify-between items-end relative z-10">
-                                                <span className="text-[9px] text-[#c4c7c8] tracking-wider uppercase font-bold">VOLUME</span>
-                                                <span className="text-lg font-extrabold text-white font-mono leading-none">{menu.qty}x</span>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             )}
                         </section>
@@ -1060,28 +1121,63 @@ export default function AdminAnalyticsPage() {
                                                     .sort((a, b) => b.qty - a.qty)
                                                     .findIndex(m => m.name === menu.name) + 1;
 
+                                                const hasVariants = Object.keys(menu.variantsSold || {}).length > 0;
+                                                const isExpanded = !!expandedMenus[menu.name];
+
                                                 return (
-                                                    <tr key={menu.name} className="border-b border-[#333535]/40 hover:bg-[#282a2b]/20 transition-colors text-xs font-medium">
-                                                        <td className="py-3 px-4 text-center">
-                                                            <span className={`inline-flex w-5 h-5 rounded-full items-center justify-center text-[9px] font-black ${
-                                                                overallRank === 1 ? 'bg-[#ffb692] text-[#341100]' :
-                                                                overallRank <= 5 ? 'bg-purple-950/60 text-purple-300 border border-purple-500/30' :
-                                                                'bg-[#282a2b] text-[#c4c7c8]'
-                                                            }`}>
-                                                                {overallRank}
-                                                            </span>
-                                                        </td>
-                                                        <td className="py-3 px-4 text-white font-bold">{menu.name}</td>
-                                                        <td className="py-3 px-4">
-                                                            <span className="text-[9px] font-mono text-[#c4c7c8] bg-[#282a2b] px-2 py-0.5 rounded border border-[#333535]/65">
-                                                                {menu.category} {menu.subcategory && `/ ${menu.subcategory}`}
-                                                            </span>
-                                                        </td>
-                                                        <td className="py-3 px-4 text-center font-bold text-white font-mono">{menu.qty}x</td>
-                                                        <td className="py-3 px-4 text-right font-mono text-white">
-                                                            Rp {menu.revenue.toLocaleString('id-ID')}
-                                                        </td>
-                                                    </tr>
+                                                    <Fragment key={menu.name}>
+                                                        <tr className="border-b border-[#333535]/40 hover:bg-[#282a2b]/20 transition-colors text-xs font-medium">
+                                                            <td className="py-3 px-4 text-center">
+                                                                <span className={`inline-flex w-5 h-5 rounded-full items-center justify-center text-[9px] font-black ${
+                                                                    overallRank === 1 ? 'bg-[#ffb692] text-[#341100]' :
+                                                                    overallRank <= 5 ? 'bg-purple-955/60 text-purple-300 border border-purple-500/30' :
+                                                                    'bg-[#282a2b] text-[#c4c7c8]'
+                                                                }`}>
+                                                                    {overallRank}
+                                                                </span>
+                                                            </td>
+                                                            <td 
+                                                                className="py-3 px-4 text-white font-bold cursor-pointer select-none"
+                                                                onClick={() => hasVariants && toggleMenuExpand(menu.name)}
+                                                            >
+                                                                <div className="flex items-center gap-1.5 hover:text-[#ffb692] transition-colors">
+                                                                    <span>{menu.name}</span>
+                                                                    {hasVariants && (
+                                                                        <span className="text-[8px] font-mono text-[#ffb692] bg-[#ffb692]/10 px-1.5 py-0.5 rounded border border-[#ffb692]/20 whitespace-nowrap">
+                                                                            {isExpanded ? '▲ Tutup Varian' : '▼ Detail Varian'}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </td>
+                                                            <td className="py-3 px-4">
+                                                                <span className="text-[9px] font-mono text-[#c4c7c8] bg-[#282a2b] px-2 py-0.5 rounded border border-[#333535]/65">
+                                                                    {menu.category} {menu.subcategory && `/ ${menu.subcategory}`}
+                                                                </span>
+                                                            </td>
+                                                            <td className="py-3 px-4 text-center font-bold text-white font-mono">{menu.qty}x</td>
+                                                            <td className="py-3 px-4 text-right font-mono text-white">
+                                                                Rp {menu.revenue.toLocaleString('id-ID')}
+                                                            </td>
+                                                        </tr>
+                                                        {isExpanded && hasVariants && (
+                                                            <tr className="bg-[#121414]/30 border-b border-[#333535]/40 text-[10px] font-semibold text-slate-400">
+                                                                <td colSpan={2}></td>
+                                                                <td colSpan={3} className="py-2.5 px-4">
+                                                                    <div className="flex flex-col gap-1.5 pl-4 border-l border-slate-700 py-1">
+                                                                        <div className="text-[9px] font-mono text-[#c4c7c8] uppercase tracking-wider mb-0.5">Rincian Penjualan Varian:</div>
+                                                                        {Object.entries(menu.variantsSold)
+                                                                            .sort((a, b) => b[1].qty - a[1].qty) // sort by qty desc
+                                                                            .map(([varName, varData]) => (
+                                                                                <div key={varName} className="flex justify-between items-center max-w-sm">
+                                                                                    <span>└ Varian: <strong className="text-[#ffb692]">{varName}</strong></span>
+                                                                                    <span className="font-mono text-[#e2e2e2]">{varData.qty}x terjual <span className="text-slate-500">({(varData.qty / menu.qty * 100).toFixed(0)}%)</span> — Rp {varData.revenue.toLocaleString('id-ID')}</span>
+                                                                                </div>
+                                                                            ))}
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                    </Fragment>
                                                 );
                                             })
                                         )}
