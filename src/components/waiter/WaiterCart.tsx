@@ -9,6 +9,8 @@ export default function WaiterCart() {
     const { cart, addToCart, removeFromCart, decrementCartQty, updateCartItemNotes, clearCart, tableIdentifier, setTableIdentifier, customerCount, setCustomerCount, finalizeOrder } = useMenuStore()
     const [isOpen, setIsOpen] = useState(false)
     const [isRelayMode, setIsRelayMode] = useState(false)
+    const [isStaffInvoice, setIsStaffInvoice] = useState(false)
+    const [staffName, setStaffName] = useState('')
 
     // Hitung total item dan total harga belanja
     const totalItems = cart.reduce((acc, item) => acc + item.qty, 0)
@@ -18,17 +20,41 @@ export default function WaiterCart() {
     const barItems = useMemo(() => cart.filter(item => item.menu.station === 'bar'), [cart])
     const kitchenItems = useMemo(() => cart.filter(item => item.menu.station !== 'bar'), [cart])
 
+    const handleToggleStaffInvoice = (checked: boolean) => {
+        setIsStaffInvoice(checked)
+        if (checked) {
+            setCustomerCount(1)
+            const newId = staffName ? `Karyawan: ${staffName}` : 'Karyawan: '
+            setTableIdentifier(newId)
+        } else {
+            setTableIdentifier('')
+        }
+    }
+
+    const handleIdentityChange = (val: string) => {
+        if (isStaffInvoice) {
+            const name = val.replace(/^Karyawan:\s*/i, '')
+            setStaffName(name)
+            setTableIdentifier(name ? `Karyawan: ${name}` : 'Karyawan: ')
+        } else {
+            setTableIdentifier(val)
+        }
+    }
+
     // Sembunyikan keranjang jika kosong dan tidak sedang dalam mode relay
     if (cart.length === 0 && !isRelayMode) return null
 
     // Mode Relay: Tampilan pembacaan pesanan ke kasir/bar/dapur
     if (isRelayMode) {
+        // Tampilkan identitas dengan awalan Karyawan jika diaktifkan
+        const displayIdentity = isStaffInvoice ? `Karyawan: ${staffName}` : tableIdentifier;
+
         return (
-            <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col max-w-md mx-auto animate-in slide-in-from-bottom">
+            <div className={`fixed inset-0 z-50 flex flex-col max-w-md mx-auto animate-in slide-in-from-bottom transition-colors duration-300 ${isStaffInvoice ? 'bg-purple-950' : 'bg-slate-900'}`}>
                 <div className="p-6 text-white flex-1 overflow-y-auto">
-                    <h2 className="text-2xl font-black mb-2 uppercase text-emerald-400">Order Relay</h2>
+                    <h2 className={`text-2xl font-black mb-2 uppercase ${isStaffInvoice ? 'text-purple-300' : 'text-emerald-400'}`}>Order Relay</h2>
                     <p className="text-slate-400 font-medium mb-6 flex items-center gap-2 flex-wrap">
-                        Identitas: <span className="font-bold text-white text-xl">{tableIdentifier}</span>
+                        Identitas: <span className="font-bold text-white text-xl">{displayIdentity}</span>
                         <span className="bg-slate-800 text-emerald-400 text-xs px-2.5 py-1 rounded-full border border-slate-700 flex items-center gap-1 font-bold">
                             <Users size={12} /> {customerCount} Orang
                         </span>
@@ -43,10 +69,16 @@ export default function WaiterCart() {
                             <div className="bg-white text-slate-900 rounded-b-lg rounded-tr-lg p-4 shadow-sm flex flex-col gap-3">
                                 {barItems.map((item) => (
                                     <div key={`${item.menu.id}-${item.selectedVariant || ''}`} className="border-b border-slate-100 pb-2 last:border-0 last:pb-0">
-                                        <div className="font-bold text-lg leading-tight">
-                                            <span className="text-blue-600 font-black mr-2">{item.qty}x</span>{item.menu.name}{item.selectedVariant ? ` (${item.selectedVariant})` : ''}
+                                        <div className="flex justify-between items-start">
+                                            <span className="font-black text-slate-800 text-sm">
+                                                {item.qty}x {item.menu.name}
+                                                {item.selectedVariant && <span className="text-xs font-bold text-slate-500 block">Varian: {item.selectedVariant}</span>}
+                                            </span>
+                                            <span className="font-mono text-xs text-slate-500 font-bold">
+                                                Rp {(getCartItemPrice(item) * item.qty).toLocaleString('id-ID')}
+                                            </span>
                                         </div>
-                                        {item.notes && <p className="text-sm text-rose-500 font-bold mt-1 uppercase">* {item.notes}</p>}
+                                        {item.notes && <p className="text-rose-500 text-xs font-bold mt-1 uppercase">* {item.notes}</p>}
                                     </div>
                                 ))}
                             </div>
@@ -62,10 +94,16 @@ export default function WaiterCart() {
                             <div className="bg-white text-slate-900 rounded-b-lg rounded-tr-lg p-4 shadow-sm flex flex-col gap-3">
                                 {kitchenItems.map((item) => (
                                     <div key={`${item.menu.id}-${item.selectedVariant || ''}`} className="border-b border-slate-100 pb-2 last:border-0 last:pb-0">
-                                        <div className="font-bold text-lg leading-tight">
-                                            <span className="text-orange-600 font-black mr-2">{item.qty}x</span>{item.menu.name}{item.selectedVariant ? ` (${item.selectedVariant})` : ''}
+                                        <div className="flex justify-between items-start">
+                                            <span className="font-black text-slate-800 text-sm">
+                                                {item.qty}x {item.menu.name}
+                                                {item.selectedVariant && <span className="text-xs font-bold text-slate-500 block">Varian: {item.selectedVariant}</span>}
+                                            </span>
+                                            <span className="font-mono text-xs text-slate-500 font-bold">
+                                                Rp {(getCartItemPrice(item) * item.qty).toLocaleString('id-ID')}
+                                            </span>
                                         </div>
-                                        {item.notes && <p className="text-sm text-rose-500 font-bold mt-1 uppercase">* {item.notes}</p>}
+                                        {item.notes && <p className="text-rose-500 text-xs font-bold mt-1 uppercase">* {item.notes}</p>}
                                     </div>
                                 ))}
                             </div>
@@ -73,19 +111,28 @@ export default function WaiterCart() {
                     )}
                 </div>
 
-                {/* Action Buttons: Selesai & Kembali/Edit */}
-                <div className="p-4 bg-slate-900 border-t border-slate-800 flex flex-col gap-2">
-                    <button
-                        onClick={() => { finalizeOrder(); setIsRelayMode(false); setIsOpen(false) }}
-                        className="w-full bg-emerald-500 text-white font-black uppercase tracking-wider py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform"
-                    >
-                        <CheckCircle2 size={24} /> Selesai & Kurangkan Stok
-                    </button>
+                <div className={`p-6 border-t ${isStaffInvoice ? 'border-purple-900 bg-purple-900/10' : 'border-slate-800 bg-slate-950'} flex gap-3`}>
                     <button
                         onClick={() => setIsRelayMode(false)}
-                        className="w-full bg-slate-800 text-slate-300 font-bold uppercase tracking-wider py-3 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform"
+                        className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-4 rounded-xl active:scale-95 transition-all text-sm uppercase tracking-wider"
                     >
-                        Kembali & Edit Pesanan
+                        Kembali
+                    </button>
+                    <button
+                        onClick={async () => {
+                            await finalizeOrder()
+                            setIsRelayMode(false)
+                            setIsOpen(false)
+                            setIsStaffInvoice(false)
+                            setStaffName('')
+                        }}
+                        className={`flex-1 font-black py-4 rounded-xl active:scale-95 transition-all text-sm uppercase tracking-wider ${
+                            isStaffInvoice
+                                ? 'bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/20'
+                                : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20'
+                        }`}
+                    >
+                        Selesai & Potong Stok
                     </button>
                 </div>
             </div>
@@ -97,12 +144,21 @@ export default function WaiterCart() {
         <div className={`fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-200 shadow-[0_-20px_40px_rgba(0,0,0,0.1)] transition-all duration-300 z-40 flex flex-col ${isOpen ? 'h-[85vh]' : 'h-24'}`}>
 
             {/* Header keranjang belanja (bisa di-toggle) */}
-            <div className="flex justify-between items-center p-5 cursor-pointer bg-slate-900 text-white rounded-t-2xl" onClick={() => setIsOpen(!isOpen)}>
+            <div 
+                className={`flex justify-between items-center p-5 cursor-pointer rounded-t-2xl text-white transition-colors duration-300 ${
+                    isStaffInvoice ? 'bg-purple-950 border-b border-purple-900/30' : 'bg-slate-900'
+                }`} 
+                onClick={() => setIsOpen(!isOpen)}
+            >
                 <div>
-                    <p className="font-bold text-slate-300 text-sm">{totalItems} Item Tercatat</p>
-                    <p className="text-emerald-400 font-black text-xl">Rp {totalPrice.toLocaleString('id-ID')}</p>
+                    <p className="font-bold text-slate-300 text-sm">
+                        {totalItems} Item Tercatat {isStaffInvoice && '(Karyawan)'}
+                    </p>
+                    <p className={`${isStaffInvoice ? 'text-purple-300' : 'text-emerald-400'} font-black text-xl`}>
+                        Rp {totalPrice.toLocaleString('id-ID')}
+                    </p>
                 </div>
-                <div className="bg-slate-800 p-3 rounded-full">
+                <div className={`${isStaffInvoice ? 'bg-purple-900' : 'bg-slate-800'} p-3 rounded-full`}>
                     {isOpen ? <X size={24} /> : <Send size={24} />}
                 </div>
             </div>
@@ -110,12 +166,31 @@ export default function WaiterCart() {
             {/* Panel detail keranjang (jika dibuka) */}
             {isOpen && (
                 <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-5">
+                    {/* Toggle Invoice Karyawan */}
+                    <div className="flex items-center justify-between bg-purple-50 border border-purple-100 rounded-2xl p-4 shadow-sm select-none">
+                        <span className="text-xs font-black text-purple-700 flex items-center gap-2 uppercase tracking-wider">
+                            <Users size={14} className="text-purple-500" />
+                            Invoice Staf / Karyawan
+                        </span>
+                        <button
+                            type="button"
+                            onClick={() => handleToggleStaffInvoice(!isStaffInvoice)}
+                            className={`w-11 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ${isStaffInvoice ? 'bg-purple-600' : 'bg-slate-300'}`}
+                        >
+                            <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${isStaffInvoice ? 'translate-x-5' : 'translate-x-0'}`} />
+                        </button>
+                    </div>
+
                     <input
                         type="text"
-                        placeholder="Nama Pemesan / Meja..."
-                        value={tableIdentifier}
-                        onChange={(e) => setTableIdentifier(e.target.value)}
-                        className="w-full border-2 border-slate-200 rounded-xl p-4 font-black text-lg focus:border-slate-900 outline-none uppercase placeholder:normal-case placeholder:font-medium placeholder:text-slate-400"
+                        placeholder={isStaffInvoice ? "Pilih / Tulis Nama Karyawan..." : "Nama Pemesan / Meja..."}
+                        value={isStaffInvoice ? staffName : tableIdentifier}
+                        onChange={(e) => handleIdentityChange(e.target.value)}
+                        className={`w-full border-2 rounded-xl p-4 font-black text-lg outline-none uppercase placeholder:normal-case placeholder:font-medium placeholder:text-slate-400 transition-all ${
+                            isStaffInvoice 
+                                ? 'border-purple-200 focus:border-purple-600 bg-purple-50/10 text-purple-900' 
+                                : 'border-slate-200 focus:border-slate-900'
+                        }`}
                     />
 
                     {/* Input Jumlah Pelanggan (Pax) */}
@@ -133,7 +208,7 @@ export default function WaiterCart() {
                             <button
                                 type="button"
                                 onClick={() => setCustomerCount(Math.max(1, customerCount - 1))}
-                                disabled={customerCount <= 1}
+                                disabled={customerCount <= 1 || isStaffInvoice}
                                 className="flex-1 bg-white hover:bg-slate-100 disabled:opacity-50 disabled:hover:bg-white text-slate-800 border border-slate-200 rounded-xl py-2.5 font-black text-base shadow-sm transition-all active:scale-95 flex items-center justify-center"
                             >
                                 -
@@ -141,7 +216,8 @@ export default function WaiterCart() {
                             <button
                                 type="button"
                                 onClick={() => setCustomerCount(customerCount + 1)}
-                                className="flex-1 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-xl py-2.5 font-black text-base shadow-sm transition-all active:scale-95 flex items-center justify-center"
+                                disabled={isStaffInvoice}
+                                className="flex-1 bg-white hover:bg-slate-100 disabled:opacity-50 disabled:hover:bg-white text-slate-800 border border-slate-200 rounded-xl py-2.5 font-black text-base shadow-sm transition-all active:scale-95 flex items-center justify-center"
                             >
                                 +
                             </button>
@@ -210,7 +286,11 @@ export default function WaiterCart() {
                     <button
                         onClick={() => setIsRelayMode(true)}
                         disabled={!tableIdentifier}
-                        className="mt-auto w-full bg-slate-900 text-white font-black uppercase tracking-wider py-4 rounded-xl disabled:bg-slate-300 disabled:text-slate-500 active:scale-95 transition-all"
+                        className={`mt-auto w-full font-black uppercase tracking-wider py-4 rounded-xl disabled:bg-slate-300 disabled:text-slate-500 active:scale-95 transition-all ${
+                            isStaffInvoice 
+                                ? 'bg-purple-900 text-white hover:bg-purple-800' 
+                                : 'bg-slate-900 text-white'
+                        }`}
                     >
                         {tableIdentifier ? 'Kompilasi Pesanan' : 'Isi Identitas Dulu'}
                     </button>

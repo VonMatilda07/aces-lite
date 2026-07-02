@@ -28,7 +28,7 @@ const QUICK_TEMPLATES = [
     '📢 Tolong Backup Dulu, Saya Mau Ke Toilet',
     'Kecap Anjing',
     'Deki Gelap',
-    ''
+    'Wak Wak Wak Doyokkkkkkkkkk'
 
 ]
 

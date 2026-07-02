@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useMenuStore } from '@/store/useMenuStore'
 import ChatWidget from '@/components/chat/ChatWidget'
-import { ArrowLeft, Calendar, Coins, Users, Receipt, TrendingUp, Award, Clock, Timer, Loader2, RefreshCw } from 'lucide-react'
+import { ArrowLeft, Calendar, Coins, Users, Receipt, TrendingUp, Award, Clock, Timer, Loader2, RefreshCw, Search, ChevronDown, ChevronUp, User, ClipboardList, Check } from 'lucide-react'
 
 interface TicketItemWithMenu {
     qty: number
@@ -24,6 +24,7 @@ interface DBOrderTicket {
     id: string
     created_at: string
     customer_count: number
+    table_identifier: string
     status: string
     waiter_id: string | null
     bar_status: string | null
@@ -38,78 +39,125 @@ interface DBOrderTicket {
     ticket_items: TicketItemWithMenu[]
 }
 
-const getDateRange = (range: string, customStart?: string, customEnd?: string) => {
-    const now = new Date()
-    let startDate = new Date()
-    let endDate = new Date()
+const getWibDateParts = (date: Date) => {
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Jakarta',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).formatToParts(date)
+    const map = new Map(parts.map(p => [p.type, p.value]))
+    const year = parseInt(map.get('year')!)
+    const month = parseInt(map.get('month')!)
+    const day = parseInt(map.get('day')!)
+    return { year, month, day, dateStr: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}` }
+}
 
-    // Standarisasi jam ke batas akhir hari untuk cakupan penuh
-    endDate.setHours(23, 59, 59, 999)
+const isTestTicket = (tableIdentifier: string) => {
+    const lower = (tableIdentifier || '').toLowerCase()
+    return (
+        lower.includes('test') ||
+        lower.includes('tes') ||
+        lower.includes('uji') ||
+        lower.includes('coba') ||
+        lower.includes('dummy') ||
+        lower.includes('mock')
+    )
+}
+
+const getTicketItemPriceLocal = (item: TicketItemWithMenu) => {
+    if (!item.menus) return 0
+    let price = item.menus.price || 0
+    if (item.notes && item.menus.variants) {
+        const match = item.notes.match(/^\[Varian:\s*([^\]]+)\]/)
+        if (match) {
+            const variantName = match[1].trim()
+            const variant = item.menus.variants.find((v: any) => v.name.toLowerCase() === variantName.toLowerCase())
+            if (variant && variant.price !== undefined && variant.price !== null) {
+                price = variant.price
+            }
+        }
+    }
+    return price
+}
+
+const getDateRangeString = (range: string, customStart?: string, customEnd?: string) => {
+    const nowWib = getWibDateParts(new Date())
+    let startStr = nowWib.dateStr
+    let endStr = nowWib.dateStr
 
     switch (range) {
-        case '7d':
-            startDate.setDate(now.getDate() - 7)
-            startDate.setHours(0, 0, 0, 0)
+        case '7d': {
+            const start = new Date(nowWib.year, nowWib.month - 1, nowWib.day - 7)
+            startStr = getWibDateParts(start).dateStr
             break
-        case '14d':
-            startDate.setDate(now.getDate() - 14)
-            startDate.setHours(0, 0, 0, 0)
+        }
+        case '14d': {
+            const start = new Date(nowWib.year, nowWib.month - 1, nowWib.day - 14)
+            startStr = getWibDateParts(start).dateStr
             break
-        case '21d':
-            startDate.setDate(now.getDate() - 21)
-            startDate.setHours(0, 0, 0, 0)
+        }
+        case '21d': {
+            const start = new Date(nowWib.year, nowWib.month - 1, nowWib.day - 21)
+            startStr = getWibDateParts(start).dateStr
             break
-        case '28d':
-            startDate.setDate(now.getDate() - 28)
-            startDate.setHours(0, 0, 0, 0)
+        }
+        case '28d': {
+            const start = new Date(nowWib.year, nowWib.month - 1, nowWib.day - 28)
+            startStr = getWibDateParts(start).dateStr
             break
-        case 'month':
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1)
-            startDate.setHours(0, 0, 0, 0)
+        }
+        case 'month': {
+            const start = new Date(nowWib.year, nowWib.month - 1, 1)
+            startStr = getWibDateParts(start).dateStr
             break
-        case 'prev_month':
-            startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-            startDate.setHours(0, 0, 0, 0)
-            endDate = new Date(now.getFullYear(), now.getMonth(), 0)
-            endDate.setHours(23, 59, 59, 999)
+        }
+        case 'prev_month': {
+            const start = new Date(nowWib.year, nowWib.month - 2, 1)
+            const end = new Date(nowWib.year, nowWib.month - 1, 0)
+            startStr = getWibDateParts(start).dateStr
+            endStr = getWibDateParts(end).dateStr
             break
-        case '2_months_prev':
-            startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1)
-            startDate.setHours(0, 0, 0, 0)
-            endDate = new Date(now.getFullYear(), now.getMonth() - 1, 0)
-            endDate.setHours(23, 59, 59, 999)
+        }
+        case '2_months_prev': {
+            const start = new Date(nowWib.year, nowWib.month - 3, 1)
+            const end = new Date(nowWib.year, nowWib.month - 2, 0)
+            startStr = getWibDateParts(start).dateStr
+            endStr = getWibDateParts(end).dateStr
             break
-        case '3_months_prev':
-            startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1)
-            startDate.setHours(0, 0, 0, 0)
-            endDate = new Date(now.getFullYear(), now.getMonth() - 2, 0)
-            endDate.setHours(23, 59, 59, 999)
+        }
+        case '3_months_prev': {
+            const start = new Date(nowWib.year, nowWib.month - 4, 1)
+            const end = new Date(nowWib.year, nowWib.month - 3, 0)
+            startStr = getWibDateParts(start).dateStr
+            endStr = getWibDateParts(end).dateStr
             break
-        case 'year':
-            startDate = new Date(now.getFullYear(), 0, 1)
-            startDate.setHours(0, 0, 0, 0)
+        }
+        case 'year': {
+            const start = new Date(nowWib.year, 0, 1)
+            startStr = getWibDateParts(start).dateStr
             break
-        case 'prev_year':
-            startDate = new Date(now.getFullYear() - 1, 0, 1)
-            startDate.setHours(0, 0, 0, 0)
-            endDate = new Date(now.getFullYear() - 1, 11, 31)
-            endDate.setHours(23, 59, 59, 999)
+        }
+        case 'prev_year': {
+            const start = new Date(nowWib.year - 1, 0, 1)
+            const end = new Date(nowWib.year - 1, 11, 31)
+            startStr = getWibDateParts(start).dateStr
+            endStr = getWibDateParts(end).dateStr
             break
+        }
         case 'custom':
             if (customStart) {
-                startDate = new Date(customStart)
-                startDate.setHours(0, 0, 0, 0)
+                startStr = customStart
             } else {
-                startDate.setDate(now.getDate() - 7)
-                startDate.setHours(0, 0, 0, 0)
+                const start = new Date(nowWib.year, nowWib.month - 1, nowWib.day - 7)
+                startStr = getWibDateParts(start).dateStr
             }
             if (customEnd) {
-                endDate = new Date(customEnd)
-                endDate.setHours(23, 59, 59, 999)
+                endStr = customEnd
             }
             break
     }
-    return { startDate, endDate }
+    return { startStr, endStr }
 }
 
 export default function AdminAnalyticsPage() {
@@ -129,11 +177,24 @@ export default function AdminAnalyticsPage() {
     const [menuFilterSubcategory, setMenuFilterSubcategory] = useState('Semua')
     const [menuFilterShowOnlyTop5, setMenuFilterShowOnlyTop5] = useState(false)
     const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({})
+    const [showAllProducts, setShowAllProducts] = useState(false)
 
     const toggleMenuExpand = (name: string) => {
         setExpandedMenus(prev => ({
             ...prev,
             [name]: !prev[name]
+        }))
+    }
+
+    // States untuk Riwayat Tiket
+    const [historySearch, setHistorySearch] = useState('')
+    const [historySort, setHistorySort] = useState('date_desc')
+    const [expandedTickets, setExpandedTickets] = useState<Record<string, boolean>>({})
+
+    const toggleTicketExpand = (id: string) => {
+        setExpandedTickets(prev => ({
+            ...prev,
+            [id]: !prev[id]
         }))
     }
 
@@ -183,13 +244,14 @@ export default function AdminAnalyticsPage() {
                 if (p.id && p.email) emailMap.set(p.id, p.email)
             })
 
-            // Kedua, ambil data tiket pesanan
+            // Kedua, ambil data tiket pesanan (memuat draft & relayed untuk riwayat & audit)
             const { data, error } = await supabase
                 .from('order_tickets')
                 .select(`
                     id,
                     created_at,
                     customer_count,
+                    table_identifier,
                     status,
                     waiter_id,
                     bar_status,
@@ -210,7 +272,6 @@ export default function AdminAnalyticsPage() {
                         )
                     )
                 `)
-                .eq('status', 'relayed') // Hanya hitung pesanan yang di-relay
                 .order('created_at', { ascending: false })
 
             if (error) throw error
@@ -236,20 +297,29 @@ export default function AdminAnalyticsPage() {
         }
     }, [isAuthorized])
 
-    // Filter tickets berdasarkan time range terpilih
+    // Filter tickets berdasarkan time range terpilih (WIB Align & Exclude Test Transactions)
     const filteredTickets = useMemo(() => {
-        const { startDate, endDate } = getDateRange(timeRange, customStartDate, customEndDate)
+        const { startStr, endStr } = getDateRangeString(timeRange, customStartDate, customEndDate)
         return tickets.filter(t => {
-            const ticketDate = new Date(t.created_at)
-            return ticketDate >= startDate && ticketDate <= endDate
+            // Kecualikan transaksi uji coba/testing sepenuhnya dari dasbor analitik
+            if (isTestTicket(t.table_identifier)) return false
+
+            const ticketDateStr = getWibDateParts(new Date(t.created_at)).dateStr
+            return ticketDateStr >= startStr && ticketDateStr <= endStr
         })
     }, [tickets, timeRange, customStartDate, customEndDate])
 
     // Agregasi & kalkulasi metrik utama
     const analytics = useMemo(() => {
+        // Hanya hitung tiket 'relayed' dan BUKAN pesanan karyawan untuk KPI utama pelanggan
+        const customerTickets = filteredTickets.filter(t => t.status === 'relayed' && !t.table_identifier.toLowerCase().startsWith('karyawan:'))
+        
+        // Filter pesanan karyawan (baik draft maupun relayed)
+        const staffTickets = filteredTickets.filter(t => t.table_identifier.toLowerCase().startsWith('karyawan:'))
+
         let totalRevenue = 0
         let totalPax = 0
-        let totalTransactions = filteredTickets.length
+        let totalTransactions = customerTickets.length
 
         // Agregasi per-hari untuk grafik trend
         const dailyTrends: Record<string, { revenue: number; pax: number; count: number }> = {}
@@ -264,7 +334,7 @@ export default function AdminAnalyticsPage() {
         // Agregasi performa waiter
         const waiterMap: Record<string, { email: string; orders: number; pax: number }> = {}
 
-        // Agregasi menu terlaris (inisialisasi dari daftar menu aktif kafe untuk menampilkan item 0 penjualan)
+        // Agregasi menu terlaris
         const itemSalesMap: Record<string, { 
             name: string; 
             qty: number; 
@@ -295,11 +365,13 @@ export default function AdminAnalyticsPage() {
         let totalKitchenPrepTime = 0
         let kitchenPrepCount = 0
 
-        filteredTickets.forEach(ticket => {
+        // Proses Transaksi Pelanggan Umum
+        customerTickets.forEach(ticket => {
             const ticketDate = new Date(ticket.created_at)
             
-            // Format tanggal lokal (DD MMM)
-            const dateStr = ticketDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+            // Format tanggal lokal (DD MMM) menggunakan zona WIB
+            const ticketWib = getWibDateParts(ticketDate)
+            const dateStr = ticketWib.day + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'][ticketWib.month - 1]
             
             // Inisialisasi trend harian
             if (!dailyTrends[dateStr]) {
@@ -328,14 +400,14 @@ export default function AdminAnalyticsPage() {
             // Hitung SLA Bar
             if (ticket.bar_prep_start && ticket.bar_prep_end) {
                 const diffMs = new Date(ticket.bar_prep_end).getTime() - new Date(ticket.bar_prep_start).getTime()
-                totalBarPrepTime += diffMs / (1000 * 60) // convert to minutes
+                totalBarPrepTime += diffMs / (1000 * 60)
                 barPrepCount += 1
             }
 
             // Hitung SLA Kitchen
             if (ticket.kitchen_prep_start && ticket.kitchen_prep_end) {
                 const diffMs = new Date(ticket.kitchen_prep_end).getTime() - new Date(ticket.kitchen_prep_start).getTime()
-                totalKitchenPrepTime += diffMs / (1000 * 60) // convert to minutes
+                totalKitchenPrepTime += diffMs / (1000 * 60)
                 kitchenPrepCount += 1
             }
 
@@ -345,22 +417,7 @@ export default function AdminAnalyticsPage() {
                 ticket.ticket_items.forEach(item => {
                     if (item.menus) {
                         const qty = item.qty || 1
-                        
-                        // Hitung harga disesuaikan dengan Varian
-                        let price = item.menus.price || 0
-                        let variantName = ''
-
-                        if (item.notes && item.menus.variants) {
-                            const match = item.notes.match(/^\[Varian:\s*([^\]]+)\]/)
-                            if (match) {
-                                variantName = match[1].trim()
-                                const variant = item.menus.variants.find((v: any) => v.name.toLowerCase() === variantName.toLowerCase())
-                                if (variant && variant.price !== undefined && variant.price !== null) {
-                                    price = variant.price
-                                }
-                            }
-                        }
-
+                        const price = getTicketItemPriceLocal(item)
                         const itemCost = price * qty
                         ticketRevenue += itemCost
 
@@ -380,7 +437,14 @@ export default function AdminAnalyticsPage() {
                         itemSalesMap[menuId].qty += qty
                         itemSalesMap[menuId].revenue += itemCost
 
-                        // Catat detail varian yang terjual
+                        // Catat detail varian
+                        let variantName = ''
+                        if (item.notes && item.menus.variants) {
+                            const match = item.notes.match(/^\[Varian:\s*([^\]]+)\]/)
+                            if (match) {
+                                variantName = match[1].trim()
+                            }
+                        }
                         if (variantName) {
                             if (!itemSalesMap[menuId].variantsSold[variantName]) {
                                 itemSalesMap[menuId].variantsSold[variantName] = { qty: 0, revenue: 0 }
@@ -395,18 +459,53 @@ export default function AdminAnalyticsPage() {
             dailyTrends[dateStr].revenue += ticketRevenue
         })
 
-        // Ubah trend harian menjadi array dan balik agar kronologis (karena fetch descending)
+        // KONSUMSI KARYAWAN (INTERNAL INVOICE) AGREGASI
+        let staffTotalCost = 0
+        const staffConsumptionMap: Record<string, { name: string; cost: number; ordersCount: number }> = {}
+        const staffItemsMap: Record<string, { name: string; qty: number; cost: number }> = {}
+
+        staffTickets.forEach(ticket => {
+            const staffName = ticket.table_identifier.replace(/^Karyawan:\s*/i, '').trim() || 'Staf Tanpa Nama'
+            
+            if (!staffConsumptionMap[staffName]) {
+                staffConsumptionMap[staffName] = { name: staffName, cost: 0, ordersCount: 0 }
+            }
+            staffConsumptionMap[staffName].ordersCount += 1
+
+            let ticketCost = 0
+            if (ticket.ticket_items) {
+                ticket.ticket_items.forEach(item => {
+                    if (item.menus) {
+                        const qty = item.qty || 1
+                        const price = getTicketItemPriceLocal(item)
+                        const itemCost = price * qty
+                        ticketCost += itemCost
+
+                        const menuName = item.menus.name
+                        if (!staffItemsMap[menuName]) {
+                            staffItemsMap[menuName] = { name: menuName, qty: 0, cost: 0 }
+                        }
+                        staffItemsMap[menuName].qty += qty
+                        staffItemsMap[menuName].cost += itemCost
+                    }
+                })
+            }
+            staffTotalCost += ticketCost
+            staffConsumptionMap[staffName].cost += ticketCost
+        })
+
+        const staffLeaderboard = Object.values(staffConsumptionMap).sort((a, b) => b.cost - a.cost)
+        const staffTopItems = Object.values(staffItemsMap).sort((a, b) => b.qty - a.qty)
+
         const trendData = Object.keys(dailyTrends).map(date => ({
             date,
             ...dailyTrends[date]
         })).reverse()
 
-        // Ambil top 5 waiter
         const waiterLeaderboard = Object.values(waiterMap)
             .sort((a, b) => b.pax - a.pax)
             .slice(0, 5)
 
-        // Ambil top 5 menu terlaris yang memiliki volume penjualan > 0
         const topMenus = Object.values(itemSalesMap)
             .filter(m => m.qty > 0)
             .sort((a, b) => b.qty - a.qty)
@@ -414,7 +513,6 @@ export default function AdminAnalyticsPage() {
 
         const allMenuSales = Object.values(itemSalesMap)
 
-        // Cari hari tersibuk
         let maxDayIndex = 0
         let maxDayCount = 0
         dayCounts.forEach((count, idx) => {
@@ -425,11 +523,9 @@ export default function AdminAnalyticsPage() {
         })
         const busiestDay = maxDayCount > 0 ? dayNames[maxDayIndex] : 'Tidak ada data'
 
-        // Hitung rata-rata SLA
         const avgBarSLA = barPrepCount > 0 ? (totalBarPrepTime / barPrepCount).toFixed(1) : '0.0'
         const avgKitchenSLA = kitchenPrepCount > 0 ? (totalKitchenPrepTime / kitchenPrepCount).toFixed(1) : '0.0'
 
-        // Rata-rata transaksi & pax
         const avgTicket = totalTransactions > 0 ? Math.round(totalRevenue / totalTransactions) : 0
         const avgPax = totalTransactions > 0 ? (totalPax / totalTransactions).toFixed(1) : '0.0'
 
@@ -451,7 +547,11 @@ export default function AdminAnalyticsPage() {
             avgBarSLA,
             avgKitchenSLA,
             barPrepCount,
-            kitchenPrepCount
+            kitchenPrepCount,
+            staffTickets,
+            staffTotalCost,
+            staffLeaderboard,
+            staffTopItems
         }
     }, [filteredTickets, allShopMenus])
 
@@ -512,6 +612,42 @@ export default function AdminAnalyticsPage() {
 
         return list
     }, [analytics.allMenuSales, menuSearch, menuFilterCategory, menuFilterSubcategory, menuSort, menuFilterShowOnlyTop5])
+
+    // Filter & Sort Riwayat Tiket (Mengikuti filter tanggal global)
+    const sortedAndFilteredHistoryTickets = useMemo(() => {
+        let list = [...filteredTickets]
+
+        if (historySearch.trim()) {
+            const query = historySearch.toLowerCase().trim()
+            list = list.filter(t => {
+                const matchTable = t.table_identifier.toLowerCase().includes(query)
+                const matchWaiter = t.profiles?.email?.toLowerCase().includes(query) || false
+                const matchId = t.id.toLowerCase().includes(query)
+                const matchItems = t.ticket_items?.some(item => 
+                    item.menus?.name?.toLowerCase().includes(query) || false
+                ) || false
+                return matchTable || matchWaiter || matchId || matchItems
+            })
+        }
+
+        list.sort((a, b) => {
+            const totalA = a.ticket_items?.reduce((sum, item) => sum + (getTicketItemPriceLocal(item) * item.qty), 0) || 0
+            const totalB = b.ticket_items?.reduce((sum, item) => sum + (getTicketItemPriceLocal(item) * item.qty), 0) || 0
+
+            if (historySort === 'date_desc') {
+                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            } else if (historySort === 'date_asc') {
+                return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            } else if (historySort === 'price_desc') {
+                return totalB - totalA
+            } else if (historySort === 'price_asc') {
+                return totalA - totalB
+            }
+            return 0
+        })
+
+        return list
+    }, [filteredTickets, historySearch, historySort])
 
     // Kalkulasi koordinat untuk SVG Line Chart (Skala 1000x200)
     const svgChartPath = useMemo(() => {
@@ -1115,7 +1251,7 @@ export default function AdminAnalyticsPage() {
                                                 </td>
                                             </tr>
                                         ) : (
-                                            sortedAndFilteredMenuSales.map((menu, idx) => {
+                                            (showAllProducts ? sortedAndFilteredMenuSales : sortedAndFilteredMenuSales.slice(0, 10)).map((menu, idx) => {
                                                 // Cari rank absolut keseluruhan (disortir berdasarkan penjualan Qty desc)
                                                 const overallRank = [...analytics.allMenuSales]
                                                     .sort((a, b) => b.qty - a.qty)
@@ -1184,8 +1320,260 @@ export default function AdminAnalyticsPage() {
                                     </tbody>
                                 </table>
                             </div>
+
+                            {sortedAndFilteredMenuSales.length > 10 && (
+                                <div className="flex justify-center border-t border-[#333535]/30 pt-4 mt-2">
+                                    <button
+                                        onClick={() => setShowAllProducts(!showAllProducts)}
+                                        className="flex items-center gap-1.5 text-xs font-bold text-[#ffb692] hover:text-[#ffd8c2] transition-colors py-2 px-4 bg-[#ffb692]/5 hover:bg-[#ffb692]/10 rounded-xl border border-[#ffb692]/15 shadow-sm active:scale-95 transition-all duration-200"
+                                    >
+                                        {showAllProducts ? (
+                                            <>Tampilkan Lebih Sedikit (10 Produk) <ChevronUp size={14} /></>
+                                        ) : (
+                                            <>Lihat secara lengkap ({sortedAndFilteredMenuSales.length} Produk) <ChevronDown size={14} /></>
+                                        )}
+                                    </button>
+                                </div>
+                            )}
                         </section>
-                    </>
+
+                        {/* SUB-PANEL KONSUMSI KARYAWAN */}
+                        {analytics.staffTickets.length > 0 && (
+                            <section className="bg-[#1e2020] border border-[#282a2b] rounded-3xl p-6 flex flex-col gap-6 mt-6">
+                                <div className="flex items-center gap-3 border-b border-[#333535] pb-4">
+                                    <div className="p-2 bg-purple-950/40 text-purple-300 rounded-xl border border-purple-500/20">
+                                        <Users size={20} />
+                                    </div>
+                                    <div>
+                                        <h2 className="font-extrabold text-white text-base leading-none">Konsumsi Internal & Tagihan Karyawan</h2>
+                                        <p className="text-[10px] text-[#c4c7c8] mt-1.5 font-medium">Rekapitulasi bill gantung konsumsi staf (dikecualikan dari laporan utama kafe)</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="bg-[#121414]/50 border border-[#333535]/30 rounded-2xl p-5 flex items-center justify-between">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-[9px] font-mono font-bold text-purple-400 uppercase tracking-wider">Total Tagihan Karyawan</span>
+                                            <h3 className="text-xl font-black text-white">Rp {analytics.staffTotalCost.toLocaleString('id-ID')}</h3>
+                                        </div>
+                                        <div className="text-purple-400/20">
+                                            <Coins size={40} />
+                                        </div>
+                                    </div>
+                                    <div className="bg-[#121414]/50 border border-[#333535]/30 rounded-2xl p-5 flex items-center justify-between">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-[9px] font-mono font-bold text-purple-400 uppercase tracking-wider">Total Sesi Makan Staf</span>
+                                            <h3 className="text-xl font-black text-white">{analytics.staffTickets.length} Transaksi</h3>
+                                        </div>
+                                        <div className="text-purple-400/20">
+                                            <Users size={40} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <div className="flex flex-col gap-3">
+                                        <h4 className="text-[11px] font-mono font-bold text-[#c4c7c8] uppercase tracking-wider pl-1">Akumulasi Per Karyawan</h4>
+                                        <div className="overflow-x-auto rounded-2xl border border-[#333535]/60 bg-[#121414]/20">
+                                            <table className="w-full text-left border-collapse text-xs">
+                                                <thead>
+                                                    <tr className="bg-[#121414] text-[#c4c7c8] font-bold text-[9px] uppercase tracking-wider border-b border-[#333535]">
+                                                        <th className="py-2.5 px-4">Nama Staf</th>
+                                                        <th className="py-2.5 px-4 text-center">Jumlah Sesi</th>
+                                                        <th className="py-2.5 px-4 text-right">Total Tagihan</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {analytics.staffLeaderboard.map(staff => (
+                                                        <tr key={staff.name} className="border-b border-[#333535]/20 hover:bg-[#282a2b]/10 text-white font-medium">
+                                                            <td className="py-2.5 px-4 font-bold">{staff.name}</td>
+                                                            <td className="py-2.5 px-4 text-center font-mono text-[#c4c7c8]">{staff.ordersCount}x</td>
+                                                            <td className="py-2.5 px-4 text-right font-mono text-[#ffb692]">Rp {staff.cost.toLocaleString('id-ID')}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-3">
+                                        <h4 className="text-[11px] font-mono font-bold text-[#c4c7c8] uppercase tracking-wider pl-1">Item Populer Staf</h4>
+                                        <div className="overflow-x-auto rounded-2xl border border-[#333535]/60 bg-[#121414]/20">
+                                            <table className="w-full text-left border-collapse text-xs">
+                                                <thead>
+                                                    <tr className="bg-[#121414] text-[#c4c7c8] font-bold text-[9px] uppercase tracking-wider border-b border-[#333535]">
+                                                        <th className="py-2.5 px-4">Nama Menu</th>
+                                                        <th className="py-2.5 px-4 text-center">Terjual</th>
+                                                        <th className="py-2.5 px-4 text-right">Nilai Barang</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {analytics.staffTopItems.slice(0, 5).map(item => (
+                                                        <tr key={item.name} className="border-b border-[#333535]/20 hover:bg-[#282a2b]/10 text-[#e2e2e2]">
+                                                            <td className="py-2.5 px-4 font-bold text-white">{item.name}</td>
+                                                            <td className="py-2.5 px-4 text-center font-mono text-[#c4c7c8]">{item.qty}x</td>
+                                                            <td className="py-2.5 px-4 text-right font-mono">Rp {item.cost.toLocaleString('id-ID')}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        )}
+
+                        {/* PANEL RIWAYAT TIKET */}
+                        <section className="bg-[#1e2020] border border-[#282a2b] rounded-3xl p-6 flex flex-col gap-6 mt-6">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#333535] pb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-purple-950/40 text-purple-300 rounded-xl border border-purple-500/20">
+                                        <Clock size={20} />
+                                    </div>
+                                    <div>
+                                        <h2 className="font-extrabold text-white text-base leading-none">Riwayat Tiket Transaksi</h2>
+                                        <p className="text-[10px] text-[#c4c7c8] mt-1.5 font-medium">Melacak seluruh lembar tiket transaksi yang terdaftar di sistem (mengikuti filter tanggal aktif)</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Cari meja, waiter, menu..."
+                                            value={historySearch}
+                                            onChange={(e) => setHistorySearch(e.target.value)}
+                                            className="w-full sm:w-64 bg-[#282a2b] text-white text-xs font-bold pl-9 pr-4 py-2.5 rounded-xl border border-[#333535] outline-none focus:border-purple-400 transition-all placeholder:font-medium placeholder:text-[#c4c7c8]/50"
+                                        />
+                                        <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#c4c7c8]/50" />
+                                    </div>
+
+                                    <div className="relative">
+                                        <select
+                                            value={historySort}
+                                            onChange={(e) => setHistorySort(e.target.value)}
+                                            className="bg-[#282a2b] text-white text-xs font-bold pl-3 pr-8 py-2.5 rounded-xl border border-[#333535] outline-none focus:border-purple-400 transition-all cursor-pointer appearance-none min-w-[160px]"
+                                        >
+                                            <option value="date_desc">Waktu: Terbaru</option>
+                                            <option value="date_asc">Waktu: Terlama</option>
+                                            <option value="price_desc">Tagihan: Terbesar</option>
+                                            <option value="price_asc">Tagihan: Terkecil</option>
+                                        </select>
+                                        <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#c4c7c8]" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-4">
+                                {sortedAndFilteredHistoryTickets.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-12 text-[#c4c7c8]/50 gap-2 border border-dashed border-[#333535] rounded-2xl">
+                                        <ClipboardList size={32} />
+                                        <p className="text-xs font-medium">Tidak ada tiket transaksi yang ditemukan.</p>
+                                    </div>
+                                ) : (
+                                    sortedAndFilteredHistoryTickets.map(ticket => {
+                                        const totalTicketAmount = ticket.ticket_items?.reduce((sum, item) => sum + (getTicketItemPriceLocal(item) * item.qty), 0) || 0;
+                                        const isStaff = ticket.table_identifier.toLowerCase().startsWith('karyawan:');
+                                        const displayTable = isStaff ? ticket.table_identifier.replace(/^Karyawan:\s*/i, '') : ticket.table_identifier;
+                                        const isExpanded = !!expandedTickets[ticket.id];
+
+                                        const tParts = getWibDateParts(new Date(ticket.created_at));
+                                        const formattedTime = `${String(tParts.day).padStart(2, '0')}/${String(tParts.month).padStart(2, '0')}/${tParts.year} ${new Date(ticket.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} WIB`;
+
+                                        return (
+                                            <div 
+                                                key={ticket.id} 
+                                                className={`border border-[#333535]/40 rounded-2xl overflow-hidden transition-all bg-[#1e2020]/30 hover:border-[#333535]`}
+                                            >
+                                                <div className="bg-[#121414]/30 px-5 py-3.5 flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-[#333535]/30">
+                                                     <div className="flex items-center gap-2.5">
+                                                         {isStaff ? (
+                                                             <span className="bg-purple-950/60 text-purple-300 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border border-purple-500/25">
+                                                                 Staf
+                                                             </span>
+                                                         ) : (
+                                                             <span className="bg-blue-950/60 text-blue-300 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border border-blue-500/25">
+                                                                 Meja
+                                                             </span>
+                                                         )}
+                                                         <h3 className="font-extrabold text-white text-base uppercase leading-none">
+                                                             {displayTable}
+                                                         </h3>
+                                                         <span className="text-[10px] text-[#c4c7c8] font-bold">
+                                                             ({ticket.customer_count || 1} Pax)
+                                                         </span>
+                                                     </div>
+
+                                                     <div className="flex flex-wrap items-center gap-3 sm:text-right">
+                                                         <span className="text-[10px] font-mono text-[#c4c7c8] font-semibold">
+                                                             {formattedTime}
+                                                         </span>
+                                                         
+                                                         {ticket.status === 'relayed' ? (
+                                                             <span className="bg-emerald-950/40 text-emerald-400 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border border-emerald-500/20 flex items-center gap-1">
+                                                                 <Check size={10} className="stroke-[3]" />
+                                                                 Telah di-input
+                                                             </span>
+                                                         ) : (
+                                                             <span className="bg-amber-950/40 text-amber-400 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border border-amber-500/20 flex items-center gap-1">
+                                                                 <Clock size={10} />
+                                                                 Draft / Antrean
+                                                             </span>
+                                                         )}
+
+                                                         <button
+                                                             onClick={() => toggleTicketExpand(ticket.id)}
+                                                             className="text-[10px] font-bold text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-0.5 ml-2"
+                                                         >
+                                                             {isExpanded ? (
+                                                                 <>Tutup <ChevronUp size={12} /></>
+                                                             ) : (
+                                                                 <>Rincian <ChevronDown size={12} /></>
+                                                             )}
+                                                         </button>
+                                                     </div>
+                                                 </div>
+
+                                                 {isExpanded && (
+                                                     <div className="p-4 border-b border-[#333535]/30 bg-[#121414]/20 flex flex-col gap-2.5 animate-in fade-in duration-200">
+                                                         <div className="text-[9px] font-mono text-[#c4c7c8] uppercase tracking-wider">Item dalam Tiket:</div>
+                                                         <div className="flex flex-col gap-2">
+                                                             {ticket.ticket_items?.map((item, i) => {
+                                                                 const itemPrice = getTicketItemPriceLocal(item);
+                                                                 return (
+                                                                     <div key={i} className="flex justify-between items-center text-xs text-[#e2e2e2]">
+                                                                         <div className="flex items-center gap-2">
+                                                                             <span className="font-mono text-purple-400 bg-purple-500/5 border border-purple-500/10 px-1.5 py-0.5 rounded text-[10px]">{item.qty}x</span>
+                                                                             <span className="font-bold text-white">{item.menus?.name || 'Menu Unknown'}</span>
+                                                                             {item.notes && (
+                                                                                 <span className="text-[10px] text-rose-400 italic font-bold">({item.notes})</span>
+                                                                             )}
+                                                                         </div>
+                                                                         <div className="font-mono">
+                                                                             Rp {(itemPrice * item.qty).toLocaleString('id-ID')}
+                                                                         </div>
+                                                                     </div>
+                                                                 )
+                                                             })}
+                                                         </div>
+                                                     </div>
+                                                 )}
+
+                                                 <div className="px-5 py-2.5 bg-[#121414]/10 flex justify-between items-center text-[10px]">
+                                                     <div className="text-[#c4c7c8]/60">
+                                                         Waiter: <span className="font-bold text-white">{ticket.profiles?.email?.split('@')[0] || 'System / Guest'}</span>
+                                                     </div>
+                                                     <div className="font-mono text-[#e2e2e2]">
+                                                         Nilai Tiket: <strong className="text-white text-xs">Rp {totalTicketAmount.toLocaleString('id-ID')}</strong>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         )
+                                     })
+                                 )}
+                             </div>
+                         </section>
+                     </>
                 )}
             </div>
             <ChatWidget />
