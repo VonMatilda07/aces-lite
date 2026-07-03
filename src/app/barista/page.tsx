@@ -1,6 +1,7 @@
+// src/app/barista/page.tsx
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { useMenuStore, OrderTicket, getTicketItemPrice } from '@/store/useMenuStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import { 
@@ -11,12 +12,10 @@ import {
     LogOut, 
     Volume2, 
     VolumeX, 
-    Monitor, 
     History, 
     Inbox, 
-    ArrowRight, 
     TrendingUp,
-    AlertCircle 
+    RotateCcw 
 } from 'lucide-react'
 
 // Web Audio API sound chime
@@ -53,16 +52,32 @@ function playNotificationChime() {
     }
 }
 
+const isTestTicket = (tableIdentifier: string) => {
+    const lower = (tableIdentifier || '').toLowerCase()
+    return (
+        lower.includes('test') ||
+        lower.includes('tes') ||
+        lower.includes('uji') ||
+        lower.includes('coba') ||
+        lower.includes('dummy') ||
+        lower.includes('mock')
+    )
+}
+
 export default function BaristaPage() {
     const { activeTickets, completedTickets, isTicketsLoading, fetchTickets, updateBarPrepStatus, subscribeToTicketsRealtime } = useMenuStore()
     const { user, role, status, logout } = useAuthStore()
 
     const [isAuthorized, setIsAuthorized] = useState(false)
     const [activeTab, setActiveTab] = useState<'queue' | 'history'>('queue')
+    const [sortOrder, setSortOrder] = useState<'FIFO' | 'LIFO'>('FIFO')
     const [soundEnabled, setSoundEnabled] = useState(true)
     const [wakeLockActive, setWakeLockActive] = useState(false)
     const [updatingId, setUpdatingId] = useState<string | null>(null)
     const [secondsTick, setSecondsTick] = useState(0)
+    
+    // Checklist state
+    const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({})
 
     const wakeLockRef = useRef<any>(null)
     const ticketsLengthRef = useRef<number>(0)
@@ -169,9 +184,17 @@ export default function BaristaPage() {
         try {
             await updateBarPrepStatus(ticketId, 'ready')
             if (soundEnabled) {
-                // Short completion sound
                 playNotificationChime()
             }
+        } finally {
+            setUpdatingId(null)
+        }
+    }
+
+    const handleUndoPrep = async (ticketId: string) => {
+        setUpdatingId(ticketId)
+        try {
+            await updateBarPrepStatus(ticketId, 'preparing')
         } finally {
             setUpdatingId(null)
         }
@@ -218,18 +241,46 @@ export default function BaristaPage() {
         return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
     }
 
+    // SLA Timer color indicators function (Total ticket duration since created_at)
+    const getSLAInfo = (createdAtStr: string) => {
+        const created = new Date(createdAtStr).getTime()
+        const now = new Date().getTime()
+        const elapsedMin = (now - created) / (1000 * 60)
+        
+        if (elapsedMin < 5) {
+            return { colorClass: 'bg-emerald-500', text: 'Normal', pulse: false }
+        } else if (elapsedMin < 10) {
+            return { colorClass: 'bg-amber-500', text: 'Warning', pulse: false }
+        } else {
+            return { colorClass: 'bg-rose-500', text: 'Overdue', pulse: true }
+        }
+    }
+
     // Filter tickets for this dashboard
     const allTickets = activeTab === 'queue' ? activeTickets : completedTickets
-    const baristaTickets = allTickets.filter(t => {
-        const items = getBarItems(t)
-        if (items.length === 0) return false
-        
-        if (activeTab === 'queue') {
-            return t.bar_status === 'pending' || t.bar_status === 'preparing'
-        } else {
-            return t.bar_status === 'ready'
-        }
-    })
+    
+    // Sort and filter barista tickets
+    const baristaTickets = useMemo(() => {
+        const list = allTickets.filter(t => {
+            const items = getBarItems(t)
+            if (items.length === 0) return false
+            
+            if (activeTab === 'queue') {
+                return t.bar_status === 'pending' || t.bar_status === 'preparing'
+            } else {
+                return t.bar_status === 'ready'
+            }
+        })
+
+        // Sort by LIFO or FIFO
+        list.sort((a, b) => {
+            const timeA = new Date(a.created_at).getTime()
+            const timeB = new Date(b.created_at).getTime()
+            return sortOrder === 'FIFO' ? timeA - timeB : timeB - timeA
+        })
+
+        return list
+    }, [allTickets, activeTab, sortOrder])
 
     if (!isAuthorized) {
         return (
@@ -251,7 +302,7 @@ export default function BaristaPage() {
     }
 
     return (
-        <main className="min-h-screen bg-slate-950 text-white font-sans">
+        <main className="min-h-screen bg-slate-950 text-white font-sans flex flex-col">
             {/* Header */}
             <header className="sticky top-0 bg-slate-900 border-b border-slate-800 px-6 py-4 flex flex-wrap justify-between items-center z-15 gap-4 shadow-lg">
                 <div className="flex items-center gap-3">
@@ -263,7 +314,7 @@ export default function BaristaPage() {
                             <h1 className="text-lg font-black tracking-tight">BARISTA TERMINAL</h1>
                             {wakeLockActive && (
                                 <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
-                                    <span className="w-1 h-1 bg-emerald-400 rounded-full animate-ping"></span>
+                                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping"></span>
                                     LAYAR AKTIF
                                 </span>
                             )}
@@ -276,11 +327,11 @@ export default function BaristaPage() {
                     {/* Analytics Page Link (Head Roles only) */}
                     {(role === 'admin' || role === 'supervisor' || role === 'head_barista') && (
                         <a 
-                            href="/barista/analytics"
-                            className="bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-600 hover:text-white transition-all text-xs font-black py-2 px-4 rounded-xl flex items-center gap-1.5 active:scale-95"
+                            href="/admin/analytics"
+                            className="bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-600 hover:text-white transition-all text-xs font-black py-2 px-4 rounded-xl flex items-center gap-1.5 active:scale-95 shadow-sm"
                         >
                             <TrendingUp size={14} />
-                            Analytics
+                            Analytics Dashboard
                         </a>
                     )}
 
@@ -311,27 +362,31 @@ export default function BaristaPage() {
                 </div>
             </header>
 
-            {/* Sub-Header / Info Bar */}
+            {/* Sub-Header / Info Bar with Sort Options */}
             <div className="bg-slate-900 border-b border-slate-800 px-6 py-2.5 flex justify-between items-center text-xs font-bold text-slate-400">
                 <div className="flex gap-4">
                     <span>Sesi: <span className="text-slate-200 lowercase">{user?.email}</span></span>
                     <span>Total Antrean: <span className="text-blue-400">{baristaTickets.length} Tiket</span></span>
                 </div>
-                <div className="flex gap-1.5 items-center">
-                    <button 
-                        onClick={() => {
-                            playNotificationChime()
-                            alert("Suara notifikasi diuji coba!")
-                        }}
-                        className="text-[10px] text-blue-400 hover:underline"
-                    >
-                        Test Sound
-                    </button>
+                
+                {/* FIFO / LIFO Filter Control */}
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Antrean:</span>
+                        <select
+                            value={sortOrder}
+                            onChange={(e) => setSortOrder(e.target.value as any)}
+                            className="bg-slate-800 border border-slate-700 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg text-slate-200 outline-none focus:border-blue-500 cursor-pointer transition-all"
+                        >
+                            <option value="FIFO">FIFO (Terlama)</option>
+                            <option value="LIFO">LIFO (Terbaru)</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
             {/* Main Tabs */}
-            <div className="max-w-7xl mx-auto p-6">
+            <div className="max-w-7xl mx-auto p-6 flex-1 w-full">
                 <div className="flex gap-2 border-b border-slate-800 pb-3 mb-6">
                     <button
                         onClick={() => setActiveTab('queue')}
@@ -388,49 +443,111 @@ export default function BaristaPage() {
                         {baristaTickets.map((ticket) => {
                             const barItems = getBarItems(ticket)
                             const isPreparing = ticket.bar_status === 'preparing'
+                            const isStaff = ticket.table_identifier.toLowerCase().startsWith('karyawan:')
+                            const isTest = isTestTicket(ticket.table_identifier)
+                            const sla = getSLAInfo(ticket.created_at)
+
+                            // Visual border accent classes
+                            let borderAccent = 'border-slate-800 hover:border-slate-700'
+                            if (isPreparing) {
+                                borderAccent = 'border-blue-500 ring-1 ring-blue-500/20'
+                            } else if (isTest) {
+                                borderAccent = 'border-dashed border-rose-500/50 hover:border-rose-500/80'
+                            } else if (isStaff) {
+                                borderAccent = 'border-purple-500/40 hover:border-purple-500/60'
+                            }
+
+                            // Visual background accent classes
+                            let bgAccent = 'bg-slate-900'
+                            if (isTest) {
+                                bgAccent = 'bg-gradient-to-br from-rose-950/15 via-slate-900 to-slate-900'
+                            } else if (isStaff) {
+                                bgAccent = 'bg-gradient-to-br from-purple-950/10 via-slate-900 to-slate-900'
+                            }
 
                             return (
                                 <div 
                                     key={ticket.id}
-                                    className={`bg-slate-900 border rounded-3xl overflow-hidden shadow-xl transition-all duration-200 flex flex-col justify-between ${
-                                        isPreparing 
-                                            ? 'border-blue-500 ring-1 ring-blue-500/20' 
-                                            : 'border-slate-800 hover:border-slate-750'
-                                    }`}
+                                    className={`${bgAccent} border ${borderAccent} rounded-3xl overflow-hidden shadow-xl transition-all duration-200 flex flex-col justify-between`}
                                 >
                                     {/* Card Header */}
-                                    <div className="p-5 bg-slate-900 border-b border-slate-850 flex justify-between items-start gap-2">
+                                    <div className="p-5 border-b border-slate-850 flex justify-between items-start gap-2 bg-slate-900/40">
                                         <div>
-                                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">IDENTITAS MEJA</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">IDENTITAS MEJA</span>
+                                                {isTest && (
+                                                    <span className="bg-rose-500/10 text-rose-450 border border-rose-500/25 text-[7px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                                        DATA TESTING
+                                                    </span>
+                                                )}
+                                                {isStaff && (
+                                                    <span className="bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[7px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                                        KARYAWAN
+                                                    </span>
+                                                )}
+                                            </div>
                                             <h3 className="text-lg font-black text-white uppercase mt-0.5 tracking-tight">{ticket.table_identifier}</h3>
                                         </div>
 
-                                        <div className="text-right">
-                                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">DITERIMA</span>
-                                            <span className="flex items-center gap-1 text-[11px] font-bold text-slate-300 mt-0.5">
+                                        <div className="text-right flex flex-col items-end gap-1.5">
+                                            {/* SLA color-coded timer light */}
+                                            {activeTab === 'queue' && (
+                                                <div className="flex items-center gap-1 px-1.5 py-0.5 bg-slate-950/30 rounded border border-slate-850">
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${sla.colorClass} ${sla.pulse ? 'animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.8)]' : ''}`} />
+                                                    <span className="text-[7.5px] font-black uppercase text-slate-400 tracking-wider">{sla.text}</span>
+                                                </div>
+                                            )}
+                                            <span className="flex items-center gap-1 text-[11px] font-bold text-slate-300">
                                                 <Clock size={11} className="text-blue-400" />
                                                 {formatClockTime(ticket.created_at)}
                                             </span>
                                         </div>
                                     </div>
 
-                                    {/* Items List */}
+                                    {/* Items List with custom checklists */}
                                     <div className="p-5 flex-1 flex flex-col gap-4">
-                                        {barItems.map((item) => {
+                                        {barItems.map((item, idx) => {
                                             const { variant, notes } = parseNotesAndVariant(item.notes)
+                                            const checklistKey = `${ticket.id}_${item.id || idx}`
+                                            const isChecked = !!checkedItems[checklistKey]
+
                                             return (
-                                                <div key={item.id} className="flex justify-between items-start gap-3">
+                                                <div key={item.id || idx} className="flex justify-between items-start gap-3 border-b border-slate-850/30 pb-3 last:border-0 last:pb-0">
                                                     <div className="flex-1">
-                                                        <div className="flex items-start gap-2">
-                                                            <span className="bg-blue-600/10 text-blue-400 text-xs font-black px-2 py-0.5 rounded-md min-w-[24px] text-center mt-0.5">
-                                                                {item.qty}x
-                                                            </span>
+                                                        {/* Custom circular checklist click box */}
+                                                        <button
+                                                            disabled={activeTab === 'history'}
+                                                            onClick={() => {
+                                                                setCheckedItems(prev => ({
+                                                                    ...prev,
+                                                                    [checklistKey]: !prev[checklistKey]
+                                                                }))
+                                                            }}
+                                                            className="flex items-start gap-2.5 focus:outline-none text-left group w-full"
+                                                        >
+                                                            {activeTab === 'queue' && (
+                                                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-all duration-200 ${
+                                                                    isChecked 
+                                                                        ? 'bg-blue-500 border-blue-505 text-white scale-105 shadow-md shadow-blue-500/10' 
+                                                                        : 'border-slate-700 bg-slate-800/40 text-transparent group-hover:border-slate-500'
+                                                                }`}>
+                                                                    <Check size={11} className={`stroke-[3.5] transition-transform duration-200 ${isChecked ? 'scale-100' : 'scale-0'}`} />
+                                                                </div>
+                                                            )}
+                                                            
                                                             <div className="flex flex-col">
-                                                                <span className="font-bold text-slate-100 text-sm leading-snug">
-                                                                    {item.menus?.name || 'Beverage'}
-                                                                </span>
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <span className="bg-slate-800 text-slate-350 text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-700">
+                                                                        {item.qty}x
+                                                                    </span>
+                                                                    <span className={`font-bold text-sm leading-snug transition-all duration-200 ${
+                                                                        isChecked && activeTab === 'queue' ? 'line-through text-slate-500 decoration-slate-600' : 'text-slate-100'
+                                                                    }`}>
+                                                                        {item.menus?.name || 'Beverage'}
+                                                                    </span>
+                                                                </div>
                                                                 {variant && (
-                                                                    <span className="inline-block bg-slate-800 text-slate-300 text-[9px] font-bold px-1.5 py-0.5 rounded w-max mt-1 border border-slate-750">
+                                                                    <span className="inline-block bg-slate-850 text-slate-400 text-[9px] font-bold px-1.5 py-0.5 rounded w-max mt-1 border border-slate-800">
                                                                         {variant}
                                                                     </span>
                                                                 )}
@@ -440,7 +557,7 @@ export default function BaristaPage() {
                                                                     </p>
                                                                 )}
                                                             </div>
-                                                        </div>
+                                                        </button>
                                                     </div>
                                                 </div>
                                             )
@@ -450,7 +567,7 @@ export default function BaristaPage() {
                                     {/* Card Footer / Action Button */}
                                     <div className="p-5 bg-slate-900/60 border-t border-slate-850 flex justify-between items-center gap-4 mt-auto">
                                         <div>
-                                            {isPreparing ? (
+                                            {isPreparing && activeTab === 'queue' ? (
                                                 <div className="flex flex-col">
                                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">DURASI RACIK</span>
                                                     <span className="text-xs font-mono font-bold text-amber-400 flex items-center gap-1 mt-0.5">
@@ -458,10 +575,15 @@ export default function BaristaPage() {
                                                         {formatElapsedTime(ticket.bar_prep_start)}
                                                     </span>
                                                 </div>
-                                            ) : (
+                                            ) : activeTab === 'queue' ? (
                                                 <div className="flex flex-col">
                                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">STATUS TIKET</span>
                                                     <span className="text-xs font-bold text-slate-400 mt-0.5 uppercase tracking-wide">Pending</span>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col">
+                                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">STATUS TIKET</span>
+                                                    <span className="text-xs font-bold text-emerald-450 mt-0.5 uppercase tracking-wide">Siap Saji</span>
                                                 </div>
                                             )}
                                         </div>
@@ -487,10 +609,15 @@ export default function BaristaPage() {
                                                 </button>
                                             )
                                         ) : (
-                                            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm">
-                                                <Check size={11} className="stroke-[3]" />
-                                                SIAP SAJI
-                                            </div>
+                                            /* Recall / Undo Completed Ticket Button in History Tab */
+                                            <button
+                                                onClick={() => handleUndoPrep(ticket.id)}
+                                                disabled={updatingId !== null}
+                                                className="bg-slate-800 hover:bg-slate-700 text-slate-350 border border-slate-700 font-black uppercase text-[10px] tracking-wider py-2 px-3 rounded-xl flex items-center gap-1.5 active:scale-95 transition-all disabled:opacity-50 shadow-sm"
+                                            >
+                                                <RotateCcw size={11} />
+                                                Batal Selesai
+                                            </button>
                                         )}
                                     </div>
                                 </div>

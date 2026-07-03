@@ -170,41 +170,7 @@ export default function AdminFeedbackPage() {
     }
 
     return (
-        <main className="min-h-screen bg-slate-50 flex flex-col max-w-4xl mx-auto border-x border-slate-200">
-            {/* Header */}
-            <header className="sticky top-0 bg-slate-900 text-white z-10 p-5 border-b border-slate-800 shadow-md">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <span className="bg-amber-500 text-slate-950 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded">FEEDBACK MONITOR</span>
-                            <h1 className="text-lg font-black tracking-tight">Kritik & Saran</h1>
-                        </div>
-                        <p className="text-[10px] text-slate-400 font-bold mt-0.5 leading-none">{user?.email}</p>
-                    </div>
-
-                    {role === 'marketing' ? (
-                        <button
-                            onClick={async () => {
-                                if (confirm('Apakah Anda yakin ingin keluar?')) {
-                                    await logout()
-                                    window.location.href = '/login'
-                                }
-                            }}
-                            className="bg-rose-600/90 text-white hover:bg-rose-700 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-sm"
-                        >
-                            <LogOut size={12} /> Keluar
-                        </button>
-                    ) : (
-                        <a
-                            href="/admin"
-                            className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors active:scale-95 shadow-sm"
-                        >
-                            <ArrowLeft size={12} /> Dashboard
-                        </a>
-                    )}
-                </div>
-            </header>
-
+        <main className="min-h-screen bg-slate-50 flex flex-col w-full">
             {/* Dashboard Content */}
             <section className="p-4 sm:p-6 flex-1 flex flex-col gap-6">
                 <div>

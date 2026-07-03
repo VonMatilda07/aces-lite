@@ -1,19 +1,27 @@
-import { createClient } from '@supabase/supabase-js'
+import fs from 'fs'
 
-const supabaseUrl = 'https://ivzmckcsqzgpotvynavp.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2em1ja2NzcXpncG90dnluYXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxOTIyODksImV4cCI6MjA5NDc2ODI4OX0.piWQ7IMGoUX8SNZTVJB_fPY5p_8ontaythENtdWqlbA'
+async function checkBackup() {
+    const backupPath = 'scratch/db-backup-latest.json'
+    if (!fs.existsSync(backupPath)) {
+        console.log('Backup file not found at:', backupPath)
+        return
+    }
 
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-async function run() {
-    console.log('Testing connection to Supabase...')
-    const { data, error } = await supabase.from('menus').select('*')
-    if (error) {
-        console.error('Error fetching menus:', error)
-    } else {
-        console.log('Successfully fetched menus! Count:', data.length)
-        console.log('Data:', JSON.stringify(data, null, 2))
+    const content = fs.readFileSync(backupPath, 'utf8')
+    const backup = JSON.parse(content)
+    console.log('Backup timestamp:', backup.timestamp)
+    console.log('Keys in backup:', Object.keys(backup))
+    
+    if (backup.menus) console.log('Menus count:', backup.menus.length)
+    if (backup.profiles) console.log('Profiles count:', backup.profiles.length)
+    if (backup.customer_feedback) console.log('Feedback count:', backup.customer_feedback.length)
+    if (backup.audit_logs) {
+        console.log('Audit logs count:', backup.audit_logs.length)
+        if (backup.audit_logs.length > 0) {
+            console.log('Sample audit logs:')
+            console.log(JSON.stringify(backup.audit_logs.slice(0, 5), null, 2))
+        }
     }
 }
 
-run()
+checkBackup()

@@ -286,22 +286,9 @@ export default function UserManagement() {
     }
 
     return (
-        <main className="min-h-screen bg-slate-50 flex flex-col max-w-4xl mx-auto border-x border-slate-200">
-            {/* Header Admin */}
-            <header className="sticky top-0 bg-slate-900 text-white z-10 p-5 border-b border-slate-800 shadow-md">
-                <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                        <span className="bg-red-500 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded">SUPERADMIN</span>
-                        <h1 className="text-lg font-black tracking-tight">coffeecomunitas</h1>
-                    </div>
-                    <a href="/admin" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition-colors">
-                        <ArrowLeft size={12} /> Dashboard Menu
-                    </a>
-                </div>
-            </header>
-
+        <main className="min-h-screen bg-slate-50 flex flex-col w-full">
             {/* Navigation Tabs */}
-            <div className="flex bg-white border-b border-slate-200 sticky top-[69px] z-10">
+            <div className="flex bg-white border-b border-slate-200 sticky top-0 z-10">
                 <button
                     onClick={() => setActiveTab('staff')}
                     className={`flex-1 py-4 text-center text-xs font-black uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 border-b-2 ${

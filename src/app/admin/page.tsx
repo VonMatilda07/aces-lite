@@ -52,6 +52,25 @@ export default function AdminDashboard() {
     const [searchQuery, setSearchQuery] = useState('')
     const [filterCategory, setFilterCategory] = useState('All')
     const [sortBy, setSortBy] = useState<'name' | 'price' | 'category' | 'stock' | 'status'>('name')
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+
+    // Density Mode & Pagination
+    const [densityMode, setDensityMode] = useState<'comfortable' | 'compact'>('comfortable')
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 8
+
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [searchQuery, filterCategory])
+
+    const handleHeaderClick = (field: 'name' | 'price' | 'category' | 'stock' | 'status') => {
+        if (sortBy === field) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+        } else {
+            setSortBy(field)
+            setSortDirection('asc')
+        }
+    }
 
     // Dynamic categories computed from menus table
     const categories = useMemo(() => {
@@ -61,7 +80,6 @@ export default function AdminDashboard() {
         const others = dbCategories.filter(c => !defaultOrder.includes(c))
         return [...ordered, ...others]
     }, [menus])
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
     // Client-side route guard
     useEffect(() => {
@@ -405,43 +423,11 @@ export default function AdminDashboard() {
             }
         })
 
+    const totalPages = Math.ceil(filteredAndSortedMenus.length / itemsPerPage)
+    const paginatedMenus = filteredAndSortedMenus.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
     return (
-        <main className="min-h-screen bg-slate-50 flex flex-col max-w-4xl mx-auto border-x border-slate-200">
-            {/* Header Admin */}
-            <header className="sticky top-0 bg-slate-900 text-white z-10 p-4 sm:p-5 border-b border-slate-800 shadow-md">
-                <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <span className="bg-red-500 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded">ADMIN PANEL</span>
-                            <h1 className="text-lg font-black tracking-tight">coffeecomunitas</h1>
-                        </div>
-                        <p className="text-[10px] text-slate-400 font-bold mt-0.5 leading-none">{user?.email}</p>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap w-full sm:w-auto">
-                        {(role === 'admin' || role === 'supervisor') && (
-                            <>
-                                <a href="/admin/analytics" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3 py-2.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-none">
-                                    <BarChart3 size={12} /> Analitik
-                                </a>
-                                <a href="/admin/users" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3 py-2.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-none">
-                                    <Users size={12} /> Staf
-                                </a>
-                                <a href="/admin/feedback" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3 py-2.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-none">
-                                    <MessageSquare size={12} /> Feedback
-                                </a>
-                            </>
-                        )}
-                        <a href="/waiter" className="bg-slate-800 text-slate-200 hover:bg-slate-700 px-3 py-2.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-none">
-                            <ArrowLeft size={12} /> Waiter
-                        </a>
-                        <button onClick={handleLogout} className="bg-rose-500/20 text-rose-300 hover:bg-rose-500 hover:text-white p-2.5 sm:p-2.5 rounded-xl border border-rose-500/30 transition-colors active:scale-95 flex items-center justify-center">
-                            <LogOut size={14} />
-                        </button>
-                    </div>
-                </div>
-            </header>
-
+        <main className="min-h-screen bg-slate-50 flex flex-col w-full">
             {/* Konten Utama */}
             <section className="p-4 sm:p-6 flex-1 flex flex-col gap-6">
                 <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
@@ -492,7 +478,7 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Filter Category & Sort Controls */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap items-center">
                         <select
                             value={filterCategory}
                             onChange={(e) => setFilterCategory(e.target.value)}
@@ -525,27 +511,44 @@ export default function AdminDashboard() {
                         >
                             <ArrowUpDown size={14} className={sortDirection === 'desc' ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'} />
                         </button>
+
+                        {/* Density Mode Button */}
+                        <button
+                            onClick={() => setDensityMode(densityMode === 'comfortable' ? 'compact' : 'comfortable')}
+                            className="bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-2xl px-3.5 py-2.5 text-xs font-bold text-slate-750 transition-all active:scale-95 flex items-center justify-center gap-1.5 animate-in fade-in"
+                            title="Ubah Kerapatan Baris Tabel"
+                        >
+                            {densityMode === 'comfortable' ? 'Compact Mode' : 'Comfortable Mode'}
+                        </button>
                     </div>
                 </div>
 
                 {/* Tabel Menu */}
                 <div className="hidden sm:block bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto max-h-[550px]">
                         <table className="w-full text-left border-collapse text-xs">
-                            <thead>
+                            <thead className="sticky top-0 z-10 shadow-sm">
                                 <tr className="bg-slate-100 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
-                                    <th className="p-4 w-16">Foto</th>
-                                    <th className="p-4">Nama & Deskripsi</th>
-                                    <th className="p-4">Kategori & Sub</th>
-                                    <th className="p-4">Harga</th>
-                                    <th className="p-4">Status & Stok</th>
-                                    <th className="p-4 text-center w-36">Aksi (Unggulan & Edit)</th>
+                                    <th className={`w-16 ${densityMode === 'comfortable' ? 'p-4' : 'px-4 py-2'}`}>Foto</th>
+                                    <th className={`cursor-pointer hover:bg-slate-200/50 transition-colors ${densityMode === 'comfortable' ? 'p-4' : 'px-4 py-2'}`} onClick={() => handleHeaderClick('name')}>
+                                        Nama & Deskripsi {sortBy === 'name' && (sortDirection === 'asc' ? '▴' : '▾')}
+                                    </th>
+                                    <th className={`cursor-pointer hover:bg-slate-200/50 transition-colors ${densityMode === 'comfortable' ? 'p-4' : 'px-4 py-2'}`} onClick={() => handleHeaderClick('category')}>
+                                        Kategori & Sub {sortBy === 'category' && (sortDirection === 'asc' ? '▴' : '▾')}
+                                    </th>
+                                    <th className={`cursor-pointer hover:bg-slate-200/50 transition-colors ${densityMode === 'comfortable' ? 'p-4' : 'px-4 py-2'}`} onClick={() => handleHeaderClick('price')}>
+                                        Harga {sortBy === 'price' && (sortDirection === 'asc' ? '▴' : '▾')}
+                                    </th>
+                                    <th className={`cursor-pointer hover:bg-slate-200/50 transition-colors ${densityMode === 'comfortable' ? 'p-4' : 'px-4 py-2'}`} onClick={() => handleHeaderClick('status')}>
+                                        Status & Stok {sortBy === 'status' && (sortDirection === 'asc' ? '▴' : '▾')}
+                                    </th>
+                                    <th className={`text-center w-36 ${densityMode === 'comfortable' ? 'p-4' : 'px-4 py-2'}`}>Aksi (Unggulan & Edit)</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {filteredAndSortedMenus.map((item) => (
+                                {paginatedMenus.map((item: Menu) => (
                                     <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="p-4">
+                                        <td className={densityMode === 'comfortable' ? 'p-4' : 'px-4 py-2'}>
                                             {item.image_url ? (
                                                 <img src={item.image_url} alt={item.name} className="w-10 h-10 object-cover rounded-xl border border-slate-200" />
                                             ) : (
@@ -554,7 +557,7 @@ export default function AdminDashboard() {
                                                 </div>
                                             )}
                                         </td>
-                                        <td className="p-4">
+                                        <td className={densityMode === 'comfortable' ? 'p-4' : 'px-4 py-2'}>
                                             <div className="flex items-center gap-1.5">
                                                 <p className="font-black text-slate-800 text-sm leading-tight">{item.name}</p>
                                                 {item.menu_type === 'bundle' && (
@@ -563,7 +566,7 @@ export default function AdminDashboard() {
                                             </div>
                                             <p className="text-slate-400 text-[10px] mt-0.5 line-clamp-1 max-w-xs">{item.description || 'Tidak ada deskripsi.'}</p>
                                         </td>
-                                        <td className="p-4">
+                                        <td className={densityMode === 'comfortable' ? 'p-4' : 'px-4 py-2'}>
                                             <div className="flex flex-col gap-1">
                                                 <span className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-[10px] font-bold uppercase text-slate-500 w-max">
                                                     {item.category}
@@ -575,10 +578,10 @@ export default function AdminDashboard() {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="p-4 font-bold text-slate-800">
+                                        <td className={`font-bold text-slate-800 ${densityMode === 'comfortable' ? 'p-4' : 'px-4 py-2'}`}>
                                             Rp {item.price.toLocaleString('id-ID')}
                                         </td>
-                                        <td className="p-4">
+                                        <td className={densityMode === 'comfortable' ? 'p-4' : 'px-4 py-2'}>
                                             <div className="flex flex-col gap-0.5">
                                                 <span className={`font-black text-[9px] uppercase tracking-wider w-max ${item.status === 'available' ? 'text-emerald-600' :
                                                         item.status === 'low_stock' ? 'text-amber-600' : 'text-red-500'
@@ -589,7 +592,7 @@ export default function AdminDashboard() {
                                                 {item.menu_type !== 'bundle' && (
                                                     <span className="text-[9px] text-slate-400 font-bold">
                                                         Stok: {item.variants && item.variants.length > 0
-                                                            ? `${item.variants.reduce((sum, v) => sum + v.stock, 0)} (Varian)`
+                                                            ? `${item.variants.reduce((sum: number, v: any) => sum + v.stock, 0)} (Varian)`
                                                             : (item.stock ?? 0)
                                                         }
                                                     </span>
@@ -601,8 +604,7 @@ export default function AdminDashboard() {
                                                 )}
                                             </div>
                                         </td>
-                                        {/* Toggle switch di samping edit (pen) */}
-                                        <td className="p-4 text-center">
+                                        <td className={`text-center ${densityMode === 'comfortable' ? 'p-4' : 'px-4 py-2'}`}>
                                             <div className="flex items-center justify-center gap-3">
                                                 {/* Label Switch */}
                                                 <label className="relative inline-flex items-center cursor-pointer" title={item.is_featured ? "Menu Unggulan Aktif" : "Aktifkan Rekomendasi 3D"}>
@@ -627,6 +629,44 @@ export default function AdminDashboard() {
                                 ))}
                             </tbody>
                         </table>
+
+                        {/* Pagination Controls */}
+                        {totalPages > 1 && (
+                            <div className="flex justify-between items-center px-6 py-4 bg-slate-50 border-t border-slate-200 text-xs">
+                                <span className="text-slate-500 font-bold">
+                                    Menampilkan {Math.min(filteredAndSortedMenus.length, (currentPage - 1) * itemsPerPage + 1)}-{Math.min(filteredAndSortedMenus.length, currentPage * itemsPerPage)} dari {filteredAndSortedMenus.length} menu
+                                </span>
+                                <div className="flex gap-1">
+                                    <button
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                        className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg font-bold hover:bg-slate-50 disabled:opacity-50 active:scale-95 transition-all text-slate-700"
+                                    >
+                                        Prev
+                                    </button>
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                        <button
+                                            key={page}
+                                            onClick={() => setCurrentPage(page)}
+                                            className={`px-3 py-1.5 rounded-lg font-bold border transition-all active:scale-95 ${
+                                                currentPage === page
+                                                    ? 'bg-purple-600 border-purple-600 text-white shadow-sm'
+                                                    : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'
+                                            }`}
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
+                                    <button
+                                        disabled={currentPage === totalPages}
+                                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                        className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg font-bold hover:bg-slate-50 disabled:opacity-50 active:scale-95 transition-all text-slate-700"
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
