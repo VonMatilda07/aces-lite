@@ -5,25 +5,25 @@ import { useEffect, useState, useMemo, Fragment } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useMenuStore } from '@/store/useMenuStore'
-import { 
-    Calendar, 
-    Coins, 
-    Users, 
-    Receipt, 
-    TrendingUp, 
-    Award, 
-    Clock, 
-    Timer, 
-    Loader2, 
-    RefreshCw, 
-    Search, 
-    ChevronDown, 
-    ChevronUp, 
-    User, 
-    ClipboardList, 
-    Star, 
-    AlertTriangle, 
-    PackageOpen 
+import {
+    Calendar,
+    Coins,
+    Users,
+    Receipt,
+    TrendingUp,
+    Award,
+    Clock,
+    Timer,
+    Loader2,
+    RefreshCw,
+    Search,
+    ChevronDown,
+    ChevronUp,
+    User,
+    ClipboardList,
+    Star,
+    AlertTriangle,
+    PackageOpen
 } from 'lucide-react'
 import ChatWidget from '@/components/chat/ChatWidget'
 
@@ -173,15 +173,15 @@ const getDateRangeString = (range: string, customStart?: string, customEnd?: str
 export default function AdminAnalyticsPage() {
     const { role, status } = useAuthStore()
     const { menus: allShopMenus, fetchMenus } = useMenuStore()
-    
+
     const [isAuthorized, setIsAuthorized] = useState(false)
     const [tickets, setTickets] = useState<DBOrderTicket[]>([])
     const [feedbacks, setFeedbacks] = useState<DBCustomerFeedback[]>([])
     const [waiterProfiles, setWaiterProfiles] = useState<{ id: string; email: string }[]>([])
     const [baristaProfiles, setBaristaProfiles] = useState<{ id: string; email: string }[]>([])
-    
+
     const [isLoading, setIsLoading] = useState(true)
-    
+
     // Global filter states
     const [timeRange, setTimeRange] = useState<string>('7d')
     const [customStartDate, setCustomStartDate] = useState<string>('')
@@ -190,7 +190,7 @@ export default function AdminAnalyticsPage() {
     const [filterWaiter, setFilterWaiter] = useState<string>('All')
     const [filterBarista, setFilterBarista] = useState<string>('All')
     const [filterCategoryMenu, setFilterCategoryMenu] = useState<string>('All')
-    
+
     // Active submodule tab state
     const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'employees' | 'operations' | 'customers' | 'inventory' | 'reports' | 'kpi'>('overview')
 
@@ -231,7 +231,7 @@ export default function AdminAnalyticsPage() {
         const sevenDaysAgo = new Date()
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
         const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0]
-        
+
         setCustomStartDate(sevenDaysAgoStr)
         setCustomEndDate(today)
     }, [])
@@ -265,11 +265,11 @@ export default function AdminAnalyticsPage() {
                 .select('id, email, role')
 
             if (profilesError) throw profilesError
-            
+
             const emailMap = new Map<string, string>()
             const waiters: any[] = []
             const baristas: any[] = []
-            
+
             profilesData?.forEach(p => {
                 if (p.id && p.email) {
                     emailMap.set(p.id, p.email)
@@ -311,7 +311,7 @@ export default function AdminAnalyticsPage() {
                 .order('created_at', { ascending: false })
 
             if (ticketsError) throw ticketsError
-            
+
             if (ticketsData) {
                 const mappedData = (ticketsData as any[]).map(t => ({
                     ...t,
@@ -408,16 +408,16 @@ export default function AdminAnalyticsPage() {
         const waiterMap: Record<string, { email: string; orders: number; pax: number; revenue: number }> = {}
 
         // Agregasi menu terlaris
-        const itemSalesMap: Record<string, { 
-            name: string; 
-            qty: number; 
-            category: string; 
-            subcategory: string; 
-            price: number; 
+        const itemSalesMap: Record<string, {
+            name: string;
+            qty: number;
+            category: string;
+            subcategory: string;
+            price: number;
             revenue: number;
             variantsSold: Record<string, { qty: number; revenue: number }>
         }> = {}
-        
+
         allShopMenus.forEach(m => {
             if (m.menu_type !== 'bundle') {
                 itemSalesMap[m.name] = {
@@ -443,7 +443,7 @@ export default function AdminAnalyticsPage() {
             const ticketDate = new Date(ticket.created_at)
             const ticketWib = getWibDateParts(ticketDate)
             const dateStr = ticketWib.day + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'][ticketWib.month - 1]
-            
+
             if (!dailyTrends[dateStr]) {
                 dailyTrends[dateStr] = { revenue: 0, pax: 0, count: 0 }
             }
@@ -528,7 +528,7 @@ export default function AdminAnalyticsPage() {
         staffTickets.forEach(ticket => {
             const rawName = ticket.table_identifier.replace(/^karyawan:\s*/i, '').trim()
             const staffName = rawName || 'Staf Anonim'
-            
+
             if (!staffConsumptionMap[staffName]) {
                 staffConsumptionMap[staffName] = { name: staffName, count: 0, cost: 0 }
             }
@@ -604,7 +604,7 @@ export default function AdminAnalyticsPage() {
 
         const avgTicket = totalTransactions > 0 ? Math.round(totalRevenue / totalTransactions) : 0
         const avgPax = totalTransactions > 0 ? (totalPax / totalTransactions).toFixed(1) : '0.0'
-        
+
         const sortedSalesList = [...allMenuSales].sort((a, b) => b.qty - a.qty)
         const topSellingMenuName = sortedSalesList.length > 0 && sortedSalesList[0].qty > 0 ? sortedSalesList[0].name : 'Tidak ada data'
 
@@ -645,23 +645,23 @@ export default function AdminAnalyticsPage() {
         const average = totalRated > 0 ? (sumRating / totalRated).toFixed(1) : '0.0'
 
         const serviceFeedbacks = filteredFeedbacks.filter(f => f.rating_service !== null && f.rating_service !== undefined)
-        const avgService = serviceFeedbacks.length > 0 
-            ? (serviceFeedbacks.reduce((sum, f) => sum + (f.rating_service || 0), 0) / serviceFeedbacks.length).toFixed(1) 
+        const avgService = serviceFeedbacks.length > 0
+            ? (serviceFeedbacks.reduce((sum, f) => sum + (f.rating_service || 0), 0) / serviceFeedbacks.length).toFixed(1)
             : '0.0'
 
         const beverageFeedbacks = filteredFeedbacks.filter(f => f.rating_beverage !== null && f.rating_beverage !== undefined)
-        const avgBeverage = beverageFeedbacks.length > 0 
-            ? (beverageFeedbacks.reduce((sum, f) => sum + (f.rating_beverage || 0), 0) / beverageFeedbacks.length).toFixed(1) 
+        const avgBeverage = beverageFeedbacks.length > 0
+            ? (beverageFeedbacks.reduce((sum, f) => sum + (f.rating_beverage || 0), 0) / beverageFeedbacks.length).toFixed(1)
             : '0.0'
 
         const foodFeedbacks = filteredFeedbacks.filter(f => f.rating_food !== null && f.rating_food !== undefined)
-        const avgFood = foodFeedbacks.length > 0 
-            ? (foodFeedbacks.reduce((sum, f) => sum + (f.rating_food || 0), 0) / foodFeedbacks.length).toFixed(1) 
+        const avgFood = foodFeedbacks.length > 0
+            ? (foodFeedbacks.reduce((sum, f) => sum + (f.rating_food || 0), 0) / foodFeedbacks.length).toFixed(1)
             : '0.0'
 
         const ambianceFeedbacks = filteredFeedbacks.filter(f => f.rating_ambiance !== null && f.rating_ambiance !== undefined)
-        const avgAmbiance = ambianceFeedbacks.length > 0 
-            ? (ambianceFeedbacks.reduce((sum, f) => sum + (f.rating_ambiance || 0), 0) / ambianceFeedbacks.length).toFixed(1) 
+        const avgAmbiance = ambianceFeedbacks.length > 0
+            ? (ambianceFeedbacks.reduce((sum, f) => sum + (f.rating_ambiance || 0), 0) / ambianceFeedbacks.length).toFixed(1)
             : '0.0'
 
         const lowRatingCount = ratedFeedbacks.filter(f => (f.rating || 0) <= 3).length
@@ -761,7 +761,7 @@ export default function AdminAnalyticsPage() {
                 const matchTable = t.table_identifier.toLowerCase().includes(query)
                 const matchWaiter = t.profiles?.email?.toLowerCase().includes(query) || false
                 const matchId = t.id.toLowerCase().includes(query)
-                const matchItems = t.ticket_items?.some(item => 
+                const matchItems = t.ticket_items?.some(item =>
                     item.menus?.name?.toLowerCase().includes(query) || false
                 ) || false
                 return matchTable || matchWaiter || matchId || matchItems
@@ -806,7 +806,7 @@ export default function AdminAnalyticsPage() {
         const padding = 20
 
         const maxVal = Math.max(...trends.map(t => t.revenue), 1000)
-        
+
         const points = trends.map((t, idx) => {
             const x = padding + (idx * (width - padding * 2)) / (trends.length - 1)
             const y = (height - padding) - (t.revenue * (height - padding * 2)) / maxVal
@@ -830,7 +830,7 @@ export default function AdminAnalyticsPage() {
 
     return (
         <main className="min-h-screen bg-[#121414] text-[#e2e2e2] pb-24 antialiased selection:bg-purple-500/30 selection:text-white flex flex-col">
-            
+
             {/* Sticky Header Wrapper: Global Filter + Custom Date Pickers + Submodule Tabs */}
             <div className="sticky top-0 z-20 bg-[#121414]/95 backdrop-blur-md border-b border-[#333535] shadow-md flex flex-col">
                 {/* Global Filter Bar */}
@@ -839,8 +839,8 @@ export default function AdminAnalyticsPage() {
                         <span className="bg-purple-500/10 text-purple-400 text-[9px] font-black uppercase tracking-[0.15em] px-2.5 py-1 rounded-md border border-purple-500/20">
                             Global Filter
                         </span>
-                        <button 
-                            onClick={fetchData} 
+                        <button
+                            onClick={fetchData}
                             disabled={isLoading}
                             className="p-1.5 rounded-lg bg-[#1e2020] border border-[#333535] hover:bg-[#333535] active:scale-95 transition-all text-[#c4c7c8] hover:text-white"
                             title="Segarkan Data"
@@ -848,7 +848,7 @@ export default function AdminAnalyticsPage() {
                             <RefreshCw size={12} className={isLoading ? 'animate-spin text-purple-400' : ''} />
                         </button>
                     </div>
-                    
+
                     <div className="flex flex-wrap items-center gap-2.5">
                         {/* Date Range Selector */}
                         <div className="relative">
@@ -969,13 +969,12 @@ export default function AdminAnalyticsPage() {
                             key={tab.id}
                             disabled={tab.disabled}
                             onClick={() => !tab.disabled && setActiveTab(tab.id as any)}
-                            className={`px-4 py-3.5 text-[10px] font-black uppercase tracking-wider transition-all duration-200 border-b-2 whitespace-nowrap ${
-                                tab.disabled
+                            className={`px-4 py-3.5 text-[10px] font-black uppercase tracking-wider transition-all duration-200 border-b-2 whitespace-nowrap ${tab.disabled
                                     ? 'opacity-30 cursor-not-allowed border-transparent text-slate-500'
                                     : activeTab === tab.id
                                         ? 'border-purple-500 text-purple-400 font-extrabold bg-purple-500/5'
                                         : 'border-transparent text-[#c4c7c8] hover:text-white hover:bg-slate-800/30'
-                            }`}
+                                }`}
                         >
                             {tab.label}
                         </button>
@@ -985,7 +984,7 @@ export default function AdminAnalyticsPage() {
 
             {/* Main Content Area */}
             <div className="w-full max-w-7xl mx-auto p-4 md:p-10 flex flex-col gap-6 animate-in fade-in duration-300">
-                
+
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center py-32 text-[#c4c7c8] gap-3">
                         <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
@@ -1093,7 +1092,7 @@ export default function AdminAnalyticsPage() {
                                         <div className="w-full flex flex-col gap-4 relative pt-2">
                                             <div className="w-full overflow-hidden select-none relative h-64">
                                                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#333535_1px,transparent_1px),linear-gradient(to_bottom,#333535_1px,transparent_1px)] bg-[size:40px_40px] opacity-10 rounded-lg pointer-events-none"></div>
-                                                
+
                                                 <svg viewBox="0 0 1000 200" className="w-full h-full overflow-visible">
                                                     <defs>
                                                         <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
@@ -1107,11 +1106,11 @@ export default function AdminAnalyticsPage() {
                                                         const trendVal = analytics.trendData[idx]
                                                         return (
                                                             <g key={idx} className="group cursor-pointer">
-                                                                <circle 
-                                                                    cx={p.x} 
-                                                                    cy={p.y} 
-                                                                    r="5" 
-                                                                    className="fill-[#121414] stroke-[#d0bcff] stroke-[2] group-hover:r-7 group-hover:fill-purple-400 transition-all" 
+                                                                <circle
+                                                                    cx={p.x}
+                                                                    cy={p.y}
+                                                                    r="5"
+                                                                    className="fill-[#121414] stroke-[#d0bcff] stroke-[2] group-hover:r-7 group-hover:fill-purple-400 transition-all"
                                                                 />
                                                                 <foreignObject x={p.x - 50} y={p.y - 35} width="100" height="30" className="overflow-visible pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                                                     <div className="bg-slate-900 border border-[#333535] text-white text-[8px] font-bold py-1 px-1.5 rounded-lg shadow-md text-center">
@@ -1306,15 +1305,14 @@ export default function AdminAnalyticsPage() {
                                                             <Fragment key={menu.name}>
                                                                 <tr className="border-b border-[#333535]/40 hover:bg-[#282a2b]/20 transition-colors text-xs font-medium">
                                                                     <td className={`${paddingClass} text-center`}>
-                                                                        <span className={`inline-flex w-5 h-5 rounded-full items-center justify-center text-[9px] font-black ${
-                                                                            overallRank === 1 ? 'bg-[#ffb692] text-[#341100]' :
-                                                                            overallRank <= 5 ? 'bg-purple-955/60 text-purple-300 border border-purple-500/30' :
-                                                                            'bg-[#282a2b] text-[#c4c7c8]'
-                                                                        }`}>
+                                                                        <span className={`inline-flex w-5 h-5 rounded-full items-center justify-center text-[9px] font-black ${overallRank === 1 ? 'bg-[#ffb692] text-[#341100]' :
+                                                                                overallRank <= 5 ? 'bg-purple-955/60 text-purple-300 border border-purple-500/30' :
+                                                                                    'bg-[#282a2b] text-[#c4c7c8]'
+                                                                            }`}>
                                                                             {overallRank}
                                                                         </span>
                                                                     </td>
-                                                                    <td 
+                                                                    <td
                                                                         className={`${paddingClass} text-white font-bold cursor-pointer select-none`}
                                                                         onClick={() => hasVariants && toggleMenuExpand(menu.name)}
                                                                     >
@@ -1381,11 +1379,10 @@ export default function AdminAnalyticsPage() {
                                                         <button
                                                             key={page}
                                                             onClick={() => setMenuCurrentPage(page)}
-                                                            className={`px-3 py-1.5 rounded-lg font-bold border transition-all active:scale-95 ${
-                                                                menuCurrentPage === page
+                                                            className={`px-3 py-1.5 rounded-lg font-bold border transition-all active:scale-95 ${menuCurrentPage === page
                                                                     ? 'bg-purple-600 border-purple-600 text-white shadow-sm'
                                                                     : 'bg-[#282a2b] border-[#333535] hover:bg-[#333535] text-slate-300'
-                                                            }`}
+                                                                }`}
                                                         >
                                                             {page}
                                                         </button>
@@ -1429,11 +1426,10 @@ export default function AdminAnalyticsPage() {
                                             {analytics.waiterLeaderboard.map((waiter, index) => (
                                                 <div key={waiter.email} className="flex justify-between items-center bg-[#282a2b]/35 hover:bg-[#282a2b]/60 p-4 rounded-2xl border border-transparent hover:border-[#333535] transition-all hover:-translate-y-0.5 shadow-sm">
                                                     <div className="flex items-center gap-3">
-                                                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black leading-none ${
-                                                            index === 0 ? 'bg-[#ffb692] text-[#341100] shadow-[0_0_12px_rgba(255,182,146,0.3)]' :
-                                                            index === 1 ? 'bg-[#c4c7c8] text-[#121414]' :
-                                                            index === 2 ? 'bg-[#ffb692]/40 text-[#ffb692]' : 'bg-[#121414] text-[#c4c7c8]'
-                                                        }`}>
+                                                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black leading-none ${index === 0 ? 'bg-[#ffb692] text-[#341100] shadow-[0_0_12px_rgba(255,182,146,0.3)]' :
+                                                                index === 1 ? 'bg-[#c4c7c8] text-[#121414]' :
+                                                                    index === 2 ? 'bg-[#ffb692]/40 text-[#ffb692]' : 'bg-[#121414] text-[#c4c7c8]'
+                                                            }`}>
                                                             {index + 1}
                                                         </span>
                                                         <div className="flex flex-col">
@@ -1563,7 +1559,7 @@ export default function AdminAnalyticsPage() {
                                             {analytics.dayNames.map((name, idx) => {
                                                 const count = analytics.dayCounts[idx]
                                                 const pct = analytics.maxDayCount > 0 ? (count / analytics.maxDayCount) * 100 : 0
-                                                
+
                                                 return (
                                                     <div key={name} className="flex items-center text-[10px] font-bold text-slate-400">
                                                         <span className="w-14 shrink-0 text-slate-300">{name}</span>
@@ -1589,7 +1585,7 @@ export default function AdminAnalyticsPage() {
                                             {analytics.hourCounts.map((count, hour) => {
                                                 const maxHour = Math.max(...analytics.hourCounts, 1)
                                                 const pct = (count / maxHour) * 100
-                                                
+
                                                 return (
                                                     <div key={hour} className="flex items-center text-[10px] font-bold text-slate-400">
                                                         <span className="w-14 shrink-0 text-slate-300">{String(hour).padStart(2, '0')}:00</span>
@@ -1622,10 +1618,10 @@ export default function AdminAnalyticsPage() {
                                             <span className="text-xl font-black text-white mt-1 leading-none">{item.score}</span>
                                             <div className="flex text-amber-400 mt-1">
                                                 {[1, 2, 3, 4, 5].map((s) => (
-                                                    <Star 
-                                                        key={s} 
-                                                        size={10} 
-                                                        className={s <= Math.round(parseFloat(item.score)) ? 'fill-amber-400 text-amber-400' : 'text-[#333535] fill-transparent'} 
+                                                    <Star
+                                                        key={s}
+                                                        size={10}
+                                                        className={s <= Math.round(parseFloat(item.score)) ? 'fill-amber-400 text-amber-400' : 'text-[#333535] fill-transparent'}
                                                     />
                                                 ))}
                                             </div>
@@ -1696,7 +1692,7 @@ export default function AdminAnalyticsPage() {
                                         <PackageOpen size={16} className="text-amber-500" />
                                         PERINGATAN STOK MENIPIS & HABIS (RESTOCK ALERT)
                                     </h3>
-                                    
+
                                     {inventoryStats.lowStockItems.length === 0 ? (
                                         <div className="py-8 text-center text-emerald-500 text-xs font-bold">
                                             ✅ Semua produk aman. Tidak ada stok menipis/habis saat ini.
@@ -1724,9 +1720,8 @@ export default function AdminAnalyticsPage() {
                                                                 } Porsi
                                                             </td>
                                                             <td className="p-3">
-                                                                <span className={`font-black text-[9px] uppercase tracking-wider ${
-                                                                    item.status === 'low_stock' ? 'text-amber-500' : 'text-red-500'
-                                                                }`}>
+                                                                <span className={`font-black text-[9px] uppercase tracking-wider ${item.status === 'low_stock' ? 'text-amber-500' : 'text-red-500'
+                                                                    }`}>
                                                                     {item.status === 'low_stock' ? 'Menipis' : 'Habis'}
                                                                 </span>
                                                             </td>
@@ -1791,37 +1786,34 @@ export default function AdminAnalyticsPage() {
                                         const ticketTotal = ticket.ticket_items?.reduce((sum, item) => sum + (getTicketItemPriceLocal(item) * item.qty), 0) || 0;
                                         const isExpanded = !!expandedTickets[ticket.id];
                                         const isStaff = ticket.table_identifier.toLowerCase().startsWith('karyawan:');
-                                        
+
                                         return (
-                                            <div 
+                                            <div
                                                 key={ticket.id}
-                                                className={`rounded-2xl border transition-all overflow-hidden ${
-                                                    isStaff
+                                                className={`rounded-2xl border transition-all overflow-hidden ${isStaff
                                                         ? 'bg-purple-950/5 border-purple-500/25 hover:border-purple-500/40'
                                                         : 'bg-[#121414]/30 border-[#333535] hover:border-[#444]'
-                                                }`}
+                                                    }`}
                                             >
                                                 {/* Header Bar */}
-                                                <div 
+                                                <div
                                                     onClick={() => toggleTicketExpand(ticket.id)}
                                                     className="flex flex-wrap sm:flex-nowrap justify-between items-center p-4 cursor-pointer select-none gap-2 text-xs font-medium hover:bg-[#282a2b]/20 transition-colors"
                                                 >
                                                     <div className="flex items-center gap-3">
-                                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border ${
-                                                            isStaff 
-                                                                ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' 
+                                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border ${isStaff
+                                                                ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
                                                                 : 'bg-[#282a2b] text-[#c4c7c8] border-[#333535]'
-                                                        }`}>
+                                                            }`}>
                                                             {isStaff ? '🧑‍💼' : '🛒'}
                                                         </div>
                                                         <div>
                                                             <div className="flex items-center gap-1.5">
                                                                 <span className="text-white font-bold leading-none">{ticket.table_identifier}</span>
-                                                                <span className={`text-[8.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded leading-none ${
-                                                                    ticket.status === 'relayed'
+                                                                <span className={`text-[8.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded leading-none ${ticket.status === 'relayed'
                                                                         ? 'bg-emerald-600/15 text-emerald-400 border border-emerald-500/20'
                                                                         : 'bg-amber-600/15 text-amber-400 border border-amber-500/20'
-                                                                }`}>
+                                                                    }`}>
                                                                     {ticket.status === 'relayed' ? 'Relayed (POS)' : 'Draft'}
                                                                 </span>
                                                             </div>
@@ -1861,10 +1853,9 @@ export default function AdminAnalyticsPage() {
                                                         <div className="border-t border-dashed border-[#333535] pt-3 grid grid-cols-2 gap-4 text-[9.5px] font-bold text-slate-500">
                                                             <div>
                                                                 <span className="block uppercase text-[8px] tracking-wider text-slate-400">STATUS PREPARASI BAR</span>
-                                                                <span className={`block mt-1 font-black uppercase ${
-                                                                    ticket.bar_status === 'ready' ? 'text-emerald-500' :
-                                                                    ticket.bar_status === 'preparing' ? 'text-amber-500' : 'text-slate-400'
-                                                                }`}>
+                                                                <span className={`block mt-1 font-black uppercase ${ticket.bar_status === 'ready' ? 'text-emerald-500' :
+                                                                        ticket.bar_status === 'preparing' ? 'text-amber-500' : 'text-slate-400'
+                                                                    }`}>
                                                                     {ticket.bar_status || 'none'}
                                                                 </span>
                                                                 {ticket.bar_prep_start && ticket.bar_prep_end && (
@@ -1875,10 +1866,9 @@ export default function AdminAnalyticsPage() {
                                                             </div>
                                                             <div>
                                                                 <span className="block uppercase text-[8px] tracking-wider text-slate-400">STATUS PREPARASI DAPUR</span>
-                                                                <span className={`block mt-1 font-black uppercase ${
-                                                                    ticket.kitchen_status === 'ready' ? 'text-emerald-500' :
-                                                                    ticket.kitchen_status === 'preparing' ? 'text-amber-500' : 'text-slate-400'
-                                                                }`}>
+                                                                <span className={`block mt-1 font-black uppercase ${ticket.kitchen_status === 'ready' ? 'text-emerald-500' :
+                                                                        ticket.kitchen_status === 'preparing' ? 'text-amber-500' : 'text-slate-400'
+                                                                    }`}>
                                                                     {ticket.kitchen_status || 'none'}
                                                                 </span>
                                                                 {ticket.kitchen_prep_start && ticket.kitchen_prep_end && (
@@ -1911,7 +1901,7 @@ export default function AdminAnalyticsPage() {
                     </>
                 )}
             </div>
-            
+
             {/* Widget Obrolan Bantuan Staf */}
             <ChatWidget />
         </main>

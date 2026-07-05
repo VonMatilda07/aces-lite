@@ -1,7 +1,7 @@
 // src/components/waiter/WaiterTicketsList.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useMenuStore, OrderTicket, getTicketItemPrice } from '@/store/useMenuStore'
 import { Check, ClipboardList, Clock, ArrowRight, User, Users } from 'lucide-react'
 
@@ -20,6 +20,7 @@ export default function WaiterTicketsList({ statusFilter }: WaiterTicketsListPro
     } = useMenuStore()
 
     const [submittingId, setSubmittingId] = useState<string | null>(null)
+    const relayingIdsRef = useRef<Set<string>>(new Set())
 
     // Load and subscribe to tickets realtime
     useEffect(() => {
@@ -66,12 +67,15 @@ export default function WaiterTicketsList({ statusFilter }: WaiterTicketsListPro
 
     // Handle POS Relay action
     const handleRelay = async (ticketId: string) => {
+        if (relayingIdsRef.current.has(ticketId)) return
+        relayingIdsRef.current.add(ticketId)
         setSubmittingId(ticketId)
         try {
             await markTicketAsRelayed(ticketId)
         } catch (e) {
             console.error('Error marking ticket as relayed:', e)
         } finally {
+            relayingIdsRef.current.delete(ticketId)
             setSubmittingId(null)
         }
     }

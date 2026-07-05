@@ -1,7 +1,7 @@
 // src/components/waiter/WaiterCart.tsx
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useMenuStore, getCartItemPrice } from '@/store/useMenuStore'
 import { Trash2, Send, CheckCircle2, X, Users } from 'lucide-react'
 
@@ -11,6 +11,8 @@ export default function WaiterCart() {
     const [isRelayMode, setIsRelayMode] = useState(false)
     const [isStaffInvoice, setIsStaffInvoice] = useState(false)
     const [staffName, setStaffName] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const isSubmittingRef = useRef(false)
 
     // Hitung total item dan total harga belanja
     const totalItems = cart.reduce((acc, item) => acc + item.qty, 0)
@@ -114,25 +116,41 @@ export default function WaiterCart() {
                 <div className={`p-6 border-t ${isStaffInvoice ? 'border-purple-900 bg-purple-900/10' : 'border-slate-800 bg-slate-950'} flex gap-3`}>
                     <button
                         onClick={() => setIsRelayMode(false)}
-                        className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-4 rounded-xl active:scale-95 transition-all text-sm uppercase tracking-wider"
+                        disabled={isSubmitting}
+                        className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-4 rounded-xl active:scale-95 transition-all text-sm uppercase tracking-wider disabled:opacity-50"
                     >
                         Kembali
                     </button>
                     <button
                         onClick={async () => {
-                            await finalizeOrder()
-                            setIsRelayMode(false)
-                            setIsOpen(false)
-                            setIsStaffInvoice(false)
-                            setStaffName('')
+                            if (isSubmittingRef.current) return
+                            isSubmittingRef.current = true
+                            setIsSubmitting(true)
+                            try {
+                                await finalizeOrder()
+                                setIsRelayMode(false)
+                                setIsOpen(false)
+                                setIsStaffInvoice(false)
+                                setStaffName('')
+                            } catch (err) {
+                                console.error('Checkout error:', err)
+                            } finally {
+                                isSubmittingRef.current = false
+                                setIsSubmitting(false)
+                            }
                         }}
-                        className={`flex-1 font-black py-4 rounded-xl active:scale-95 transition-all text-sm uppercase tracking-wider ${
+                        disabled={isSubmitting}
+                        className={`flex-1 font-black py-4 rounded-xl active:scale-95 transition-all text-sm uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-50 ${
                             isStaffInvoice
                                 ? 'bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/20'
                                 : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20'
                         }`}
                     >
-                        Selesai & Potong Stok
+                        {isSubmitting ? (
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                            'Selesai & Potong Stok'
+                        )}
                     </button>
                 </div>
             </div>
