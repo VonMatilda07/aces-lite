@@ -82,6 +82,7 @@ export interface OrderTicket {
     bar_prep_end?: string | null
     kitchen_prep_start?: string | null
     kitchen_prep_end?: string | null
+    relayed_at?: string | null
 }
 
 interface MenuStore {
@@ -113,6 +114,10 @@ interface MenuStore {
     updateBarPrepStatus: (ticketId: string, status: 'preparing' | 'ready') => Promise<void>
     updateKitchenPrepStatus: (ticketId: string, status: 'preparing' | 'ready') => Promise<void>
     subscribeToTicketsRealtime: () => () => void
+    deleteTicket: (ticketId: string) => Promise<void>
+    updateTicketItemQty: (itemId: string, newQty: number) => Promise<void>
+    deleteTicketItem: (itemId: string) => Promise<void>
+    addTicketItem: (ticketId: string, menuId: string, qty: number, notes?: string) => Promise<void>
 }
 
 export function computeMenuStocksAndStatuses(menusList: Menu[]): Menu[] {
@@ -864,6 +869,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
                 bar_prep_end,
                 kitchen_prep_start,
                 kitchen_prep_end,
+                relayed_at,
                 ticket_items (
                     id,
                     qty,
@@ -896,7 +902,8 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
                 bar_prep_start: t.bar_prep_start || null,
                 bar_prep_end: t.bar_prep_end || null,
                 kitchen_prep_start: t.kitchen_prep_start || null,
-                kitchen_prep_end: t.kitchen_prep_end || null
+                kitchen_prep_end: t.kitchen_prep_end || null,
+                relayed_at: t.relayed_at || null
             }))
             
             const active = typedTickets.filter(t => t.status === 'draft')
@@ -913,9 +920,13 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     },
 
     markTicketAsRelayed: async (ticketId) => {
+        const timestamp = new Date().toISOString()
         const { error } = await supabase
             .from('order_tickets')
-            .update({ status: 'relayed' })
+            .update({ 
+                status: 'relayed',
+                relayed_at: timestamp
+            })
             .eq('id', ticketId)
 
         if (error) {
@@ -925,7 +936,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
             const active = get().activeTickets.filter(t => t.id !== ticketId)
             const ticket = get().activeTickets.find(t => t.id === ticketId)
             if (ticket) {
-                const updatedTicket = { ...ticket, status: 'relayed' as const }
+                const updatedTicket = { ...ticket, status: 'relayed' as const, relayed_at: timestamp }
                 set({
                     activeTickets: active,
                     completedTickets: [updatedTicket, ...get().completedTickets]
@@ -1032,6 +1043,101 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
         return () => {
             supabase.removeChannel(channel1)
             supabase.removeChannel(channel2)
+        }
+    },
+
+    deleteTicket: async (ticketId: string) => {
+        const { error } = await supabase
+            .from('order_tickets')
+            .delete()
+            .eq('id', ticketId)
+
+        if (error) {
+            console.error('Failed to delete ticket:', error)
+            alert(`Gagal menghapus tiket: ${error.message}`)
+        } else {
+            set((state) => ({
+                activeTickets: state.activeTickets.filter(t => t.id !== ticketId),
+                completedTickets: state.completedTickets.filter(t => t.id !== ticketId)
+            }))
+            
+            try {
+                const { writeAuditLog } = await import('@/lib/audit')
+                await writeAuditLog(`Menghapus tiket pesanan "${ticketId}" secara permanen`)
+            } catch (err) {
+                console.error('Error logging deleteTicket:', err)
+            }
+        }
+    },
+
+    updateTicketItemQty: async (itemId: string, newQty: number) => {
+        const { error } = await supabase
+            .from('ticket_items')
+            .update({ qty: newQty })
+            .eq('id', itemId)
+
+        if (error) {
+            console.error('Failed to update ticket item qty:', error)
+            alert(`Gagal mengubah jumlah item: ${error.message}`)
+        } else {
+            await get().fetchTickets()
+            try {
+                const { writeAuditLog } = await import('@/lib/audit')
+                await writeAuditLog(`Mengubah kuantitas item penjualan "${itemId}" menjadi ${newQty}`)
+            } catch (err) {
+                console.error('Error logging updateTicketItemQty:', err)
+            }
+        }
+    },
+
+    deleteTicketItem: async (itemId: string) => {
+        const { error } = await supabase
+            .from('ticket_items')
+            .delete()
+            .eq('id', itemId)
+
+        if (error) {
+            console.error('Failed to delete ticket item:', error)
+            alert(`Gagal menghapus item: ${error.message}`)
+        } else {
+            await get().fetchTickets()
+            try {
+                const { writeAuditLog } = await import('@/lib/audit')
+                await writeAuditLog(`Menghapus item penjualan "${itemId}" dari tiket`)
+            } catch (err) {
+                console.error('Error logging deleteTicketItem:', err)
+            }
+        }
+    },
+
+    addTicketItem: async (ticketId: string, menuId: string, qty: number, notes?: string) => {
+        const menu = get().menus.find(m => m.id === menuId)
+        if (!menu) {
+            alert('Gagal menambah item: Menu tidak ditemukan.')
+            return
+        }
+
+        const { error } = await supabase
+            .from('ticket_items')
+            .insert({
+                ticket_id: ticketId,
+                menu_id: menuId,
+                qty: qty,
+                notes: notes || null,
+                category_snapshot: menu.category
+            })
+
+        if (error) {
+            console.error('Failed to add ticket item:', error)
+            alert(`Gagal menambah item ke tiket: ${error.message}`)
+        } else {
+            await get().fetchTickets()
+            try {
+                const { writeAuditLog } = await import('@/lib/audit')
+                await writeAuditLog(`Menambahkan item menu "${menu.name}" ke tiket "${ticketId}"`)
+            } catch (err) {
+                console.error('Error logging addTicketItem:', err)
+            }
         }
     }
 }))

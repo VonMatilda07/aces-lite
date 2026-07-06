@@ -94,7 +94,7 @@ export default function AdminDashboard() {
             window.location.href = '/barista'
         } else if (status === 'authenticated' && (role === 'cook' || role === 'head_kitchen' || role === 'kitchen')) {
             window.location.href = '/kitchen'
-        } else if (status === 'authenticated' && (role === 'admin' || role === 'supervisor' || role === 'captain')) {
+        } else if (status === 'authenticated' && (role === 'admin' || role === 'supervisor' || role === 'captain' || role === 'superadmin')) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {
             console.warn('=== [DEBUG] Unauthorized role for admin page, redirecting to /waiter ===')

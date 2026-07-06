@@ -95,7 +95,7 @@ export default function BaristaPage() {
     useEffect(() => {
         if (status === 'loading' || status === 'idle') return
 
-        const allowedRoles = ['admin', 'supervisor', 'captain', 'barista', 'head_barista']
+        const allowedRoles = ['admin', 'supervisor', 'captain', 'barista', 'head_barista', 'superadmin']
         if (status === 'authenticated' && role && allowedRoles.includes(role)) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {

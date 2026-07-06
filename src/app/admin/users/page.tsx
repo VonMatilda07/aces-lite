@@ -54,7 +54,7 @@ export default function UserManagement() {
 
         if (status === 'authenticated' && role === 'marketing') {
             window.location.href = '/admin/feedback'
-        } else if (status === 'authenticated' && (role === 'admin' || role === 'supervisor')) {
+        } else if (status === 'authenticated' && (role === 'admin' || role === 'supervisor' || role === 'superadmin')) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {
             // Redirect captain or waiter to appropriate page
@@ -368,6 +368,7 @@ export default function UserManagement() {
                                 className="bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-bold text-slate-800 outline-none focus:border-slate-800"
                             >
                                 <option value="All">Semua Peran</option>
+                                <option value="superadmin">Superadmin</option>
                                 <option value="supervisor">Supervisor</option>
                                 <option value="captain">Captain</option>
                                 <option value="waiter">Waiter</option>
@@ -419,6 +420,8 @@ export default function UserManagement() {
                                                         <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${
                                                             item.role === 'supervisor'
                                                                 ? 'bg-red-50 border-red-200 text-red-650' 
+                                                                : item.role === 'superadmin'
+                                                                ? 'bg-amber-500 border-amber-600 text-white'
                                                                 : item.role === 'captain'
                                                                 ? 'bg-amber-50 border-amber-250 text-amber-600'
                                                                 : item.role === 'waiter'
@@ -441,6 +444,7 @@ export default function UserManagement() {
                                                             onChange={(e) => handleUpdateRole(item.id, e.target.value, item.email, item.role)}
                                                             className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs font-bold text-slate-800 outline-none focus:border-slate-800 disabled:opacity-50"
                                                         >
+                                                            <option value="superadmin">Superadmin</option>
                                                             <option value="supervisor">Supervisor</option>
                                                             <option value="captain">Captain</option>
                                                             <option value="waiter">Waiter</option>
@@ -605,6 +609,7 @@ export default function UserManagement() {
                                     onChange={(e) => setNewRole(e.target.value)} 
                                     className="border border-slate-200 rounded-xl p-3 outline-none focus:border-slate-800 font-bold bg-white text-slate-800"
                                 >
+                                    <option value="superadmin">Superadmin</option>
                                     <option value="waiter">Waiter</option>
                                     <option value="captain">Captain</option>
                                     <option value="supervisor">Supervisor</option>

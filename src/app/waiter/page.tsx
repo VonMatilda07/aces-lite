@@ -169,7 +169,7 @@ export default function WaiterDashboard() {
             return
         }
 
-        const waiterRoles = ['admin', 'supervisor', 'captain', 'waiter']
+        const waiterRoles = ['admin', 'supervisor', 'captain', 'waiter', 'superadmin']
         if (status === 'authenticated' && role === 'marketing') {
             window.location.href = '/admin/feedback'
         } else if (status === 'authenticated' && (role === 'barista' || role === 'head_barista')) {
@@ -242,8 +242,8 @@ export default function WaiterDashboard() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        {/* Tombol Panel Admin: muncul jika pengguna yang login adalah Admin, Supervisor, atau Captain */}
-                        {(role === 'admin' || role === 'supervisor' || role === 'captain') && (
+                        {/* Tombol Panel Admin: muncul jika pengguna yang login adalah Admin, Supervisor, Captain, atau Superadmin */}
+                        {(role === 'admin' || role === 'supervisor' || role === 'captain' || role === 'superadmin') && (
                             <a
                                 href="/admin"
                                 className="bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-slate-950 px-3 py-1.5 rounded-full text-[10px] font-black border border-amber-500/30 transition-all duration-200 flex items-center gap-1 active:scale-95 shadow-sm"

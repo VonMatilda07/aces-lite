@@ -15,11 +15,13 @@ import {
     ChevronLeft, 
     ChevronRight, 
     ArrowLeft,
-    User
+    User,
+    BookOpen,
+    ChefHat
 } from 'lucide-react'
 
 const SIDEBAR_MENU = [
-    { label: 'Manajemen Menu', path: '/admin', icon: Coffee },
+    { label: 'Manajemen Menu', path: '/admin', icon: BookOpen },
     { label: 'Analitik Dasbor', path: '/admin/analytics', icon: BarChart3 },
     { label: 'Kelola Staf', path: '/admin/users', icon: Users },
     { label: 'Kritik & Saran', path: '/admin/feedback', icon: MessageSquare },
@@ -38,7 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     useEffect(() => {
         if (status === 'loading' || status === 'idle') return
 
-        const allowedRoles = ['admin', 'supervisor', 'captain', 'marketing']
+        const allowedRoles = ['admin', 'supervisor', 'captain', 'marketing', 'superadmin']
         if (status === 'authenticated' && role && allowedRoles.includes(role)) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {
@@ -75,10 +77,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const renderSidebarContent = () => (
         <div className="flex flex-col h-full justify-between text-slate-300">
             {/* Top Identity */}
-            <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+            <div className={`border-b border-slate-800 flex items-center transition-all duration-300 ${
+                isCollapsed ? 'py-5 px-4 justify-center' : 'p-5 justify-between'
+            }`}>
                 <div 
                     onClick={() => isCollapsed && setIsCollapsed(false)}
-                    className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'cursor-pointer hover:opacity-85 transition-opacity' : ''}`}
+                    className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'cursor-pointer hover:opacity-85 transition-opacity justify-center' : ''}`}
                     title={isCollapsed ? "Buka Sidebar" : undefined}
                 >
                     <div className="p-2 bg-purple-600 rounded-xl text-white shadow-md shadow-purple-500/20 shrink-0">
@@ -137,6 +141,38 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         </a>
                     )
                 })}
+
+                {/* Superadmin Station Access */}
+                {role === 'superadmin' && (
+                    <div className="pt-4 mt-4 border-t border-slate-800 space-y-1.5">
+                        {!isCollapsed && (
+                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest px-3 mb-2">Terminal Stasiun</p>
+                        )}
+                        {[
+                            { label: 'Terminal Waiter', path: '/waiter', icon: User },
+                            { label: 'Terminal Barista', path: '/barista', icon: Coffee },
+                            { label: 'Terminal Kitchen', path: '/kitchen', icon: ChefHat }
+                        ].map((station) => {
+                            const Icon = station.icon
+                            return (
+                                <a
+                                    key={station.path}
+                                    href={station.path}
+                                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all group relative"
+                                    title={isCollapsed ? station.label : undefined}
+                                >
+                                    <Icon size={16} className="text-slate-400 group-hover:text-slate-200 transition-colors" />
+                                    {!isCollapsed && <span className="transition-opacity duration-205">{station.label}</span>}
+                                    {isCollapsed && (
+                                        <div className="absolute left-16 bg-slate-900 border border-slate-800 text-white text-[10px] font-bold px-2 py-1.5 rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-205 whitespace-nowrap shadow-md z-50">
+                                            {station.label}
+                                        </div>
+                                    )}
+                                </a>
+                            )
+                        })}
+                    </div>
+                )}
             </nav>
 
             {/* Bottom Profile and Actions */}

@@ -12,7 +12,7 @@ export default function BaristaAnalyticsPage() {
     useEffect(() => {
         if (status === 'loading' || status === 'idle') return
 
-        const allowedRoles = ['admin', 'supervisor', 'head_barista']
+        const allowedRoles = ['admin', 'supervisor', 'head_barista', 'superadmin']
         if (status === 'authenticated' && role && allowedRoles.includes(role)) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {

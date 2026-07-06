@@ -23,11 +23,17 @@ import {
     ClipboardList,
     Star,
     AlertTriangle,
-    PackageOpen
+    PackageOpen,
+    Trash,
+    Plus,
+    Edit3,
+    Check,
+    X
 } from 'lucide-react'
 import ChatWidget from '@/components/chat/ChatWidget'
 
 interface TicketItemWithMenu {
+    id: string
     qty: number
     notes: string | null
     menus: {
@@ -52,6 +58,7 @@ interface DBOrderTicket {
     bar_prep_end: string | null
     kitchen_prep_start: string | null
     kitchen_prep_end: string | null
+    relayed_at: string | null
     profiles: {
         email: string
     } | null
@@ -71,17 +78,50 @@ interface DBCustomerFeedback {
 }
 
 const getWibDateParts = (date: Date) => {
-    const parts = new Intl.DateTimeFormat('en-US', {
+    const formatter = new Intl.DateTimeFormat('en-US', {
         timeZone: 'Asia/Jakarta',
         year: 'numeric',
         month: '2-digit',
-        day: '2-digit'
-    }).formatToParts(date)
+        day: '2-digit',
+        hour: 'numeric',
+        hourCycle: 'h23',
+        weekday: 'short'
+    })
+    const parts = formatter.formatToParts(date)
     const map = new Map(parts.map(p => [p.type, p.value]))
     const year = parseInt(map.get('year')!)
     const month = parseInt(map.get('month')!)
     const day = parseInt(map.get('day')!)
-    return { year, month, day, dateStr: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}` }
+    const hour = parseInt(map.get('hour')!)
+    const weekdayStr = map.get('weekday')!
+    const weekdayMap: Record<string, number> = {
+        'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6
+    }
+    const dayOfWeek = weekdayMap[weekdayStr] ?? date.getDay()
+    return { 
+        year, 
+        month, 
+        day, 
+        hour, 
+        dayOfWeek,
+        dateStr: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}` 
+    }
+}
+
+const formatTicketTime = (isoString?: string | null) => {
+    if (!isoString) return ''
+    try {
+        const d = new Date(isoString)
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Asia/Jakarta',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        })
+        return `${formatter.format(d)} WIB`
+    } catch {
+        return ''
+    }
 }
 
 const isTestTicket = (tableIdentifier: string) => {
@@ -172,7 +212,14 @@ const getDateRangeString = (range: string, customStart?: string, customEnd?: str
 
 export default function AdminAnalyticsPage() {
     const { role, status } = useAuthStore()
-    const { menus: allShopMenus, fetchMenus } = useMenuStore()
+    const { 
+        menus: allShopMenus, 
+        fetchMenus,
+        deleteTicket,
+        updateTicketItemQty,
+        deleteTicketItem,
+        addTicketItem
+    } = useMenuStore()
 
     const [isAuthorized, setIsAuthorized] = useState(false)
     const [tickets, setTickets] = useState<DBOrderTicket[]>([])
@@ -190,6 +237,14 @@ export default function AdminAnalyticsPage() {
     const [filterWaiter, setFilterWaiter] = useState<string>('All')
     const [filterBarista, setFilterBarista] = useState<string>('All')
     const [filterCategoryMenu, setFilterCategoryMenu] = useState<string>('All')
+    const [waiterSortMode, setWaiterSortMode] = useState<'abp' | 'volume'>('abp')
+
+    // Superadmin inline edit/add states
+    const [editingItemId, setEditingItemId] = useState<string | null>(null)
+    const [editingItemQty, setEditingItemQty] = useState<number>(1)
+    const [addingToTicketId, setAddingToTicketId] = useState<string | null>(null)
+    const [newSelectedMenuId, setNewSelectedMenuId] = useState<string>('')
+    const [newSelectedMenuQty, setNewSelectedMenuQty] = useState<number>(1)
 
     // Active submodule tab state
     const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'employees' | 'operations' | 'customers' | 'inventory' | 'reports' | 'kpi'>('overview')
@@ -240,7 +295,7 @@ export default function AdminAnalyticsPage() {
     useEffect(() => {
         if (status === 'loading' || status === 'idle') return
 
-        const allowedRoles = ['admin', 'supervisor', 'marketing']
+        const allowedRoles = ['admin', 'supervisor', 'marketing', 'superadmin']
         if (status === 'authenticated' && role && allowedRoles.includes(role)) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {
@@ -273,7 +328,7 @@ export default function AdminAnalyticsPage() {
             profilesData?.forEach(p => {
                 if (p.id && p.email) {
                     emailMap.set(p.id, p.email)
-                    if (p.role === 'waiter') waiters.push(p)
+                    if (p.role === 'waiter' || p.role === 'captain') waiters.push(p)
                     if (p.role === 'barista' || p.role === 'head_barista') baristas.push(p)
                 }
             })
@@ -296,7 +351,9 @@ export default function AdminAnalyticsPage() {
                     bar_prep_end,
                     kitchen_prep_start,
                     kitchen_prep_end,
+                    relayed_at,
                     ticket_items (
+                        id,
                         qty,
                         notes,
                         menus (
@@ -338,6 +395,30 @@ export default function AdminAnalyticsPage() {
         }
     }
 
+    const handleDeleteTicket = async (ticketId: string) => {
+        setIsLoading(true)
+        await deleteTicket(ticketId)
+        await fetchData()
+    }
+
+    const handleUpdateTicketItemQty = async (itemId: string, newQty: number) => {
+        setIsLoading(true)
+        await updateTicketItemQty(itemId, newQty)
+        await fetchData()
+    }
+
+    const handleDeleteTicketItem = async (itemId: string) => {
+        setIsLoading(true)
+        await deleteTicketItem(itemId)
+        await fetchData()
+    }
+
+    const handleAddTicketItem = async (ticketId: string, menuId: string, qty: number, notes?: string) => {
+        setIsLoading(true)
+        await addTicketItem(ticketId, menuId, qty, notes)
+        await fetchData()
+    }
+
     useEffect(() => {
         if (isAuthorized) {
             fetchData()
@@ -355,9 +436,9 @@ export default function AdminAnalyticsPage() {
             const isWithinDate = ticketDateStr >= startStr && ticketDateStr <= endStr
             if (!isWithinDate) return false
 
-            // Filter Shift
+            // Filter Shift (Menggunakan jam WIB Jakarta agar konsisten)
             if (filterShift !== 'All') {
-                const ticketHour = new Date(t.created_at).getHours()
+                const ticketHour = getWibDateParts(new Date(t.created_at)).hour
                 if (filterShift === 'Shift1' && ticketHour >= 15) return false
                 if (filterShift === 'Shift2' && ticketHour < 15) return false
             }
@@ -453,8 +534,8 @@ export default function AdminAnalyticsPage() {
             dailyTrends[dateStr].pax += pax
             dailyTrends[dateStr].count += 1
 
-            dayCounts[ticketDate.getDay()] += 1
-            hourCounts[ticketDate.getHours()] += 1
+            dayCounts[ticketWib.dayOfWeek] += 1
+            hourCounts[ticketWib.hour] += 1
 
             const waiterEmail = ticket.profiles?.email || 'Walk-In / Guest'
             const waiterId = ticket.waiter_id || 'anonymous'
@@ -636,6 +717,17 @@ export default function AdminAnalyticsPage() {
             topSellingMenuName
         }
     }, [filteredTickets, allShopMenus])
+
+    // Sort waiter leaderboard based on selected mode
+    const sortedWaiterLeaderboard = useMemo(() => {
+        if (!analytics?.waiterLeaderboard) return []
+        const list = [...analytics.waiterLeaderboard]
+        if (waiterSortMode === 'abp') {
+            return list.sort((a, b) => b.avgBill - a.avgBill)
+        } else {
+            return list.sort((a, b) => b.pax - a.pax || b.orders - a.orders)
+        }
+    }, [analytics?.waiterLeaderboard, waiterSortMode])
 
     // KPI customer feedback calculated dynamically
     const feedbackMetrics = useMemo(() => {
@@ -1405,25 +1497,46 @@ export default function AdminAnalyticsPage() {
                         {/* 3. EMPLOYEES TAB */}
                         {activeTab === 'employees' && (
                             <div className="flex flex-col gap-6 animate-in fade-in duration-200">
-                                {/* Waiter Leaderboard - Sorted by Average Bill Price Contribution */}
+                                {/* Waiter Leaderboard - Sorted by Average Bill Price or Volume */}
                                 <section className="bg-[#1e2020] border border-[#282a2b] rounded-3xl p-5 shadow-lg flex flex-col gap-4">
-                                    <div className="flex justify-between items-center border-b border-[#333535] pb-4">
+                                    <div className="flex flex-wrap justify-between items-center gap-3 border-b border-[#333535] pb-4">
                                         <h3 className="flex items-center text-xs font-extrabold text-white uppercase tracking-wider gap-1.5">
-                                            <Award size={16} className="text-white" />
-                                            KONTRIBUSI PRAMUSAJI (AVERAGE BILL PRICE)
+                                            <Award size={16} className="text-[#ffb692]" />
+                                            KONTRIBUSI PRAMUSAJI & KAPTEN
                                         </h3>
-                                        <span className="text-[8.5px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded border border-purple-500/20 font-bold uppercase tracking-wider">
-                                            Sort: Rata-Rata Terbesar
-                                        </span>
+                                        
+                                        {/* Toggle View Mode */}
+                                        <div className="flex bg-[#121414] p-0.5 rounded-xl border border-[#333535] text-[10px]">
+                                            <button
+                                                onClick={() => setWaiterSortMode('abp')}
+                                                className={`px-3 py-1.5 rounded-lg font-black uppercase tracking-wider transition-all duration-200 ${
+                                                    waiterSortMode === 'abp'
+                                                        ? 'bg-purple-600 text-white shadow-sm'
+                                                        : 'text-slate-400 hover:text-white'
+                                                }`}
+                                            >
+                                                Rata-rata Nota (ABP)
+                                            </button>
+                                            <button
+                                                onClick={() => setWaiterSortMode('volume')}
+                                                className={`px-3 py-1.5 rounded-lg font-black uppercase tracking-wider transition-all duration-200 ${
+                                                    waiterSortMode === 'volume'
+                                                        ? 'bg-purple-600 text-white shadow-sm'
+                                                        : 'text-slate-400 hover:text-white'
+                                                }`}
+                                            >
+                                                Volume (Pax & Tiket)
+                                            </button>
+                                        </div>
                                     </div>
 
-                                    {analytics.waiterLeaderboard.length === 0 ? (
+                                    {sortedWaiterLeaderboard.length === 0 ? (
                                         <div className="py-8 text-center text-[#c4c7c8] text-xs font-medium">
                                             Belum ada aktivitas pelayanan tercatat.
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                                            {analytics.waiterLeaderboard.map((waiter, index) => (
+                                            {sortedWaiterLeaderboard.map((waiter, index) => (
                                                 <div key={waiter.email} className="flex justify-between items-center bg-[#282a2b]/35 hover:bg-[#282a2b]/60 p-4 rounded-2xl border border-transparent hover:border-[#333535] transition-all hover:-translate-y-0.5 shadow-sm">
                                                     <div className="flex items-center gap-3">
                                                         <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black leading-none ${index === 0 ? 'bg-[#ffb692] text-[#341100] shadow-[0_0_12px_rgba(255,182,146,0.3)]' :
@@ -1434,12 +1547,26 @@ export default function AdminAnalyticsPage() {
                                                         </span>
                                                         <div className="flex flex-col">
                                                             <span className="font-bold text-[#e2e2e2] text-xs lowercase leading-none">{waiter.email}</span>
-                                                            <span className="text-[9px] text-[#c4c7c8] mt-1.5">{waiter.orders} Tiket / {waiter.pax} Pax</span>
+                                                            <span className="text-[9px] text-[#c4c7c8] mt-1.5">
+                                                                {waiterSortMode === 'abp' 
+                                                                    ? `${waiter.orders} Tiket / ${waiter.pax} Pax` 
+                                                                    : `${waiter.orders} Tiket / Avg Bill: Rp ${waiter.avgBill.toLocaleString('id-ID')}`
+                                                                }
+                                                            </span>
                                                         </div>
                                                     </div>
                                                     <div className="text-right leading-none">
-                                                        <span className="text-xs font-black text-purple-400">Rp {waiter.avgBill.toLocaleString('id-ID')}</span>
-                                                        <span className="block text-[8px] text-[#c4c7c8] mt-1.5 uppercase tracking-wider">Avg Bill</span>
+                                                        {waiterSortMode === 'abp' ? (
+                                                            <>
+                                                                <span className="text-xs font-black text-purple-400">Rp {waiter.avgBill.toLocaleString('id-ID')}</span>
+                                                                <span className="block text-[8px] text-[#c4c7c8] mt-1.5 uppercase tracking-wider">Avg Bill</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <span className="text-xs font-black text-[#ffb692]">{waiter.pax} Pax</span>
+                                                                <span className="block text-[8px] text-[#c4c7c8] mt-1.5 uppercase tracking-wider">Total Pelanggan</span>
+                                                            </>
+                                                        )}
                                                     </div>
                                                 </div>
                                             ))}
@@ -1599,6 +1726,311 @@ export default function AdminAnalyticsPage() {
                                         </div>
                                     </div>
                                 </section>
+
+                                {/* 7. RIWAYAT TIKET SECTION */}
+                                <section className="bg-[#1e2020] border border-[#282a2b] rounded-3xl p-5 shadow-lg flex flex-col gap-5 w-full">
+                                    <div className="flex justify-between items-center border-b border-[#333535] pb-4">
+                                        <h3 className="flex items-center text-xs font-extrabold text-white uppercase tracking-wider gap-1.5">
+                                            <ClipboardList size={16} className="text-purple-400" />
+                                            Riwayat Slip Tiket Pesanan ({sortedAndFilteredHistoryTickets.length})
+                                        </h3>
+                                        <span className="text-[9px] font-mono text-[#c4c7c8] uppercase tracking-wider">
+                                            Memuat tiket yang disaring
+                                        </span>
+                                    </div>
+
+                                    {/* Search & Sort */}
+                                    <div className="flex flex-col sm:flex-row gap-3 bg-[#121414]/40 p-4 rounded-2xl border border-[#282a2b]">
+                                        <div className="relative flex-1">
+                                            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#c4c7c8]">
+                                                <Search size={12} />
+                                            </span>
+                                            <input
+                                                type="text"
+                                                placeholder="Cari ID tiket, pramusaji, meja, atau nama menu..."
+                                                value={historySearch}
+                                                onChange={(e) => setHistorySearch(e.target.value)}
+                                                className="w-full bg-[#282a2b] text-white text-xs font-bold pl-8 pr-4 py-2.5 rounded-xl border border-[#333535] outline-none focus:border-purple-400 transition-all placeholder:text-slate-600"
+                                            />
+                                        </div>
+                                        <div className="relative min-w-[150px]">
+                                            <select
+                                                value={historySort}
+                                                onChange={(e) => setHistorySort(e.target.value)}
+                                                className="w-full bg-[#282a2b] text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-[#333535] outline-none focus:border-purple-400 transition-all cursor-pointer"
+                                            >
+                                                <option value="date_desc">Waktu: Terbaru</option>
+                                                <option value="date_asc">Waktu: Terlama</option>
+                                                <option value="price_desc">Nilai: Terbesar</option>
+                                                <option value="price_asc">Nilai: Terkecil</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Tickets Render list */}
+                                    {displayedHistoryTickets.length === 0 ? (
+                                        <div className="py-8 text-center text-[#c4c7c8] text-xs font-medium bg-[#121414]/20 border border-[#333535]/30 rounded-xl">
+                                            Tidak ada tiket riwayat yang cocok dengan penyaringan aktif.
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3.5">
+                                            {displayedHistoryTickets.map(ticket => {
+                                                const ticketTotal = ticket.ticket_items?.reduce((sum, item) => sum + (getTicketItemPriceLocal(item) * item.qty), 0) || 0;
+                                                const isExpanded = !!expandedTickets[ticket.id];
+                                                const isStaff = ticket.table_identifier.toLowerCase().startsWith('karyawan:');
+
+                                                return (
+                                                    <div
+                                                        key={ticket.id}
+                                                        className={`rounded-2xl border transition-all overflow-hidden ${isStaff
+                                                                ? 'bg-purple-950/5 border-purple-500/25 hover:border-purple-500/40'
+                                                                : 'bg-[#121414]/30 border-[#333535] hover:border-[#444]'
+                                                            }`}
+                                                    >
+                                                        {/* Header Bar */}
+                                                        <div
+                                                            onClick={() => toggleTicketExpand(ticket.id)}
+                                                            className="flex flex-wrap sm:flex-nowrap justify-between items-center p-4 cursor-pointer select-none gap-2 text-xs font-medium hover:bg-[#282a2b]/20 transition-colors"
+                                                        >
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border ${isStaff
+                                                                        ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                                                                        : 'bg-[#282a2b] text-[#c4c7c8] border-[#333535]'
+                                                                    }`}>
+                                                                    {isStaff ? '🧑‍💼' : '🛒'}
+                                                                </div>
+                                                                <div>
+                                                                    <div className="flex flex-wrap items-center gap-1.5">
+                                                                        <span className="text-white font-bold leading-none">{ticket.table_identifier}</span>
+                                                                        <span className={`text-[8.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded leading-none ${ticket.status === 'relayed'
+                                                                                ? 'bg-emerald-600/15 text-emerald-400 border border-emerald-500/20'
+                                                                                : 'bg-amber-600/15 text-amber-400 border border-amber-500/20'
+                                                                            }`}>
+                                                                            {ticket.status === 'relayed' ? 'Relayed (POS)' : 'Draft'}
+                                                                        </span>
+                                                                        <span className="text-[9px] text-slate-400 font-mono font-medium leading-none">
+                                                                            {ticket.status === 'relayed'
+                                                                                ? `Relay: ${formatTicketTime(ticket.relayed_at || ticket.created_at)}`
+                                                                                : `Draft: ${formatTicketTime(ticket.created_at)}`
+                                                                            }
+                                                                        </span>
+                                                                    </div>
+                                                                    <p className="text-[10px] text-slate-500 mt-1 lowercase leading-none">waiter: {ticket.profiles?.email?.split('@')[0] || 'walk-in'}</p>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="text-right flex items-center gap-4">
+                                                                 {role === 'superadmin' && (
+                                                                     <button
+                                                                         onClick={(e) => {
+                                                                             e.stopPropagation()
+                                                                             if (confirm(`Apakah Anda yakin ingin menghapus tiket "${ticket.table_identifier}" secara permanen dari riwayat?`)) {
+                                                                                 handleDeleteTicket(ticket.id)
+                                                                             }
+                                                                         }}
+                                                                         className="p-1.5 bg-red-500/10 hover:bg-red-500/25 border border-red-500/15 hover:border-red-500/30 rounded-xl text-red-400 active:scale-95 transition-all"
+                                                                         title="Hapus Tiket"
+                                                                     >
+                                                                         <Trash size={14} />
+                                                                     </button>
+                                                                 )}
+                                                                <div>
+                                                                    <span className="block text-white font-mono font-bold">Rp {ticketTotal.toLocaleString('id-ID')}</span>
+                                                                    <span className="block text-[8.5px] text-[#c4c7c8] mt-1 uppercase tracking-wider">{ticket.customer_count || 1} Pax</span>
+                                                                </div>
+                                                                {isExpanded ? <ChevronUp size={14} className="text-slate-400" /> : <ChevronDown size={14} className="text-slate-400" />}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Expanded Items */}
+                                                        {isExpanded && (
+                                                            <div className="border-t border-[#333535]/35 p-4 bg-[#121414]/50 text-[11px] space-y-3 animate-in slide-in-from-top-1.5 duration-200">
+                                                                <div className="text-[9px] font-black uppercase text-[#c4c7c8] tracking-widest leading-none mb-1">Rincian Item Pesanan:</div>
+                                                                <div className="space-y-1.5 border-l-2 border-slate-750 pl-3">
+                                                                    {ticket.ticket_items?.map((item, idx) => (
+                                                                        <div key={idx} className="flex justify-between items-center text-[#c4c7c8] py-0.5">
+                                                                            <div className="flex flex-col">
+                                                                                <span className="text-white font-bold">{item.menus?.name || 'Item Terhapus'}</span>
+                                                                                {item.notes && <span className="text-[9.5px] text-slate-500 mt-0.5">{item.notes}</span>}
+                                                                            </div>
+                                                                            <div className="flex items-center gap-6 font-mono text-xs">
+                                                                                {editingItemId === item.id ? (
+                                                                                    <div className="flex items-center gap-1.5 bg-[#121414]/80 p-1.5 rounded-lg border border-[#333535]">
+                                                                                        <input
+                                                                                            type="number"
+                                                                                            min="1"
+                                                                                            value={editingItemQty}
+                                                                                            onChange={(e) => setEditingItemQty(Math.max(1, parseInt(e.target.value) || 1))}
+                                                                                            className="w-12 bg-[#282a2b] text-white text-center font-mono font-bold text-xs py-0.5 rounded border border-[#333535] outline-none focus:border-purple-400"
+                                                                                        />
+                                                                                        <button
+                                                                                            onClick={() => {
+                                                                                                handleUpdateTicketItemQty(item.id, editingItemQty)
+                                                                                                setEditingItemId(null)
+                                                                                            }}
+                                                                                            className="p-1 bg-emerald-600/10 hover:bg-emerald-600/25 border border-emerald-500/20 rounded text-emerald-400 transition-all"
+                                                                                            title="Simpan"
+                                                                                        >
+                                                                                            <Check size={10} />
+                                                                                        </button>
+                                                                                        <button
+                                                                                            onClick={() => setEditingItemId(null)}
+                                                                                            className="p-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-400 transition-all"
+                                                                                            title="Batal"
+                                                                                        >
+                                                                                            <X size={10} />
+                                                                                        </button>
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <div className="flex items-center gap-3">
+                                                                                        <span className="text-slate-400">{item.qty}x</span>
+                                                                                        {role === 'superadmin' && (
+                                                                                            <div className="flex items-center gap-1 opacity-20 hover:opacity-100 transition-opacity">
+                                                                                                <button
+                                                                                                    onClick={() => {
+                                                                                                        setEditingItemId(item.id)
+                                                                                                        setEditingItemQty(item.qty)
+                                                                                                    }}
+                                                                                                    className="p-1 bg-[#282a2b] hover:bg-[#333535] border border-[#333535] rounded text-slate-300 hover:text-white transition-all"
+                                                                                                    title="Ubah Qty"
+                                                                                                >
+                                                                                                    <Edit3 size={8} />
+                                                                                                </button>
+                                                                                                <button
+                                                                                                    onClick={() => {
+                                                                                                        if (confirm(`Apakah Anda yakin ingin menghapus item "${item.menus?.name || 'terhapus'}" dari tiket?`)) {
+                                                                                                            handleDeleteTicketItem(item.id)
+                                                                                                        }
+                                                                                                    }}
+                                                                                                    className="p-1 bg-red-500/10 hover:bg-red-500/25 border border-red-500/20 rounded text-red-400 transition-all"
+                                                                                                    title="Hapus Item"
+                                                                                                >
+                                                                                                    <X size={8} />
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
+                                                                                )}
+                                                                                <span className="text-white font-bold w-20 text-right">Rp {(getTicketItemPriceLocal(item) * item.qty).toLocaleString('id-ID')}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+
+                                                                {role === 'superadmin' && (
+                                                                    <div className="pt-2 border-t border-[#333535]/25">
+                                                                        {addingToTicketId === ticket.id ? (
+                                                                            <div className="flex flex-wrap items-center gap-2 bg-[#121414]/50 p-2.5 rounded-xl border border-[#333535]">
+                                                                                <select
+                                                                                    value={newSelectedMenuId}
+                                                                                    onChange={(e) => setNewSelectedMenuId(e.target.value)}
+                                                                                    className="flex-1 bg-[#282a2b] text-white text-xs font-bold px-2.5 py-1.5 rounded-lg border border-[#333535] outline-none cursor-pointer focus:border-purple-400 min-w-[150px]"
+                                                                                >
+                                                                                    <option value="">-- Pilih Menu --</option>
+                                                                                    {allShopMenus.map(m => (
+                                                                                        <option key={m.id} value={m.id}>{m.name} (Rp {m.price.toLocaleString('id-ID')})</option>
+                                                                                    ))}
+                                                                                </select>
+                                                                                <div className="flex items-center gap-1">
+                                                                                    <span className="text-[10px] text-slate-400">Qty:</span>
+                                                                                    <input
+                                                                                        type="number"
+                                                                                        min="1"
+                                                                                        value={newSelectedMenuQty}
+                                                                                        onChange={(e) => setNewSelectedMenuQty(Math.max(1, parseInt(e.target.value) || 1))}
+                                                                                        className="w-12 bg-[#282a2b] text-white text-center font-mono font-bold text-xs py-1 rounded border border-[#333535] outline-none focus:border-purple-400"
+                                                                                    />
+                                                                                </div>
+                                                                                <button
+                                                                                    onClick={() => {
+                                                                                        if (!newSelectedMenuId) {
+                                                                                            alert('Silakan pilih menu terlebih dahulu!')
+                                                                                            return
+                                                                                        }
+                                                                                        handleAddTicketItem(ticket.id, newSelectedMenuId, newSelectedMenuQty)
+                                                                                        setAddingToTicketId(null)
+                                                                                        setNewSelectedMenuId('')
+                                                                                        setNewSelectedMenuQty(1)
+                                                                                    }}
+                                                                                    className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 rounded-lg text-white font-bold text-xs active:scale-95 transition-all"
+                                                                                >
+                                                                                    Tambah
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={() => {
+                                                                                        setAddingToTicketId(null)
+                                                                                        setNewSelectedMenuId('')
+                                                                                        setNewSelectedMenuQty(1)
+                                                                                    }}
+                                                                                    className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 text-xs transition-all"
+                                                                                >
+                                                                                    Batal
+                                                                                </button>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    setAddingToTicketId(ticket.id)
+                                                                                    setNewSelectedMenuId('')
+                                                                                    setNewSelectedMenuQty(1)
+                                                                                }}
+                                                                                className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-purple-400 hover:text-purple-300 transition-colors py-1 px-2.5 bg-purple-500/5 hover:bg-purple-500/10 rounded-lg border border-purple-500/15"
+                                                                            >
+                                                                                <Plus size={10} /> Tambah Item Menu
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                )}
+
+                                                                {/* SLA Stasiun Detail */}
+                                                                <div className="border-t border-dashed border-[#333535] pt-3 grid grid-cols-2 gap-4 text-[9.5px] font-bold text-slate-500">
+                                                                    <div>
+                                                                        <span className="block uppercase text-[8px] tracking-wider text-slate-400">STATUS PREPARASI BAR</span>
+                                                                        <span className={`block mt-1 font-black uppercase ${ticket.bar_status === 'ready' ? 'text-emerald-500' :
+                                                                                ticket.bar_status === 'preparing' ? 'text-amber-500' : 'text-slate-400'
+                                                                            }`}>
+                                                                            {ticket.bar_status || 'none'}
+                                                                        </span>
+                                                                        {ticket.bar_prep_start && ticket.bar_prep_end && (
+                                                                            <span className="block text-slate-400 mt-0.5 font-mono">
+                                                                                Durasi: {((new Date(ticket.bar_prep_end).getTime() - new Date(ticket.bar_prep_start).getTime()) / (1000 * 60)).toFixed(1)} menit
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                    <div>
+                                                                        <span className="block uppercase text-[8px] tracking-wider text-slate-400">STATUS PREPARASI DAPUR</span>
+                                                                        <span className={`block mt-1 font-black uppercase ${ticket.kitchen_status === 'ready' ? 'text-emerald-500' :
+                                                                                ticket.kitchen_status === 'preparing' ? 'text-amber-500' : 'text-slate-400'
+                                                                            }`}>
+                                                                            {ticket.kitchen_status || 'none'}
+                                                                        </span>
+                                                                        {ticket.kitchen_prep_start && ticket.kitchen_prep_end && (
+                                                                            <span className="block text-slate-400 mt-0.5 font-mono">
+                                                                                Durasi: {((new Date(ticket.kitchen_prep_end).getTime() - new Date(ticket.kitchen_prep_start).getTime()) / (1000 * 60)).toFixed(1)} menit
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    )}
+
+                                    {/* Load More Button for Ticket History */}
+                                    {visibleTicketsCount < sortedAndFilteredHistoryTickets.length && (
+                                        <div className="flex justify-center pt-2.5 border-t border-[#333535]/35">
+                                            <button
+                                                onClick={() => setVisibleTicketsCount(prev => prev + 5)}
+                                                className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-purple-400 hover:text-purple-300 transition-colors py-2 px-4 bg-purple-500/5 hover:bg-purple-500/10 rounded-xl border border-purple-500/15 shadow-sm active:scale-95 transition-all"
+                                            >
+                                                Muat Lebih Banyak ({sortedAndFilteredHistoryTickets.length - visibleTicketsCount} Tiket Tersisa) <ChevronDown size={14} />
+                                            </button>
+                                        </div>
+                                    )}
+                                </section>
                             </div>
                         )}
 
@@ -1735,169 +2167,6 @@ export default function AdminAnalyticsPage() {
                             </div>
                         )}
 
-                        {/* 7. RIWAYAT TIKET SECTION (Always Rendered at Bottom of Tabs) */}
-                        <section className="bg-[#1e2020] border border-[#282a2b] rounded-3xl p-5 shadow-lg flex flex-col gap-5 w-full">
-                            <div className="flex justify-between items-center border-b border-[#333535] pb-4">
-                                <h3 className="flex items-center text-xs font-extrabold text-white uppercase tracking-wider gap-1.5">
-                                    <ClipboardList size={16} className="text-purple-400" />
-                                    Riwayat Slip Tiket Pesanan ({sortedAndFilteredHistoryTickets.length})
-                                </h3>
-                                <span className="text-[9px] font-mono text-[#c4c7c8] uppercase tracking-wider">
-                                    Memuat tiket yang disaring
-                                </span>
-                            </div>
-
-                            {/* Search & Sort */}
-                            <div className="flex flex-col sm:flex-row gap-3 bg-[#121414]/40 p-4 rounded-2xl border border-[#282a2b]">
-                                <div className="relative flex-1">
-                                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#c4c7c8]">
-                                        <Search size={12} />
-                                    </span>
-                                    <input
-                                        type="text"
-                                        placeholder="Cari ID tiket, pramusaji, meja, atau nama menu..."
-                                        value={historySearch}
-                                        onChange={(e) => setHistorySearch(e.target.value)}
-                                        className="w-full bg-[#282a2b] text-white text-xs font-bold pl-8 pr-4 py-2.5 rounded-xl border border-[#333535] outline-none focus:border-purple-400 transition-all placeholder:text-slate-600"
-                                    />
-                                </div>
-                                <div className="relative min-w-[150px]">
-                                    <select
-                                        value={historySort}
-                                        onChange={(e) => setHistorySort(e.target.value)}
-                                        className="w-full bg-[#282a2b] text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-[#333535] outline-none focus:border-purple-400 transition-all cursor-pointer"
-                                    >
-                                        <option value="date_desc">Waktu: Terbaru</option>
-                                        <option value="date_asc">Waktu: Terlama</option>
-                                        <option value="price_desc">Nilai: Terbesar</option>
-                                        <option value="price_asc">Nilai: Terkecil</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Tickets Render list */}
-                            {displayedHistoryTickets.length === 0 ? (
-                                <div className="py-8 text-center text-[#c4c7c8] text-xs font-medium bg-[#121414]/20 border border-[#333535]/30 rounded-xl">
-                                    Tidak ada tiket riwayat yang cocok dengan penyaringan aktif.
-                                </div>
-                            ) : (
-                                <div className="space-y-3.5">
-                                    {displayedHistoryTickets.map(ticket => {
-                                        const ticketTotal = ticket.ticket_items?.reduce((sum, item) => sum + (getTicketItemPriceLocal(item) * item.qty), 0) || 0;
-                                        const isExpanded = !!expandedTickets[ticket.id];
-                                        const isStaff = ticket.table_identifier.toLowerCase().startsWith('karyawan:');
-
-                                        return (
-                                            <div
-                                                key={ticket.id}
-                                                className={`rounded-2xl border transition-all overflow-hidden ${isStaff
-                                                        ? 'bg-purple-950/5 border-purple-500/25 hover:border-purple-500/40'
-                                                        : 'bg-[#121414]/30 border-[#333535] hover:border-[#444]'
-                                                    }`}
-                                            >
-                                                {/* Header Bar */}
-                                                <div
-                                                    onClick={() => toggleTicketExpand(ticket.id)}
-                                                    className="flex flex-wrap sm:flex-nowrap justify-between items-center p-4 cursor-pointer select-none gap-2 text-xs font-medium hover:bg-[#282a2b]/20 transition-colors"
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border ${isStaff
-                                                                ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
-                                                                : 'bg-[#282a2b] text-[#c4c7c8] border-[#333535]'
-                                                            }`}>
-                                                            {isStaff ? '🧑‍💼' : '🛒'}
-                                                        </div>
-                                                        <div>
-                                                            <div className="flex items-center gap-1.5">
-                                                                <span className="text-white font-bold leading-none">{ticket.table_identifier}</span>
-                                                                <span className={`text-[8.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded leading-none ${ticket.status === 'relayed'
-                                                                        ? 'bg-emerald-600/15 text-emerald-400 border border-emerald-500/20'
-                                                                        : 'bg-amber-600/15 text-amber-400 border border-amber-500/20'
-                                                                    }`}>
-                                                                    {ticket.status === 'relayed' ? 'Relayed (POS)' : 'Draft'}
-                                                                </span>
-                                                            </div>
-                                                            <p className="text-[10px] text-slate-500 mt-1 lowercase leading-none">waiter: {ticket.profiles?.email?.split('@')[0] || 'walk-in'}</p>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="text-right flex items-center gap-4">
-                                                        <div>
-                                                            <span className="block text-white font-mono font-bold">Rp {ticketTotal.toLocaleString('id-ID')}</span>
-                                                            <span className="block text-[8.5px] text-[#c4c7c8] mt-1 uppercase tracking-wider">{ticket.customer_count || 1} Pax</span>
-                                                        </div>
-                                                        {isExpanded ? <ChevronUp size={14} className="text-slate-400" /> : <ChevronDown size={14} className="text-slate-400" />}
-                                                    </div>
-                                                </div>
-
-                                                {/* Expanded Items */}
-                                                {isExpanded && (
-                                                    <div className="border-t border-[#333535]/35 p-4 bg-[#121414]/50 text-[11px] space-y-3 animate-in slide-in-from-top-1.5 duration-200">
-                                                        <div className="text-[9px] font-black uppercase text-[#c4c7c8] tracking-widest leading-none mb-1">Rincian Item Pesanan:</div>
-                                                        <div className="space-y-1.5 border-l-2 border-slate-750 pl-3">
-                                                            {ticket.ticket_items?.map((item, idx) => (
-                                                                <div key={idx} className="flex justify-between items-center text-[#c4c7c8]">
-                                                                    <div className="flex flex-col">
-                                                                        <span className="text-white font-bold">{item.menus?.name || 'Item Terhapus'}</span>
-                                                                        {item.notes && <span className="text-[9.5px] text-slate-500 mt-0.5">{item.notes}</span>}
-                                                                    </div>
-                                                                    <div className="flex gap-8 font-mono text-xs">
-                                                                        <span>{item.qty}x</span>
-                                                                        <span className="text-white font-bold w-20 text-right">Rp {(getTicketItemPriceLocal(item) * item.qty).toLocaleString('id-ID')}</span>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-
-                                                        {/* SLA Stasiun Detail */}
-                                                        <div className="border-t border-dashed border-[#333535] pt-3 grid grid-cols-2 gap-4 text-[9.5px] font-bold text-slate-500">
-                                                            <div>
-                                                                <span className="block uppercase text-[8px] tracking-wider text-slate-400">STATUS PREPARASI BAR</span>
-                                                                <span className={`block mt-1 font-black uppercase ${ticket.bar_status === 'ready' ? 'text-emerald-500' :
-                                                                        ticket.bar_status === 'preparing' ? 'text-amber-500' : 'text-slate-400'
-                                                                    }`}>
-                                                                    {ticket.bar_status || 'none'}
-                                                                </span>
-                                                                {ticket.bar_prep_start && ticket.bar_prep_end && (
-                                                                    <span className="block text-slate-400 mt-0.5 font-mono">
-                                                                        Durasi: {((new Date(ticket.bar_prep_end).getTime() - new Date(ticket.bar_prep_start).getTime()) / (1000 * 60)).toFixed(1)} menit
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            <div>
-                                                                <span className="block uppercase text-[8px] tracking-wider text-slate-400">STATUS PREPARASI DAPUR</span>
-                                                                <span className={`block mt-1 font-black uppercase ${ticket.kitchen_status === 'ready' ? 'text-emerald-500' :
-                                                                        ticket.kitchen_status === 'preparing' ? 'text-amber-500' : 'text-slate-400'
-                                                                    }`}>
-                                                                    {ticket.kitchen_status || 'none'}
-                                                                </span>
-                                                                {ticket.kitchen_prep_start && ticket.kitchen_prep_end && (
-                                                                    <span className="block text-slate-400 mt-0.5 font-mono">
-                                                                        Durasi: {((new Date(ticket.kitchen_prep_end).getTime() - new Date(ticket.kitchen_prep_start).getTime()) / (1000 * 60)).toFixed(1)} menit
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            )}
-
-                            {/* Load More Button for Ticket History */}
-                            {visibleTicketsCount < sortedAndFilteredHistoryTickets.length && (
-                                <div className="flex justify-center pt-2.5 border-t border-[#333535]/35">
-                                    <button
-                                        onClick={() => setVisibleTicketsCount(prev => prev + 5)}
-                                        className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-purple-400 hover:text-purple-300 transition-colors py-2 px-4 bg-purple-500/5 hover:bg-purple-500/10 rounded-xl border border-purple-500/15 shadow-sm active:scale-95 transition-all"
-                                    >
-                                        Muat Lebih Banyak ({sortedAndFilteredHistoryTickets.length - visibleTicketsCount} Tiket Tersisa) <ChevronDown size={14} />
-                                    </button>
-                                </div>
-                            )}
-                        </section>
                     </>
                 )}
             </div>

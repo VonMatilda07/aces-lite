@@ -78,7 +78,7 @@ export default function KitchenPage() {
     useEffect(() => {
         if (status === 'loading' || status === 'idle') return
 
-        const allowedRoles = ['admin', 'supervisor', 'captain', 'cook', 'head_kitchen', 'kitchen']
+        const allowedRoles = ['admin', 'supervisor', 'captain', 'cook', 'head_kitchen', 'kitchen', 'superadmin']
         if (status === 'authenticated' && role && allowedRoles.includes(role)) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {

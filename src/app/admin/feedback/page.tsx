@@ -35,7 +35,7 @@ export default function AdminFeedbackPage() {
     useEffect(() => {
         if (status === 'loading' || status === 'idle') return
 
-        if (status === 'authenticated' && (role === 'admin' || role === 'supervisor' || role === 'marketing')) {
+        if (status === 'authenticated' && (role === 'admin' || role === 'supervisor' || role === 'marketing' || role === 'superadmin')) {
             setIsAuthorized(true)
         } else if (status === 'authenticated') {
             window.location.href = role === 'captain' ? '/admin' : '/waiter'
